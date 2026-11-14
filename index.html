@@ -1,2367 +1,353 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-motion="on">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Aripple_star</title>
-<meta name="description" content="Aripple_star —— 生电玩家、刘慈欣书迷、代码折腾者。在人生这场长梦里有所成就，而不是在游戏的短梦里。">
-<meta name="theme-color" content="#05060a">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='7' y='7' width='18' height='18' rx='2' fill='%23a9c8ff'/%3E%3Crect x='3' y='3' width='18' height='18' rx='2' fill='none' stroke='%23a9c8ff' stroke-opacity='.45'/%3E%3C/svg%3E">
-
-<style>
-  :root {
-    --bg:        #05060a;
-    --bg-soft:   rgba(10, 13, 22, 0.55);
-    --ink:       #e8eaf2;
-    --ink-dim:   #8b90a6;
-    --ink-faint: #565b70;
-    --star:      #a9c8ff;
-    --gold:      #d9bb84;
-    --teal:      #5fd0d8;
-    --violet:    #a98cf0;
-    --line:      rgba(160, 180, 230, 0.12);
-    --line-lit:  rgba(160, 190, 255, 0.34);
-    --ease:      cubic-bezier(0.16, 1, 0.3, 1);
-
-    /* 毛玻璃 */
-    --glass-top:   rgba(196, 216, 255, 0.075);
-    --glass-bot:   rgba(120, 152, 222, 0.028);
-    --glass-line:  rgba(162, 192, 255, 0.18);
-    --glass-line-lit: rgba(184, 212, 255, 0.36);
-    --glass-blur:  blur(16px) saturate(1.45);
-    --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    --glass-lift:  0 14px 36px -24px rgba(0, 0, 0, 0.85);
-    --serif: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong",
-             "Noto Serif SC", Georgia, "Times New Roman", serif;
-    --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC",
-            "Source Han Sans SC", "Microsoft YaHei", system-ui, sans-serif;
-  }
-
-  * { box-sizing: border-box; }
-
-  html {
-    -webkit-text-size-adjust: 100%;
-    scroll-behavior: smooth;
-  }
-
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--sans);
-    font-size: 16px;
-    line-height: 1.75;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  ::selection { background: rgba(140, 180, 255, 0.26); color: #fff; }
-
-  a { color: inherit; }
-
-  /* ═══ 全局装饰／滚动条 ═══════════════════════════ */
-  html {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(120, 155, 230, 0.42) transparent;
-  }
-  ::-webkit-scrollbar { width: 9px; height: 9px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb {
-    border: 3px solid transparent;
-    border-radius: 99px;
-    background: linear-gradient(180deg, rgba(169, 200, 255, 0.38), rgba(95, 208, 216, 0.26));
-    background-clip: content-box;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, rgba(169, 200, 255, 0.62), rgba(95, 208, 216, 0.46));
-    background-clip: content-box;
-  }
-
-  /* ═══ 全局装饰／网格线 ═══════════════════════════ */
-  .grid-lines {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(rgba(160, 190, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(160, 190, 255, 0.05) 1px, transparent 1px);
-    background-size: 76px 76px;
-    -webkit-mask-image: radial-gradient(ellipse 78% 62% at 50% 42%, #000 12%, transparent 78%);
-    mask-image: radial-gradient(ellipse 78% 62% at 50% 42%, #000 12%, transparent 78%);
-  }
-
-  /* ═══ 全局装饰／取景角标 ═════════════════════════ */
-  .corners i {
-    position: fixed;
-    width: 13px;
-    height: 13px;
-    z-index: 19;
-    opacity: 0.55;
-    pointer-events: none;
-  }
-  .corners i:nth-child(1) {
-    top: 13px; left: 13px;
-    border-top: 1px solid var(--line-lit); border-left: 1px solid var(--line-lit);
-  }
-  .corners i:nth-child(2) {
-    top: 13px; right: 13px;
-    border-top: 1px solid var(--line-lit); border-right: 1px solid var(--line-lit);
-  }
-  .corners i:nth-child(3) {
-    bottom: 13px; left: 13px;
-    border-bottom: 1px solid var(--line-lit); border-left: 1px solid var(--line-lit);
-  }
-  .corners i:nth-child(4) {
-    bottom: 13px; right: 13px;
-    border-bottom: 1px solid var(--line-lit); border-right: 1px solid var(--line-lit);
-  }
-
-  /* ═══ 开场遮罩 ══════════════════════════════════ */
-  .curtain {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    display: grid;
-    place-items: center;
-    background: var(--bg);
-    pointer-events: none;
-    /* 纯 CSS 自动收场：就算 JS 完全没跑，也不会挡住页面 */
-    animation: curtain-out 0.85s var(--ease) 0.8s forwards;
-  }
-  .curtain::before {
-    content: '';
-    width: min(240px, 46vw);
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(169, 200, 255, 0.85), transparent);
-    transform: scaleX(0);
-    animation: curtain-line 0.72s var(--ease) 0.08s forwards;
-  }
-  @keyframes curtain-line { to { transform: scaleX(1); } }
-  @keyframes curtain-out {
-    to { opacity: 0; visibility: hidden; }
-  }
-
-  /* ═══ 背景 1／星野 ══════════════════════════════ */
-  #stars {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  /* ═══ 背景 2／缓慢漂移的星云光斑 ═════════════════ */
-  .nebula {
-    position: fixed;
-    inset: -25vmax;
-    z-index: 0;
-    pointer-events: none;
-    mix-blend-mode: screen;
-  }
-  .nebula i {
-    position: absolute;
-    display: block;
-    border-radius: 50%;
-    will-change: transform;
-  }
-  /* 拉成椭圆再慢慢转 —— 圆形光斑看着像台灯，椭圆才像星云 */
-  .nebula i:nth-child(1) {
-    width: 86vmax; height: 44vmax; top: -14vmax; left: -16vmax;
-    background: radial-gradient(ellipse at center, rgba(56, 90, 190, 0.21), transparent 70%);
-    animation: drift-a 54s ease-in-out infinite alternate;
-  }
-  .nebula i:nth-child(2) {
-    width: 68vmax; height: 34vmax; bottom: -14vmax; right: -10vmax;
-    background: radial-gradient(ellipse at center, rgba(26, 116, 138, 0.16), transparent 70%);
-    animation: drift-b 70s ease-in-out infinite alternate;
-  }
-  .nebula i:nth-child(3) {
-    width: 52vmax; height: 26vmax; top: 36%; left: 44%;
-    background: radial-gradient(ellipse at center, rgba(150, 112, 62, 0.10), transparent 72%);
-    animation: drift-c 88s ease-in-out infinite alternate;
-  }
-
-  @keyframes drift-a {
-    from { transform: translate3d(0, 0, 0) rotate(-14deg) scale(1); }
-    to   { transform: translate3d(7vw, 5vh, 0) rotate(10deg) scale(1.16); }
-  }
-  @keyframes drift-b {
-    from { transform: translate3d(0, 0, 0) rotate(22deg) scale(1.06); }
-    to   { transform: translate3d(-8vw, -6vh, 0) rotate(-6deg) scale(0.90); }
-  }
-  @keyframes drift-c {
-    from { transform: translate3d(0, 0, 0) rotate(8deg) scale(0.94); }
-    to   { transform: translate3d(-6vw, 7vh, 0) rotate(-26deg) scale(1.20); }
-  }
-
-  /* ═══ 背景 3／几何色块（硬边 + 正片叠底发光） ════ */
-  .blocks {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-    mix-blend-mode: screen;
-  }
-  .blk-layer {
-    position: absolute;
-    inset: -20vmax;
-    will-change: transform;
-  }
-  .blk-layer i {
-    position: absolute;
-    display: block;
-    will-change: transform;
-  }
-
-  /* — 层一：远景大块 — */
-  .blk-layer:nth-child(1) i:nth-child(1) {
-    width: 54vmax; height: 40vmax; top: 4vmax; left: -14vmax;
-    background: rgba(46, 78, 178, 0.30);
-    animation: blk-drift-1 72s ease-in-out infinite alternate;
-  }
-  .blk-layer:nth-child(1) i:nth-child(2) {
-    width: 40vmax; height: 52vmax; top: 42%; right: -16vmax;
-    background: rgba(20, 102, 124, 0.26);
-    animation: blk-drift-2 88s ease-in-out infinite alternate;
-  }
-
-  /* — 层二：中景 — */
-  .blk-layer:nth-child(2) i:nth-child(1) {
-    width: 26vmax; height: 26vmax; top: 22vmax; right: 12vw;
-    background: rgba(104, 70, 168, 0.28);
-    animation: blk-drift-3 60s ease-in-out infinite alternate;
-  }
-  .blk-layer:nth-child(2) i:nth-child(2) {
-    width: 30vmax; height: 8vmax; top: 68vh; left: -6vmax;
-    background: rgba(72, 116, 226, 0.26);
-    animation: blk-drift-4 54s ease-in-out infinite alternate;
-  }
-  .blk-layer:nth-child(2) i:nth-child(3) {
-    width: 18vmax; height: 18vmax; bottom: 12vh; right: 20vw;
-    background: rgba(196, 158, 92, 0.22);
-    animation: blk-drift-5 96s ease-in-out infinite alternate;
-  }
-
-  /* — 层三：近景小块 — */
-  .blk-layer:nth-child(3) i:nth-child(1) {
-    width: 9vmax; height: 9vmax; top: 58vh; left: 18vw;
-    background: rgba(120, 196, 255, 0.34);
-    animation: blk-drift-6 44s ease-in-out infinite alternate;
-  }
-  .blk-layer:nth-child(3) i:nth-child(2) {
-    width: 5vmax; height: 14vmax; top: 12vh; left: 62vw;
-    background: rgba(95, 208, 216, 0.30);
-    animation: blk-drift-7 50s ease-in-out infinite alternate;
-  }
-
-  @keyframes blk-drift-1 {
-    from { transform: translate3d(0, 0, 0) rotate(-14deg); }
-    to   { transform: translate3d(9vw, 6vh, 0) rotate(-4deg); }
-  }
-  @keyframes blk-drift-2 {
-    from { transform: translate3d(0, 0, 0) rotate(9deg) scale(1); }
-    to   { transform: translate3d(-7vw, -9vh, 0) rotate(19deg) scale(1.12); }
-  }
-  @keyframes blk-drift-3 {
-    from { transform: translate3d(0, 0, 0) rotate(16deg); }
-    to   { transform: translate3d(-11vw, 12vh, 0) rotate(-8deg); }
-  }
-  @keyframes blk-drift-4 {
-    from { transform: translate3d(0, 0, 0) rotate(-3deg); }
-    to   { transform: translate3d(14vw, -5vh, 0) rotate(3deg); }
-  }
-  @keyframes blk-drift-5 {
-    from { transform: translate3d(0, 0, 0) rotate(24deg) scale(0.9); }
-    to   { transform: translate3d(6vw, -14vh, 0) rotate(44deg) scale(1.1); }
-  }
-  @keyframes blk-drift-6 {
-    from { transform: translate3d(0, 0, 0) rotate(0deg); }
-    to   { transform: translate3d(-16vw, -10vh, 0) rotate(90deg); }
-  }
-  @keyframes blk-drift-7 {
-    from { transform: translate3d(0, 0, 0) rotate(-8deg); }
-    to   { transform: translate3d(-9vw, 16vh, 0) rotate(22deg); }
-  }
-
-  /* ═══ 背景 4／噪点颗粒 ═══════════════════════════ */
-  .grain {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    opacity: 0.05;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 220px 220px;
-  }
-
-  /* ═══ 鼠标柔光 + 色块拖尾 ═══════════════════════ */
-  .cursor-glow {
-    position: fixed;
-    top: 0; left: 0;
-    width: 560px; height: 560px;
-    margin: -280px 0 0 -280px;
-    border-radius: 50%;
-    background: radial-gradient(circle at center, rgba(130, 170, 255, 0.085), transparent 62%);
-    z-index: 1;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.9s var(--ease);
-    will-change: transform;
-  }
-  .cursor-glow.on { opacity: 1; }
-
-  .trail {
-    position: fixed;
-    top: 0; left: 0;
-    z-index: 3;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.8s var(--ease);
-    will-change: transform;
-  }
-  .trail.on { opacity: 1; }
-  .trail b {
-    display: block;
-    width: 100%; height: 100%;
-    animation: trail-spin 14s linear infinite;
-  }
-  #trail-0 { width: 14px; height: 14px; margin: -7px 0 0 -7px; }
-  #trail-1 { width: 10px; height: 10px; margin: -5px 0 0 -5px; }
-  #trail-2 { width: 7px;  height: 7px;  margin: -3.5px 0 0 -3.5px; }
-  #trail-3 { width: 5px;  height: 5px;  margin: -2.5px 0 0 -2.5px; }
-  #trail-0 b { background: rgba(169, 200, 255, 0.55); }
-  #trail-1 b { background: rgba(95, 208, 216, 0.45); }
-  #trail-2 b { background: rgba(217, 187, 132, 0.45); }
-  #trail-3 b { background: rgba(169, 140, 240, 0.40); }
-  @keyframes trail-spin { to { transform: rotate(360deg); } }
-
-  /* ═══ 顶部滚动进度 ══════════════════════════════ */
-  .progress {
-    position: fixed;
-    top: 0; left: 0;
-    height: 1px;
-    width: 100%;
-    transform: scaleX(0);
-    transform-origin: 0 50%;
-    background: linear-gradient(90deg,
-      rgba(95, 208, 216, 0.9), rgba(169, 200, 255, 1), rgba(217, 187, 132, 0.9));
-    opacity: 0.6;
-    z-index: 20;
-    will-change: transform;
-  }
-
-  /* ═══ 内容骨架 ══════════════════════════════════ */
-  main { position: relative; z-index: 2; }
-
-  section {
-    position: relative;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: clamp(5rem, 15vw, 9.5rem) clamp(1.4rem, 6vw, 3rem);
-  }
-
-  /* 进入视野时的滑入 —— 用 --rx / --ry / --rr 控制方向、距离、角度 */
-  .reveal {
-    opacity: 0;
-    transform: translate3d(var(--rx, 0px), var(--ry, 44px), 0) rotate(var(--rr, 0deg));
-    transition:
-      opacity 1.2s var(--ease) var(--d, 0s),
-      transform 1.3s var(--ease) var(--d, 0s);
-    will-change: opacity, transform;
-  }
-  .reveal.in { opacity: 1; transform: none; }
-
-  /* ═══ Hero ══════════════════════════════════════ */
-  .hero {
-    min-height: 100vh;
-    min-height: 100svh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding-inline: clamp(1.2rem, 6vw, 3rem);
-  }
-  .hero::before {
-    content: '';
-    position: absolute;
-    width: min(72vmin, 520px);
-    height: min(72vmin, 520px);
-    border: 1px solid rgba(169, 200, 255, 0.10);
-    transform: rotate(45deg);
-    animation: hero-frame 120s linear infinite;
-    pointer-events: none;
-  }
-  @keyframes hero-frame {
-    from { transform: rotate(45deg) scale(1); }
-    to   { transform: rotate(405deg) scale(1); }
-  }
-
-  .name {
-    position: relative;
-    margin: 0;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(2.5rem, 11.5vw, 7.2rem);
-    line-height: 1.08;
-    letter-spacing: 0.035em;
-    color: #f2f5fd;
-    text-shadow:
-      0 0 44px rgba(140, 180, 255, 0.26),
-      0 0 110px rgba(96, 136, 255, 0.13);
-  }
-  .name .ch {
-    display: inline-block;
-    opacity: 0;
-    transform: translateY(0.42em) scale(0.96);
-    filter: blur(6px);
-    animation: ch-in 1.3s var(--ease) forwards;
-  }
-  @keyframes ch-in {
-    to { opacity: 1; transform: none; filter: blur(0); }
-  }
-
-  .rule {
-    position: relative;
-    width: min(340px, 58vw);
-    height: 1px;
-    margin: clamp(1.6rem, 5vw, 2.6rem) auto;
-    background: linear-gradient(90deg, transparent, rgba(169, 200, 255, 0.55), transparent);
-    transform: scaleX(0);
-    animation: rule-in 1.8s var(--ease) 1.55s forwards;
-  }
-  @keyframes rule-in { to { transform: scaleX(1); } }
-
-  .role {
-    margin: 0;
-    font-size: clamp(0.8rem, 3vw, 0.98rem);
-    letter-spacing: 0.2em;
-    color: var(--ink-dim);
-    opacity: 0;
-    animation: soft-in 1.5s var(--ease) 1.95s forwards;
-  }
-
-  .hero-motto {
-    margin: clamp(2.2rem, 7vw, 3.4rem) 0 0;
-    max-width: 30em;
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: clamp(0.82rem, 2.9vw, 1rem);
-    line-height: 2;
-    letter-spacing: 0.02em;
-    color: var(--ink-faint);
-    opacity: 0;
-    animation: soft-in 1.6s var(--ease) 2.35s forwards;
-  }
-
-  @keyframes soft-in { to { opacity: 1; } }
-
-  .scroll-hint {
-    position: absolute;
-    bottom: clamp(1.8rem, 6vw, 3rem);
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    animation: soft-in 1.4s ease 2.85s forwards;
-  }
-  .scroll-hint span {
-    display: block;
-    width: 1px;
-    height: 58px;
-    background: linear-gradient(180deg, rgba(169, 200, 255, 0.7), transparent);
-    animation: breathe 3.2s ease-in-out infinite;
-  }
-  @keyframes breathe {
-    0%, 100% { opacity: 0.25; transform: scaleY(0.72); transform-origin: top; }
-    50%      { opacity: 1;    transform: scaleY(1);    transform-origin: top; }
-  }
-
-  /* ═══ 区块标题 ══════════════════════════════════ */
-  .sec-title {
-    display: flex;
-    align-items: center;
-    gap: 1.3rem;
-    margin: 0 0 clamp(2rem, 6vw, 3rem);
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(1.3rem, 4.2vw, 1.9rem);
-    letter-spacing: 0.09em;
-    color: #eef1fa;
-  }
-  .sec-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, var(--line), transparent);
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 1.5s var(--ease) 0.3s;
-  }
-  .sec-title.in::after { transform: scaleX(1); }
-  .sec-title .idx {
-    position: relative;
-    font-family: var(--sans);
-    font-size: 0.68rem;
-    letter-spacing: 0.2em;
-    color: var(--ink-faint);
-    padding: 0.5em 0.75em;
-    isolation: isolate;
-    flex: none;
-  }
-  .sec-title .idx::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(169, 200, 255, 0.16);
-    transform: translate(-5px, 5px);
-    z-index: -1;
-    transition: transform 0.9s var(--ease);
-  }
-  .sec-title:hover .idx::before { transform: translate(0, 0); }
-
-  /* ═══ 关于 ══════════════════════════════════════ */
-  .about p {
-    margin: 0 0 1.5rem;
-    max-width: 34em;
-    font-size: clamp(0.98rem, 2.9vw, 1.1rem);
-    line-height: 2.1;
-    letter-spacing: 0.015em;
-    color: var(--ink-dim);
-  }
-  .about p:last-child { margin-bottom: 0; }
-  .about strong { color: var(--ink); font-weight: 400; }
-
-  .about {
-    display: grid;
-    grid-template-columns: 176px 1fr;
-    gap: clamp(1.8rem, 5vw, 3rem);
-    align-items: start;
-  }
-  .portrait {
-    position: relative;
-    width: 176px;
-    height: 176px;
-  }
-  .portrait img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    /* 融进暗色里，hover 才还原本色 */
-    filter: grayscale(0.42) contrast(1.06) brightness(0.88);
-    transition: filter 1.1s var(--ease), transform 1.1s var(--ease);
-  }
-  .portrait:hover img { filter: none; transform: scale(1.035); }
-  .portrait .ring {
-    position: absolute;
-    inset: -11px;
-    border-radius: 50%;
-    padding: 1px;
-    background: conic-gradient(from 0deg,
-      transparent 0deg,
-      rgba(169, 200, 255, 0.9) 55deg,
-      transparent 130deg,
-      transparent 190deg,
-      rgba(217, 187, 132, 0.75) 265deg,
-      transparent 340deg);
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    mask-composite: exclude;
-    animation: ring-spin 9s linear infinite;
-    pointer-events: none;
-  }
-  @keyframes ring-spin { to { transform: rotate(360deg); } }
-
-  /* ═══ 数字（带偏移色块垫底） ════════════════════ */
-  .stats {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1px;
-    background: var(--glass-line);
-    border: 1px solid var(--glass-line);
-    border-radius: 5px;
-    overflow: hidden;
-    /* 偏移色块用 box-shadow 做 —— 它在盒子外面，不会被自己的 overflow 裁掉 */
-    box-shadow: 15px 15px 0 -1px rgba(46, 78, 178, 0.30);
-    transition: box-shadow 1.1s var(--ease);
-  }
-  .stats:hover { box-shadow: 7px 7px 0 -1px rgba(52, 88, 196, 0.38); }
-  .stats::after {
-    content: '';
-    position: absolute;
-    top: -1px; left: -1px;
-    width: 34px; height: 34px;
-    border-top: 1px solid var(--line-lit);
-    border-left: 1px solid var(--line-lit);
-    z-index: 2;
-  }
-  .stat {
-    padding: clamp(1.9rem, 6vw, 2.6rem) 1.2rem;
-    text-align: center;
-    background: linear-gradient(160deg, rgba(196, 216, 255, 0.055), rgba(120, 152, 222, 0.02));
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    cursor: pointer;
-    transition: transform 0.9s var(--ease), background 0.9s var(--ease);
-  }
-  .stat:hover {
-    background: linear-gradient(160deg, rgba(204, 222, 255, 0.10), rgba(132, 166, 236, 0.035));
-  }
-  .stat:active {
-    transform: scale(0.978);
-    transition: transform 0.13s var(--ease);
-  }
-  .stat .num {
-    display: block;
-    font-family: var(--serif);
-    font-size: clamp(2.3rem, 8.5vw, 3.4rem);
-    line-height: 1;
-    color: #fff;
-    font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 34px rgba(140, 180, 255, 0.3);
-  }
-  .stat .lbl {
-    display: block;
-    margin-top: 0.85rem;
-    font-size: 0.72rem;
-    letter-spacing: 0.24em;
-    color: var(--ink-faint);
-  }
-
-  /* ═══ 卡片 ══════════════════════════════════════ */
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 1.1rem;
-  }
-  .card {
-    position: relative;
-    overflow: hidden;
-    padding: clamp(1.9rem, 5vw, 2.4rem) clamp(1.3rem, 4vw, 1.8rem) clamp(1.6rem, 5vw, 2.2rem);
-    border: 1px solid var(--glass-line);
-    border-radius: 4px;
-    background: linear-gradient(160deg, var(--glass-top), var(--glass-bot));
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    box-shadow: var(--glass-inset), var(--glass-lift);
-    transition:
-      border-color 0.8s var(--ease),
-      transform 0.8s var(--ease),
-      background 0.8s var(--ease),
-      box-shadow 0.8s var(--ease);
-  }
-  /* 左上角色块，hover 时展开成整条 */
-  .card .chip {
-    position: absolute;
-    top: 0; left: 0;
-    height: 3px;
-    width: 44px;
-    background: rgb(var(--c, 169, 200, 255));
-    transform-origin: left center;
-    transition: width 0.9s var(--ease), opacity 0.9s var(--ease);
-  }
-  /* 角落的方形色块 */
-  .card .swatch {
-    position: absolute;
-    top: 1.5rem; right: 1.4rem;
-    width: 30px; height: 30px;
-    background: rgb(var(--c, 169, 200, 255));
-    opacity: 0.22;
-    transform: rotate(12deg);
-    transition: transform 0.9s var(--ease), opacity 0.9s var(--ease);
-  }
-  .card .no {
-    display: block;
-    color: rgb(var(--c, 169, 200, 255));
-    font-size: 0.7rem;
-    letter-spacing: 0.22em;
-    opacity: 0.85;
-  }
-  .card h3 {
-    margin: 1.1rem 0 0.7rem;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(1.05rem, 3.6vw, 1.25rem);
-    letter-spacing: 0.06em;
-    color: #eef1fa;
-  }
-  .card p {
-    margin: 0;
-    font-size: 0.9rem;
-    line-height: 1.95;
-    color: var(--ink-dim);
-    transition: color 0.8s var(--ease);
-  }
-  /* 斜向扫光 */
-  .card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(105deg,
-      transparent 38%, rgba(190, 212, 255, 0.075) 50%, transparent 62%);
-    transform: translateX(-110%);
-    transition: transform 1.15s var(--ease);
-    pointer-events: none;
-  }
-  .card:hover, .card:focus-within {
-    border-color: var(--glass-line-lit);
-    transform: translateY(-5px);
-    background: linear-gradient(160deg, rgba(204, 222, 255, 0.115), rgba(132, 166, 236, 0.04));
-    box-shadow: var(--glass-inset), 0 22px 50px -26px rgba(0, 0, 0, 0.9);
-  }
-  .card:hover .chip, .card:focus-within .chip { width: 100%; }
-  .card:hover .swatch, .card:focus-within .swatch {
-    transform: rotate(58deg) scale(1.35);
-    opacity: 0.5;
-  }
-  .card:hover p, .card:focus-within p { color: var(--ink); }
-  .card:hover::after, .card:focus-within::after { transform: translateX(110%); }
-  /* 按下时先快速下沉，松开再慢慢弹回 */
-  .card:active {
-    transform: translateY(-2px) scale(0.982);
-    transition: transform 0.13s var(--ease);
-  }
-
-  /* ═══ 跑马灯色带 ════════════════════════════════ */
-  .marquee {
-    position: relative;
-    z-index: 2;
-    overflow: hidden;
-    padding: clamp(2.4rem, 7vw, 3.6rem) 0;
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    background:
-      linear-gradient(90deg,
-        rgba(46, 78, 178, 0.16),
-        rgba(20, 102, 124, 0.13) 45%,
-        rgba(150, 112, 62, 0.10));
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-  }
-  .marquee-track {
-    display: flex;
-    width: max-content;
-    animation: marquee-run 46s linear infinite;
-    will-change: transform;
-  }
-  .marquee:hover .marquee-track { animation-play-state: paused; }
-  @keyframes marquee-run {
-    from { transform: translate3d(0, 0, 0); }
-    to   { transform: translate3d(-50%, 0, 0); }
-  }
-  .mq-group {
-    display: flex;
-    align-items: center;
-    gap: clamp(1.8rem, 5vw, 3.4rem);
-    padding-right: clamp(1.8rem, 5vw, 3.4rem);
-  }
-  .mq-group span {
-    font-family: var(--serif);
-    font-size: clamp(1.3rem, 4.8vw, 2.4rem);
-    letter-spacing: 0.11em;
-    white-space: nowrap;
-    color: rgba(238, 241, 250, 0.92);
-  }
-  .mq-group span.hollow {
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(169, 200, 255, 0.55);
-  }
-  .mq-group .sep {
-    font-style: normal;
-    font-size: clamp(1rem, 3vw, 1.5rem);
-    color: var(--gold);
-    opacity: 0.6;
-  }
-
-  /* ═══ 座右铭（旋转几何框） ═════════════════════ */
-  .motto {
-    position: relative;
-    isolation: isolate;
-    text-align: center;
-  }
-  .motto::before {
-    content: '';
-    position: absolute;
-    top: 50%; left: 50%;
-    width: min(60vmin, 420px);
-    height: min(60vmin, 420px);
-    margin: calc(min(60vmin, 420px) / -2) 0 0 calc(min(60vmin, 420px) / -2);
-    border: 1px solid rgba(169, 200, 255, 0.11);
-    z-index: -1;
-    animation: frame-spin 140s linear infinite;
-  }
-  .motto::after {
-    content: '';
-    position: absolute;
-    top: 50%; left: 50%;
-    width: min(46vmin, 320px);
-    height: min(46vmin, 320px);
-    margin: calc(min(46vmin, 320px) / -2) 0 0 calc(min(46vmin, 320px) / -2);
-    border-radius: 50%;
-    border: 1px solid rgba(217, 187, 132, 0.13);
-    z-index: -1;
-    animation: frame-spin 100s linear infinite reverse;
-  }
-  @keyframes frame-spin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-  }
-  .motto-cn {
-    margin: 0;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(1.55rem, 6.8vw, 3rem);
-    line-height: 1.95;
-    letter-spacing: 0.13em;
-    color: #eef2fb;
-    text-shadow: 0 0 60px rgba(140, 180, 255, 0.2);
-  }
-  .motto-cn em {
-    font-style: normal;
-    color: var(--gold);
-    text-shadow: 0 0 50px rgba(217, 187, 132, 0.28);
-  }
-  .motto-en {
-    max-width: 36em;
-    margin: clamp(2.4rem, 8vw, 3.6rem) auto 0;
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: clamp(0.84rem, 2.9vw, 1.02rem);
-    line-height: 2.1;
-    letter-spacing: 0.02em;
-    color: var(--ink-faint);
-  }
-
-  /* ═══ 诗云 ══════════════════════════════════════ */
-  .poem-note {
-    margin: 0 0 clamp(1.8rem, 5vw, 2.6rem);
-    max-width: 36em;
-    font-size: clamp(0.92rem, 2.7vw, 1.02rem);
-    line-height: 2.05;
-    letter-spacing: 0.015em;
-    color: var(--ink-dim);
-  }
-  .poem-stage {
-    position: relative;
-    height: 420px;                       /* vh 解析不出来时的兜底 */
-    height: clamp(340px, 62vh, 540px);
-    border: 1px solid var(--glass-line);
-    border-radius: 5px;
-    background:
-      radial-gradient(ellipse 72% 62% at 50% 50%, rgba(46, 78, 178, 0.15), transparent 72%),
-      rgba(5, 7, 14, 0.60);
-    backdrop-filter: blur(18px) saturate(1.3);
-    -webkit-backdrop-filter: blur(18px) saturate(1.3);
-    box-shadow: var(--glass-inset);
-    overflow: hidden;
-  }
-  .poem-stage::before,
-  .poem-stage::after {
-    content: '';
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    border-color: var(--line-lit);
-    pointer-events: none;
-  }
-  .poem-stage::before {
-    top: -1px; left: -1px;
-    border-top: 1px solid; border-left: 1px solid;
-  }
-  .poem-stage::after {
-    bottom: -1px; right: -1px;
-    border-bottom: 1px solid; border-right: 1px solid;
-  }
-  .poem-stage canvas {
-    position: absolute;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-  .poem-stage::before,
-  .poem-stage::after { z-index: 3; }
-
-  /* ── 名言层 ── */
-  .poem-quotes {
-    position: relative;
-    z-index: 2;
-    height: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(clamp(190px, 44%, 300px), 1fr));
-    gap: clamp(1rem, 3.2vw, 1.8rem);
-    padding: clamp(1.4rem, 4.5vw, 2.4rem);
-    align-content: center;
-    align-items: center;
-    pointer-events: none;
-  }
-  .quote {
-    /* translate 让位给静态错位和视差，transform 留给浮动动画，互不打架 */
-    translate: var(--dx, 0) var(--dy, 0);
-    animation: q-float var(--dur, 11s) ease-in-out var(--del, 0s) infinite alternate;
-    opacity: 0;
-    filter: blur(9px);
-    transition: opacity 1.7s var(--ease), filter 1.7s var(--ease);
-    will-change: transform, opacity, filter;
-  }
-  .quote.in { opacity: var(--a, 0.78); filter: blur(0); }
-  .quote.near  { opacity: 1; filter: blur(0) brightness(1.32); }
-  .quote.twinkle { opacity: 1; filter: blur(0) brightness(1.45); }
-
-  @keyframes q-float {
-    from { transform: translate3d(0, 0, 0); }
-    to   { transform: translate3d(0, -14px, 0); }
-  }
-
-  .quote p {
-    margin: 0;
-    font-family: var(--serif);
-    font-size: var(--fs, 1.05rem);
-    line-height: 1.95;
-    letter-spacing: 0.05em;
-    color: var(--star);
-    text-shadow: 0 0 24px rgba(120, 160, 255, 0.20);
-    text-wrap: pretty;
-  }
-  .quote .from {
-    display: block;
-    margin-top: 0.5em;
-    font-family: var(--sans);
-    font-size: 0.7em;
-    letter-spacing: 0.14em;
-    color: var(--ink-faint);
-    text-shadow: none;
-  }
-  .quote .from em { font-style: normal; color: rgba(217, 187, 132, 0.78); }
-
-  /* ═══ 关于这个页面 ══════════════════════════════ */
-  .specs {
-    display: grid;
-    gap: 1px;
-    background: var(--glass-line);
-    border: 1px solid var(--glass-line);
-    border-radius: 5px;
-    overflow: hidden;
-    box-shadow: 14px 14px 0 -1px rgba(20, 102, 124, 0.24);
-  }
-  .spec {
-    display: flex;
-    align-items: baseline;
-    gap: 1.4rem;
-    padding: 1.15rem 1.4rem;
-    background: linear-gradient(160deg, rgba(196, 216, 255, 0.055), rgba(120, 152, 222, 0.02));
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    transition: background 0.8s var(--ease), transform 0.7s var(--ease);
-  }
-  .spec:hover {
-    background: linear-gradient(160deg, rgba(204, 222, 255, 0.10), rgba(132, 166, 236, 0.035));
-  }
-  .spec:active {
-    transform: translateX(4px);
-    transition: transform 0.12s var(--ease);
-  }
-  .spec-k {
-    flex: none;
-    width: 7.5em;
-    font-size: 0.7rem;
-    letter-spacing: 0.18em;
-    color: var(--star);
-    opacity: 0.85;
-  }
-  .spec-v {
-    font-size: 0.88rem;
-    line-height: 1.85;
-    color: var(--ink-dim);
-  }
-  .colophon-note {
-    margin: clamp(1.6rem, 5vw, 2.2rem) 0 0;
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: clamp(0.84rem, 2.7vw, 0.96rem);
-    letter-spacing: 0.03em;
-    color: var(--ink-faint);
-  }
-
-  /* ═══ 链接 ══════════════════════════════════════ */
-  .links { display: block; }
-  .row {
-    position: relative;
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1.4rem;
-    padding: 1.5rem 1.1rem;
-    margin-bottom: 0.65rem;
-    border: 1px solid var(--glass-line);
-    border-radius: 4px;
-    background: linear-gradient(160deg, var(--glass-top), var(--glass-bot));
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    box-shadow: var(--glass-inset);
-    text-decoration: none;
-    transition: border-color 0.7s var(--ease), padding-left 0.7s var(--ease),
-                background 0.7s var(--ease);
-  }
-  .row:last-child { margin-bottom: 0; }
-  .row .k {
-    flex: none;
-    font-size: 0.7rem;
-    letter-spacing: 0.22em;
-    color: var(--ink-faint);
-    transition: color 0.7s var(--ease);
-  }
-  .row .v {
-    font-family: var(--serif);
-    font-size: clamp(0.92rem, 3vw, 1.08rem);
-    letter-spacing: 0.03em;
-    color: var(--ink-dim);
-    text-align: right;
-    transition: color 0.7s var(--ease);
-    word-break: break-all;
-  }
-  .row .v .arrow {
-    display: inline-block;
-    margin-left: 0.5em;
-    opacity: 0;
-    transform: translateX(-6px);
-    transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
-  }
-  /* 从左侧滑入的色块 */
-  .row::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 2px; height: 100%;
-    border-radius: 4px 0 0 4px;
-    background: var(--line-lit);
-    transform: scaleY(0);
-    transform-origin: top;
-    transition: transform 0.8s var(--ease);
-  }
-  a.row:hover, a.row:focus-visible {
-    border-color: var(--glass-line-lit);
-    padding-left: 1.8rem;
-    background: linear-gradient(160deg, rgba(204, 222, 255, 0.11), rgba(132, 166, 236, 0.038));
-    outline: none;
-  }
-  a.row:hover::before, a.row:focus-visible::before { transform: scaleY(1); }
-  a.row:hover .k, a.row:focus-visible .k { color: var(--star); }
-  a.row:hover .v, a.row:focus-visible .v { color: var(--ink); }
-  a.row:hover .arrow, a.row:focus-visible .arrow { opacity: 1; transform: none; }
-  a.row:active {
-    padding-left: 0.5rem;
-    transition: padding-left 0.12s var(--ease), border-color 0.12s var(--ease);
-  }
-  .row.plain { cursor: default; }
-
-  /* ═══ 页脚 ══════════════════════════════════════ */
-  footer {
-    position: relative;
-    z-index: 2;
-    padding: clamp(2.5rem, 8vw, 4rem) clamp(1.4rem, 6vw, 3rem) clamp(3rem, 9vw, 4.5rem);
-    text-align: center;
-    font-size: 0.76rem;
-    letter-spacing: 0.16em;
-    color: var(--ink-faint);
-  }
-  footer .dot { color: var(--line-lit); margin: 0 0.7em; }
-
-  .to-top {
-    display: block;
-    position: relative;
-    width: 34px; height: 34px;
-    margin: 2rem auto 0;
-    padding: 0;
-    border: 1px solid var(--line);
-    background: transparent;
-    cursor: pointer;
-    transition: border-color 0.6s var(--ease), transform 0.13s var(--ease);
-  }
-  .to-top::before {
-    content: '';
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 8px; height: 8px;
-    border-top: 1px solid var(--ink-faint);
-    border-left: 1px solid var(--ink-faint);
-    transform: translate(-50%, -30%) rotate(45deg);
-    transition: border-color 0.6s var(--ease), transform 0.6s var(--ease);
-  }
-  .to-top:hover { border-color: var(--line-lit); }
-  .to-top:hover::before {
-    border-color: var(--star);
-    transform: translate(-50%, -62%) rotate(45deg);
-  }
-  .to-top:active { transform: scale(0.92); }
-
-  /* ═══ 板块点按波动 ══════════════════════════════ */
-  @keyframes section-pulse {
-    0%   { transform: translate3d(0, 0, 0); }
-    32%  { transform: translate3d(0, -8px, 0); }
-    100% { transform: translate3d(0, 0, 0); }
-  }
-  .reveal.pulsing { animation: section-pulse 0.9s var(--ease); }
-
-  @keyframes card-pop {
-    0%   { transform: translate3d(0, 0, 0) scale(1); }
-    30%  { transform: translate3d(0, -9px, 0) scale(1.014); }
-    100% { transform: translate3d(0, 0, 0) scale(1); }
-  }
-  /* 写在 .reveal.pulsing 之后，卡片用更弹的这个 */
-  .card.pulsing { animation: card-pop 0.8s var(--ease); }
-
-  /* 全局点击涟漪已移除 —— 只保留各板块自己的反馈 */
-
-  /* ═══ 降级 / 无障碍 ═════════════════════════════ */
-  @media (max-width: 620px) {
-    .blk-layer:nth-child(3) { display: none; }   /* 手机上省掉近景小块 */
-    .trail { display: none; }
-    .corners { display: none; }
-    .grid-lines { background-size: 56px 56px; }
-    .about { grid-template-columns: 1fr; justify-items: center; }
-    .portrait { width: 136px; height: 136px; }
-    .about-text { width: 100%; }
-    .spec { flex-direction: column; gap: 0.4rem; }
-    .spec-k { width: auto; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-    *, *::before, *::after {
-      animation-duration: 0.001ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.001ms !important;
-    }
-    .reveal { opacity: 1; transform: none; }
-    .name .ch { opacity: 1; transform: none; filter: none; }
-    .rule { transform: scaleX(1); }
-    .role, .hero-motto, .scroll-hint { opacity: 1; }
-    .marquee-track { animation: none; }
-    .curtain { display: none; }
-  }
-  @media (hover: none) {
-    .cursor-glow { display: none; }
-  }
-</style>
-</head>
-
-<body>
-  <div class="curtain" id="curtain" aria-hidden="true"></div>
-
-  <canvas id="stars" aria-hidden="true"></canvas>
-  <div class="grid-lines" aria-hidden="true"></div>
-  <div class="nebula" aria-hidden="true"><i></i><i></i><i></i></div>
-
-  <div class="blocks" aria-hidden="true">
-    <div class="blk-layer"><i></i><i></i></div>
-    <div class="blk-layer"><i></i><i></i><i></i></div>
-    <div class="blk-layer"><i></i><i></i></div>
-  </div>
-
-  <div class="grain" aria-hidden="true"></div>
-  <div class="cursor-glow" id="glow" aria-hidden="true"></div>
-  <div class="trail" id="trail-0" aria-hidden="true"><b></b></div>
-  <div class="trail" id="trail-1" aria-hidden="true"><b></b></div>
-  <div class="trail" id="trail-2" aria-hidden="true"><b></b></div>
-  <div class="trail" id="trail-3" aria-hidden="true"><b></b></div>
-  <div class="corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-  <div class="progress" id="progress" aria-hidden="true"></div>
-
-  <main>
-    <!-- ─── Hero ─────────────────────────────── -->
-    <section class="hero">
-      <h1 class="name" id="name">Aripple_star</h1>
-      <div class="rule"></div>
-      <p class="role">生电玩家 · 刘慈欣书迷 · 代码折腾者</p>
-      <p class="hero-motto">
-        It must achieve in the long dream of life,<br>
-        not the short dream of game.
-      </p>
-      <div class="scroll-hint" aria-hidden="true"><span></span></div>
-    </section>
-
-    <!-- ─── 关于 ─────────────────────────────── -->
-    <section id="about">
-      <h2 class="sec-title reveal"><span class="idx">01</span>关于</h2>
-      <div class="about">
-        <div class="portrait reveal" style="--d:.04s; --rx: -48px">
-          <span class="ring" aria-hidden="true"></span>
-          <img src="data:image/jpeg;base64,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" alt="Aripple_star 的 GitHub 头像" width="320" height="320" decoding="async">
-        </div>
-        <div class="about-text">
-        <p class="reveal" style="--d:.08s; --rx: -62px">
-          随和，慢性子，偶尔犯懒。
-        </p>
-        <p class="reveal" style="--d:.18s; --rx: -62px">
-          喜欢在 Minecraft 里搭红石机器 —— 生电这块还是个小萌新，但看着机器自己跑起来的那一刻，
-          是真会上瘾。也喜欢在编辑器里跟编译器较劲，敲点<strong>没什么用但很好玩</strong>的小玩意儿。
-        </p>
-        <p class="reveal" style="--d:.28s; --rx: -62px">
-          看刘慈欣的书，听音乐，看风景。"面壁"这个词，就是从那儿来的。
-        </p>
-        <p class="reveal" style="--d:.38s; --rx: -62px">
-          梦想是走遍全世界 —— <strong>慢慢来，但一定要去。</strong>
-        </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── 数字 ─────────────────────────────── -->
-    <section id="numbers">
-      <h2 class="sec-title reveal"><span class="idx">02</span>一些数字</h2>
-      <div class="stats reveal" style="--d:.1s; --ry: 78px">
-        <div class="stat">
-          <span class="num" data-count="17">0</span>
-          <span class="lbl">B 站投稿</span>
-        </div>
-        <div class="stat">
-          <span class="num" data-count="58">0</span>
-          <span class="lbl">位粉丝</span>
-        </div>
-        <div class="stat">
-          <span class="num" data-count="1">0</span>
-          <span class="lbl">个长梦</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── 在折腾什么 ───────────────────────── -->
-    <section id="doing">
-      <h2 class="sec-title reveal"><span class="idx">03</span>在折腾什么</h2>
-      <div class="cards">
-        <article class="card reveal" style="--d:.06s; --c: 96, 140, 255; --ry: 72px; --rr: 1.4deg">
-          <span class="chip" aria-hidden="true"></span>
-          <span class="swatch" aria-hidden="true"></span>
-          <span class="no">01</span>
-          <h3>Minecraft 生电</h3>
-          <p>红石机器爱好者，自称小萌新。喜欢自动化搭起来之后，那种"它自己会跑"的安静。</p>
-        </article>
-        <article class="card reveal" style="--d:.16s; --c: 95, 208, 216; --ry: 72px; --rr: 1.4deg">
-          <span class="chip" aria-hidden="true"></span>
-          <span class="swatch" aria-hidden="true"></span>
-          <span class="no">02</span>
-          <h3>科幻与刘慈欣</h3>
-          <p>看他的书，也看他把人的尺度放到宇宙里去量。签名里那句"面壁十年"，出处就在这儿。</p>
-        </article>
-        <article class="card reveal" style="--d:.26s; --c: 169, 140, 240; --ry: 72px; --rr: 1.4deg">
-          <span class="chip" aria-hidden="true"></span>
-          <span class="swatch" aria-hidden="true"></span>
-          <span class="no">03</span>
-          <h3>写代码</h3>
-          <p>爱折腾各种小玩意儿，想到什么就动手试试。GitHub 上零零散散放了一些。</p>
-        </article>
-        <article class="card reveal" style="--d:.36s; --c: 217, 187, 132; --ry: 72px; --rr: 1.4deg">
-          <span class="chip" aria-hidden="true"></span>
-          <span class="swatch" aria-hidden="true"></span>
-          <span class="no">04</span>
-          <h3>音乐与风景</h3>
-          <p>耳机里放着歌，看窗外往后跑。走遍世界这件事，是早晚要做的。</p>
-        </article>
-      </div>
-    </section>
-    <!-- ─── 跑马灯色带 ─────────────────────────── -->
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track">
-      <div class="mq-group">
-        <span>面壁十年图破壁</span>
-        <em class="sep">◆</em>
-        <span class="hollow">难酬蹈海亦英雄</span>
-        <em class="sep">◆</em>
-        <span>Aripple_star</span>
-        <em class="sep">◆</em>
-        <span class="hollow">慢慢来，但一定要去</span>
-        <em class="sep">◆</em>
-      </div>
-      <div class="mq-group">
-        <span>面壁十年图破壁</span>
-        <em class="sep">◆</em>
-        <span class="hollow">难酬蹈海亦英雄</span>
-        <em class="sep">◆</em>
-        <span>Aripple_star</span>
-        <em class="sep">◆</em>
-        <span class="hollow">慢慢来，但一定要去</span>
-        <em class="sep">◆</em>
-      </div>
-    </div>
-  </div>
-
-    <!-- ─── 座右铭 ───────────────────────────── -->
-    <section id="motto">
-      <h2 class="sec-title reveal"><span class="idx">04</span>两句话</h2>
-      <div class="motto">
-        <p class="motto-cn reveal" style="--d:.08s; --ry: 58px">
-          面壁十年图破壁<br>
-          <em>难酬蹈海亦英雄</em>
-        </p>
-        <p class="motto-en reveal" style="--d:.22s; --ry: 40px">
-          "It must achieve in the long dream of life, not the short dream of game."<br>
-          —— 要在人生这场长梦里有所成就，而不是在游戏的短梦里。
-        </p>
-      </div>
-    </section>
-
-    <!-- ─── 诗云 ─────────────────────────────── -->
-    <section id="poem">
-      <h2 class="sec-title reveal"><span class="idx">05</span>诗云</h2>
-      <p class="poem-note reveal" style="--d:.08s; --rx: -56px">
-        刘慈欣写过一篇《诗云》—— 一个神级文明把整个太阳系拆了，用来存下所有可能的诗。<br>
-        我摘了几句自己认的话，散在这片星海里。靠近它们，会亮一点。
-      </p>
-      <div class="poem-stage reveal" id="poemStage" style="--d:.16s; --ry: 60px">
-        <canvas id="poemStars" aria-hidden="true"></canvas>
-        <div class="poem-quotes" id="poemQuotes"></div>
-      </div>
-    </section>
-
-    <!-- ─── 关于这个页面 ─────────────────────── -->
-    <section id="colophon">
-      <h2 class="sec-title reveal"><span class="idx">06</span>关于这个页面</h2>
-      <div class="specs reveal" style="--d:.08s; --ry: 56px">
-        <div class="spec">
-          <span class="spec-k">单文件</span>
-          <span class="spec-v">一个 HTML 装下全部 —— 结构、样式、脚本都在里面。</span>
-        </div>
-        <div class="spec">
-          <span class="spec-k">零依赖</span>
-          <span class="spec-v">没有框架，没有字体库，没有图标库。</span>
-        </div>
-        <div class="spec">
-          <span class="spec-k">零外部请求</span>
-          <span class="spec-v">头像用 base64 直接编进了文件里，断网也能看。</span>
-        </div>
-        <div class="spec">
-          <span class="spec-k">Canvas</span>
-          <span class="spec-v">星空、流星、诗云，都是逐帧画出来的。</span>
-        </div>
-        <div class="spec">
-          <span class="spec-k">CSS</span>
-          <span class="spec-v">背景那些重叠的色块靠 mix-blend-mode 叠色，重叠的地方会自己变色。</span>
-        </div>
-      </div>
-      <p class="colophon-note reveal" style="--d:.18s">
-        整个页面就一个文件，双击就能打开。想改哪儿，改哪儿。
-      </p>
-    </section>
-
-    <!-- ─── 找到我 ───────────────────────────── -->
-    <section id="contact">
-      <h2 class="sec-title reveal"><span class="idx">07</span>找到我</h2>
-      <div class="links">
-        <a class="row reveal" style="--d:.06s; --rx: -56px" href="https://github.com/hajcklll" target="_blank" rel="noopener noreferrer">
-          <span class="k">GITHUB</span>
-          <span class="v">hajcklll<span class="arrow">→</span></span>
-        </a>
-        <a class="row reveal" style="--d:.16s; --rx: -56px" href="mailto:yunchuan03@outlook.com">
-          <span class="k">EMAIL</span>
-          <span class="v">yunchuan03@outlook.com<span class="arrow">→</span></span>
-        </a>
-        <!-- 想加 B 站链接的话：把这行的 class="row plain" 改成 class="row"，
-             并补上 href="https://space.bilibili.com/你的UID" 即可 -->
-        <div class="row plain reveal" style="--d:.26s; --rx: -56px">
-          <span class="k">BILIBILI</span>
-          <span class="v">Aripple_star · 17 投稿 / 58 粉丝</span>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div>
-      <span>Aripple_star</span>
-      <span class="dot">◆</span>
-      <span>慢慢来，但一定要去</span>
-    </div>
-    <button class="to-top" id="toTop" type="button" aria-label="回到顶部"></button>
-  </footer>
-
+<title>Aripple_star — 生电玩家 · 刘慈欣书迷 · 代码折腾者</title>
+<meta name="description" content="Aripple_star 的个人介绍：Minecraft 生电、刘慈欣与科幻、写代码，以及一个走遍世界的长梦。">
+<meta name="theme-color" content="#f3eee4">
+<meta property="og:title" content="Aripple_star — 生电玩家 · 刘慈欣书迷 · 代码折腾者">
+<meta property="og:description" content="Minecraft 生电、刘慈欣与科幻、写代码，以及一个走遍世界的长梦。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hajcklll.github.io/Instructions-/">
+<meta property="og:image" content="https://hajcklll.github.io/Instructions-/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://hajcklll.github.io/Instructions-/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f3eee4'/%3E%3Cellipse cx='16' cy='16' rx='11' ry='5' fill='none' stroke='%239c5326' stroke-width='1.2' transform='rotate(-18 16 16)'/%3E%3Ccircle cx='16' cy='16' r='2.2' fill='%231f1b15'/%3E%3C/svg%3E">
+<link rel="preload" href="assets/fonts/gloock-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/bg-ridge-light.webp" as="image" type="image/webp">
+<link rel="stylesheet" href="styles.css">
 <script>
-(function () {
-  'use strict';
-
-  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var finePointer  = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-  /* ─── 名字逐字浮现（可重播） ─── */
-  var nameEl = document.getElementById('name');
-  var NAME_TEXT = nameEl ? nameEl.textContent.trim() : '';
-
-  function buildName() {
-    if (!nameEl) return;
-    nameEl.textContent = '';
-
-    if (reduceMotion) { nameEl.textContent = NAME_TEXT; return; }
-
-    NAME_TEXT.split('').forEach(function (ch, i) {
-      var s = document.createElement('span');
-      s.className = 'ch';
-      s.textContent = ch;
-      s.style.animationDelay = (0.95 + i * 0.055).toFixed(3) + 's';
-      nameEl.appendChild(s);
-    });
-  }
-
-  /* ─────────── 滚动淡入 ─────────── */
-  (function revealOnScroll() {
-    var items = document.querySelectorAll('.reveal');
-
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      items.forEach(function (el) { el.classList.add('in'); });
-      return;
-    }
-
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('in');
-        io.unobserve(entry.target);
-      });
-    }, { threshold: 0.14, rootMargin: '0px 0px -7% 0px' });
-
-    items.forEach(function (el) { io.observe(el); });
-  })();
-
-  /* ─────────── 数字滚动（可重播） ─────────── */
-  function runCount(el) {
-    var target = parseInt(el.dataset.count, 10) || 0;
-    if (reduceMotion) { el.textContent = target; return; }
-
-    var duration = 1700;
-    var t0 = null;
-
-    function step(now) {
-      if (t0 === null) t0 = now;
-      var p = Math.min((now - t0) / duration, 1);
-      var eased = 1 - Math.pow(1 - p, 4);
-      el.textContent = Math.round(target * eased);
-      if (p < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-
-  (function countUp() {
-    var nums = document.querySelectorAll('.num[data-count]');
-    if (!nums.length) return;
-
-    if (!('IntersectionObserver' in window)) {
-      nums.forEach(function (el) { el.textContent = el.dataset.count; });
-      return;
-    }
-
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        runCount(entry.target);
-        io.unobserve(entry.target);
-      });
-    }, { threshold: 0.6 });
-
-    nums.forEach(function (el) { io.observe(el); });
-  })();
-
-  // 点一下数字格子，重新数一遍
-  Array.prototype.forEach.call(document.querySelectorAll('.stat'), function (st) {
-    st.addEventListener('click', function () {
-      var n = st.querySelector('.num[data-count]');
-      if (n) runCount(n);
-    });
-  });
-
-  /* ─────────── 背景：动态星座 ─────────── */
-  var canvas = document.getElementById('stars');
-  var ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
-
-  var stars = [], meteors = [];
-  var W = 0, H = 0, DPR = 1;
-  var pointer = { x: 0, y: 0 };        // 视差目标（-1 ~ 1）
-  var eased   = { x: 0, y: 0 };        // 缓动后的视差
-  var pmx = -9999, pmy = -9999;        // 指针在视口里的位置
-  var meteorTimer = 2400;
-
-  var LINK = 132;                      // 连线阈值，也是网格边长
-  var MAX_LINKS = 2800;                // 连线上限，超了就不再收
-  var linkBuf = new Float32Array(MAX_LINKS * 3);   // i, j, k 三段一组
-  var linkTotal = 0;
-
-  var gridCols = 0, gridRows = 0, grid = [];
-  var posX = null, posY = null, litA = null, boostA = null;
-
-  // 参与连线的星，按远近分三层
-  var LAYERS = [
-    { density: 0.56, r: [0.55, 1.05], alpha: 0.34, parallax: 9,  drift: 1.00 },
-    { density: 0.30, r: [0.95, 1.65], alpha: 0.62, parallax: 18, drift: 0.62 },
-    { density: 0.14, r: [1.50, 2.40], alpha: 1.00, parallax: 32, drift: 0.34 }
-  ];
-
-  // 银河：星星不是均摊的，得往一条斜带上堆
-  function galaxyWeight(x, y) {
-    var d = (y / H) - ((x / W) * 0.52 + 0.16);
-    return Math.exp(-d * d * 20);
-  }
-
-  function pickXY() {
-    var x = 0, y = 0, w = 0, tries = 0;
-    do {
-      x = Math.random() * W;
-      y = Math.random() * H;
-      w = galaxyWeight(x, y);
-      tries++;
-    } while (Math.random() > (0.20 + w * 0.80) && tries < 7);
-    return [x, y];
-  }
-
-  function makeStar(rr, alpha, parallax, drift, linkable, slow) {
-    var p = pickXY();
-    var ang = Math.random() * Math.PI * 2;
-    var sp  = (0.0020 + Math.random() * 0.0058) * drift;
-
-    return {
-      x: p[0], y: p[1],
-      r: rr[0] + Math.random() * (rr[1] - rr[0]),
-      base: alpha * (0.55 + Math.random() * 0.6),
-      phase: Math.random() * Math.PI * 2,
-      speed: (0.00045 + Math.random() * 0.0013) * slow,
-      px: parallax,
-      vx: Math.cos(ang) * sp,
-      vy: Math.sin(ang) * sp,
-      warm: Math.random() < 0.17,
-      link: linkable,
-      beacon: false
-    };
-  }
-
-  function buildStars() {
-    var area = W * H;
-
-    // 参与连线的星 —— 数量直接决定星座密度
-    var linkN = Math.round(area / 6200);
-    linkN = Math.max(70, Math.min(linkN, finePointer ? 250 : 170));
-
-    // 背景微尘：更小更暗更慢，不进网格不连线，只负责把纵深垫出来
-    var dustN = Math.round(linkN * 0.68);
-
-    stars = [];
-
-    LAYERS.forEach(function (L) {
-      var n = Math.round(linkN * L.density);
-      for (var i = 0; i < n; i++) {
-        stars.push(makeStar(L.r, L.alpha, L.parallax, L.drift, true, 1));
-      }
-    });
-
-    for (var d = 0; d < dustN; d++) {
-      stars.push(makeStar([0.32, 0.72], 0.15, 5, 1.35, false, 0.75));
-    }
-
-    // 挑三四颗亮星，给它们十字光芒
-    var beacons = 0;
-    for (var b = 0; b < stars.length && beacons < 4; b++) {
-      if (stars[b].link && stars[b].r > 1.5 && Math.random() < 0.06) {
-        stars[b].beacon = true;
-        stars[b].base *= 1.35;
-        beacons++;
-      }
-    }
-
-    posX   = new Float32Array(stars.length);
-    posY   = new Float32Array(stars.length);
-    litA   = new Float32Array(stars.length);
-    boostA = new Float32Array(stars.length);
-
-    gridCols = Math.max(1, Math.ceil(W / LINK));
-    gridRows = Math.max(1, Math.ceil(H / LINK));
-    grid = new Array(gridCols * gridRows);
-    for (var g = 0; g < grid.length; g++) grid[g] = [];
-  }
-
-  function resize() {
-    if (!ctx) return;
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
-    W = canvas.clientWidth;
-    H = canvas.clientHeight;
-    canvas.width  = Math.round(W * DPR);
-    canvas.height = Math.round(H * DPR);
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    buildStars();
-  }
-
-  // 只跟右、下、右下、左下四个方向的邻格比 —— 每条线只可能被收到一次
-  var NEIGH = [[1, 0], [0, 1], [1, 1], [-1, 1]];
-
-  function tryLink(i, j) {
-    if (linkTotal >= MAX_LINKS) return;
-    var dx = stars[i].x - stars[j].x;
-    var dy = stars[i].y - stars[j].y;
-    var d2 = dx * dx + dy * dy;
-    if (d2 > LINK * LINK) return;
-    var o = linkTotal * 3;
-    linkBuf[o] = i;
-    linkBuf[o + 1] = j;
-    linkBuf[o + 2] = 1 - Math.sqrt(d2) / LINK;   // 越大越近
-    linkTotal++;
-  }
-
-  function collectLinks() {
-    for (var g = 0; g < grid.length; g++) grid[g].length = 0;
-
-    for (var i = 0; i < stars.length; i++) {
-      if (!stars[i].link) continue;
-      var cx = Math.floor(stars[i].x / LINK);
-      var cy = Math.floor(stars[i].y / LINK);
-      if (cx < 0) cx = 0; else if (cx >= gridCols) cx = gridCols - 1;
-      if (cy < 0) cy = 0; else if (cy >= gridRows) cy = gridRows - 1;
-      grid[cy * gridCols + cx].push(i);
-    }
-
-    linkTotal = 0;
-
-    for (var cy2 = 0; cy2 < gridRows; cy2++) {
-      for (var cx2 = 0; cx2 < gridCols; cx2++) {
-        var cell = grid[cy2 * gridCols + cx2];
-        var cn = cell.length;
-        if (!cn) continue;
-
-        for (var a = 0; a < cn; a++) {
-          for (var b = a + 1; b < cn; b++) tryLink(cell[a], cell[b]);
-        }
-        for (var n = 0; n < 4; n++) {
-          var nx = cx2 + NEIGH[n][0], ny = cy2 + NEIGH[n][1];
-          if (nx < 0 || nx >= gridCols || ny < 0 || ny >= gridRows) continue;
-          var other = grid[ny * gridCols + nx];
-          for (var p = 0; p < cn; p++) {
-            for (var q = 0; q < other.length; q++) tryLink(cell[p], other[q]);
-          }
-        }
-      }
-    }
-  }
-
-  // 分三档透明度画，每档攒一个 path 只 stroke 一次 ——
-  // 三千条线逐条 stroke 是撑不住的，这样能压到三次
-  var TIER_LO = [0.00, 0.34, 0.64];
-  var TIER_HI = [0.34, 0.64, 1.01];
-  var TIER_A  = [0.055, 0.125, 0.235];
-
-  function strokeLinks() {
-    ctx.lineWidth = 0.7;
-
-    for (var t = 0; t < 3; t++) {
-      var began = false;
-      var lo = TIER_LO[t], hi = TIER_HI[t];
-
-      for (var n = 0; n < linkTotal; n++) {
-        var o = n * 3;
-        var k = linkBuf[o + 2];
-        if (k <= lo || k > hi) continue;
-        if (!began) { ctx.beginPath(); began = true; }
-        ctx.moveTo(posX[linkBuf[o]], posY[linkBuf[o]]);
-        ctx.lineTo(posX[linkBuf[o + 1]], posY[linkBuf[o + 1]]);
-      }
-
-      if (began) {
-        ctx.strokeStyle = 'rgba(150, 186, 255, ' + TIER_A[t] + ')';
-        ctx.stroke();
-      }
-    }
-
-    // 被指针点亮的那几条单独画 —— 数量少，逐条来也没负担
-    ctx.lineWidth = 0.85;
-    for (var m = 0; m < linkTotal; m++) {
-      var om = m * 3;
-      var ii = linkBuf[om], jj = linkBuf[om + 1];
-      var bb = boostA[ii] > boostA[jj] ? boostA[ii] : boostA[jj];
-      if (bb < 0.25) continue;
-      var kk = linkBuf[om + 2];
-      ctx.beginPath();
-      ctx.moveTo(posX[ii], posY[ii]);
-      ctx.lineTo(posX[jj], posY[jj]);
-      ctx.strokeStyle = 'rgba(184, 212, 255, ' + (kk * (0.16 + bb * 0.52)).toFixed(3) + ')';
-      ctx.stroke();
-    }
-    ctx.lineWidth = 0.7;
-  }
-
-  function drawStars(now, dt) {
-    ctx.clearRect(0, 0, W, H);
-
-    eased.x += (pointer.x - eased.x) * 0.05;
-    eased.y += (pointer.y - eased.y) * 0.05;
-
-    // 一道柔光横扫过整片星海
-    var waveFront = (now * 0.052) % (W + 900) - 450;
-    var WAVE_W = 150;
-
-    for (var i = 0; i < stars.length; i++) {
-      var s = stars[i];
-
-      s.x += s.vx * dt;
-      s.y += s.vy * dt;
-      if (s.x < -30) s.x = W + 30; else if (s.x > W + 30) s.x = -30;
-      if (s.y < -30) s.y = H + 30; else if (s.y > H + 30) s.y = -30;
-
-      posX[i] = s.x + eased.x * s.px;
-      posY[i] = s.y + eased.y * s.px;
-
-      // 双频叠加的闪烁 —— 单频看着像在眨，双频才像在呼吸
-      var tw = 0.56
-             + 0.29 * Math.sin(now * s.speed + s.phase)
-             + 0.15 * Math.sin(now * s.speed * 2.63 + s.phase * 1.71);
-
-      var a = s.base * tw;
-      var b = 0;
-
-      if (pmx > -9000) {
-        var dx = s.x - pmx, dy = s.y - pmy;
-        var d2 = dx * dx + dy * dy;
-        if (d2 < 26000) {
-          b = 1 - d2 / 26000;
-          a += b * 0.62;
-        }
-      }
-
-      var wd = posX[i] - waveFront;
-      if (wd < 0) wd = -wd;
-      if (wd < WAVE_W) {
-        var w = 1 - wd / WAVE_W;
-        a += w * w * 0.55;
-        if (w * 0.75 > b) b = w * 0.75;
-      }
-
-      boostA[i] = b;
-      if (a > 1) a = 1;
-      if (a < 0) a = 0;
-      litA[i] = a;
-    }
-
-    collectLinks();
-    strokeLinks();
-
-    for (var j = 0; j < stars.length; j++) {
-      var a2 = litA[j];
-      if (a2 <= 0.012) continue;
-      var s2 = stars[j];
-      var sx = posX[j], sy = posY[j];
-
-      ctx.beginPath();
-      ctx.arc(sx, sy, s2.r, 0, Math.PI * 2);
-      ctx.fillStyle = s2.warm
-        ? 'rgba(230, 210, 178, ' + a2.toFixed(3) + ')'
-        : 'rgba(200, 219, 255, ' + a2.toFixed(3) + ')';
-      ctx.fill();
-
-      if (s2.r > 1.35) {
-        ctx.beginPath();
-        ctx.arc(sx, sy, s2.r * 3.6, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(160, 195, 255, ' + (a2 * 0.075).toFixed(3) + ')';
-        ctx.fill();
-      }
-
-      // 亮星的十字光芒
-      if (s2.beacon) {
-        var L = s2.r * 9;
-        ctx.beginPath();
-        ctx.moveTo(sx - L, sy); ctx.lineTo(sx + L, sy);
-        ctx.moveTo(sx, sy - L); ctx.lineTo(sx, sy + L);
-        ctx.strokeStyle = 'rgba(214, 232, 255, ' + (a2 * 0.30).toFixed(3) + ')';
-        ctx.lineWidth = 0.85;
-        ctx.stroke();
-        ctx.lineWidth = 0.7;
-      }
-    }
-  }
-
-  function spawnMeteor() {
-    var fromLeft = Math.random() < 0.5;
-    var angle = fromLeft
-      ? (0.32 + Math.random() * 0.16)
-      : (Math.PI - 0.32 - Math.random() * 0.16);
-    var speed = 0.32 + Math.random() * 0.3;
-
-    meteors.push({
-      x: W * (0.12 + Math.random() * 0.76),
-      y: -30 - Math.random() * 60,
-      dx: Math.cos(angle),
-      dy: Math.abs(Math.sin(angle)),
-      vx: Math.cos(angle) * speed,
-      vy: Math.abs(Math.sin(angle)) * speed,
-      len: 110 + Math.random() * 170,
-      life: 1,
-      decay: 0.00055 + Math.random() * 0.0006
-    });
-  }
-
-  function drawMeteors(dt) {
-    for (var i = meteors.length - 1; i >= 0; i--) {
-      var m = meteors[i];
-
-      m.x += m.vx * dt;
-      m.y += m.vy * dt;
-      m.life -= m.decay * dt;
-
-      if (m.life <= 0 || m.y > H + 120) { meteors.splice(i, 1); continue; }
-
-      var tx = m.x - m.dx * m.len;
-      var ty = m.y - m.dy * m.len;
-
-      var g = ctx.createLinearGradient(m.x, m.y, tx, ty);
-      g.addColorStop(0, 'rgba(214, 232, 255, ' + m.life.toFixed(3) + ')');
-      g.addColorStop(0.35, 'rgba(180, 208, 255, ' + (m.life * 0.42).toFixed(3) + ')');
-      g.addColorStop(1, 'rgba(180, 208, 255, 0)');
-
-      ctx.beginPath();
-      ctx.strokeStyle = g;
-      ctx.lineWidth = 1.35;
-      ctx.lineCap = 'round';
-      ctx.moveTo(m.x, m.y);
-      ctx.lineTo(tx, ty);
-      ctx.stroke();
-    }
-  }
-
-  var lastT = 0;
-
-  function frame(now) {
-    requestAnimationFrame(frame);
-    if (!ctx || document.hidden) { lastT = now; return; }
-
-    var dt = lastT ? Math.min(now - lastT, 64) : 16;
-    lastT = now;
-
-    if (!W || !H) { resize(); if (!W || !H) return; }
-
-    drawStars(now, dt);
-
-    meteorTimer -= dt;
-    if (meteorTimer <= 0) {
-      if (meteors.length < 2 && !reduceMotion) spawnMeteor();
-      meteorTimer = 5200 + Math.random() * 9000;
-    }
-    drawMeteors(dt);
-  }
-
-  if (ctx) {
-    resize();
-    window.addEventListener('resize', resize);
-    window.addEventListener('orientationchange', function () {
-      setTimeout(resize, 220);
-    });
-
-    // 画布 fixed 铺满视口，屏幕坐标就是画布坐标，不必再量 rect
-    window.addEventListener('pointermove', function (e) {
-      pmx = e.clientX;
-      pmy = e.clientY;
-    }, { passive: true });
-
-    window.addEventListener('blur', function () { pmx = pmy = -9999; });
-
-    if (reduceMotion) {
-      drawStars(0, 0);
-    } else {
-      requestAnimationFrame(frame);
-    }
-  }
-
-  /* ─────────── 鼠标视差 + 柔光 + 色块拖尾 ─────────── */
-  if (finePointer && !reduceMotion) {
-    var glowEl = document.getElementById('glow');
-
-    // 拖尾链：每个点追上一个点
-    var trailEls = [
-      document.getElementById('trail-0'),
-      document.getElementById('trail-1'),
-      document.getElementById('trail-2'),
-      document.getElementById('trail-3')
-    ].filter(Boolean);
-
-    var tail = trailEls.map(function () {
-      return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-    });
-    var head = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-
-    var lit = false;
-
-    window.addEventListener('pointermove', function (e) {
-      head.x = e.clientX;
-      head.y = e.clientY;
-
-      pointer.x = (e.clientX / window.innerWidth  - 0.5) * 2;
-      pointer.y = (e.clientY / window.innerHeight - 0.5) * 2;
-
-      if (!lit) {
-        if (glowEl) glowEl.classList.add('on');
-        trailEls.forEach(function (el) { el.classList.add('on'); });
-        lit = true;
-      }
-    }, { passive: true });
-
-    (function follow() {
-      requestAnimationFrame(follow);
-
-      if (glowEl) {
-        // 柔光用更慢的缓动
-        follow.gx = follow.gx === undefined ? head.x : follow.gx + (head.x - follow.gx) * 0.09;
-        follow.gy = follow.gy === undefined ? head.y : follow.gy + (head.y - follow.gy) * 0.09;
-        glowEl.style.transform =
-          'translate3d(' + follow.gx.toFixed(1) + 'px,' + follow.gy.toFixed(1) + 'px,0)';
-      }
-
-      // 拖尾：越靠后追得越慢
-      var prevX = head.x, prevY = head.y;
-      for (var i = 0; i < tail.length; i++) {
-        var k = 0.28 - i * 0.05;
-        tail[i].x += (prevX - tail[i].x) * k;
-        tail[i].y += (prevY - tail[i].y) * k;
-        trailEls[i].style.transform =
-          'translate3d(' + tail[i].x.toFixed(1) + 'px,' + tail[i].y.toFixed(1) + 'px,0)';
-        prevX = tail[i].x;
-        prevY = tail[i].y;
-      }
-    })();
-  }
-
-  /* ─────────── 滚动：进度条 + 色块视差 ─────────── */
-  (function onScroll() {
-    var bar = document.getElementById('progress');
-    var layers = Array.prototype.slice.call(document.querySelectorAll('.blk-layer'));
-    var depths = [0.045, 0.1, 0.19];
-    var ticking = false;
-    var lastY = -1;
-
-    function update() {
-      ticking = false;
-
-      var doc = document.documentElement;
-      var y = window.scrollY || doc.scrollTop;
-
-      if (bar) {
-        var max = doc.scrollHeight - window.innerHeight;
-        var p = max > 0 ? y / max : 0;
-        bar.style.transform = 'scaleX(' + Math.min(Math.max(p, 0), 1).toFixed(4) + ')';
-      }
-
-      if (reduceMotion || y === lastY) return;
-      lastY = y;
-
-      for (var i = 0; i < layers.length; i++) {
-        // 位移封顶，滚很久也不会飞出视野
-        var shift = Math.min(y * depths[i % depths.length], 280);
-        layers[i].style.transform = 'translate3d(0,' + shift.toFixed(1) + 'px,0)';
-      }
-    }
-
-    window.addEventListener('scroll', function () {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(update);
-    }, { passive: true });
-
-    window.addEventListener('resize', update, { passive: true });
-    update();
-  })();
-
-  // 点一下名字，重播一次逐字浮现
-  if (nameEl) {
-    nameEl.style.cursor = 'pointer';
-    nameEl.addEventListener('click', function () { buildName(); });
-  }
-
-  /* ─────────── 回到顶部 ─────────── */
-  var toTop = document.getElementById('toTop');
-  if (toTop) {
-    toTop.addEventListener('click', function () {
-      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
-    });
-  }
-
-  /* ─────────── 诗云：星海 + 名言 ─────────── */
-  (function poemCloud() {
-    var stage = document.getElementById('poemStage');
-    var cv    = document.getElementById('poemStars');
-    var box   = document.getElementById('poemQuotes');
-    if (!stage || !cv || !box) return;
-    var c = cv.getContext ? cv.getContext('2d') : null;
-
-    /* ── 名言。想换句子直接改这里，f 是出处 ── */
-    var QUOTES = [
-      { t: '面壁十年图破壁，难酬蹈海亦英雄',     f: '周恩来' },
-      { t: '给岁月以文明，而不是给文明以岁月',   f: '刘慈欣《三体》' },
-      { t: '弱小和无知不是生存的障碍，傲慢才是', f: '刘慈欣《三体》' },
-      { t: '不要回答！不要回答！不要回答！',     f: '刘慈欣《三体》' },
-      { t: '路漫漫其修远兮，吾将上下而求索',     f: '屈原《离骚》' },
-      { t: '朝闻道，夕死可矣',                   f: '《论语·里仁》' }
-    ];
-
-    var nodes = [];
-    var offs  = [];
-
-    QUOTES.forEach(function (q, i) {
-      var el = document.createElement('div');
-      el.className = 'quote';
-
-      var from = q.f.replace(/《([^》]+)》/g, '<em>《$1》</em>');
-      el.innerHTML = '<p>' + q.t + '<span class="from">—— ' + from + '</span></p>';
-
-      var dx = (Math.random() - 0.5) * 26;
-      var dy = (Math.random() - 0.5) * 30;
-
-      el.style.setProperty('--dur', (9 + Math.random() * 7).toFixed(1) + 's');
-      el.style.setProperty('--del', (-Math.random() * 6).toFixed(1) + 's');
-      el.style.setProperty('--dx', dx.toFixed(0) + 'px');
-      el.style.setProperty('--dy', dy.toFixed(0) + 'px');
-      el.style.setProperty('--fs', (0.94 + Math.random() * 0.3).toFixed(2) + 'rem');
-      el.style.setProperty('--a', (0.60 + Math.random() * 0.3).toFixed(2));
-
-      box.appendChild(el);
-      nodes.push(el);
-      offs.push({ dx: dx, dy: dy, depth: 7 + Math.random() * 11 });
-
-      // 依次从模糊里浮出来
-      setTimeout(function () { el.classList.add('in'); },
-                 reduceMotion ? 0 : (220 + i * 200));
-    });
-
-    /* ── 星海 ── */
-    var W = 0, H = 0, DPR = 1;
-    var stars = [], meteors = [], shocks = [];
-    var par = { x: 0, y: 0 }, parTarget = { x: 0, y: 0 };
-    var mx = -9999, my = -9999;
-    var meteorTimer = 3000;
-    var clock = 0, lastT = 0;
-    var nearList = [];
-
-    var LAYERS = [
-      { share: 0.52, r: [0.5, 1.0], alpha: 0.30, p: 8  },
-      { share: 0.32, r: [0.9, 1.6], alpha: 0.58, p: 16 },
-      { share: 0.16, r: [1.4, 2.6], alpha: 0.95, p: 28 }
-    ];
-
-    function build() {
-      var total = Math.round(W * H / 5200);
-      total = Math.max(90, Math.min(total, 250));
-
-      stars = [];
-      LAYERS.forEach(function (L) {
-        var n = Math.round(total * L.share);
-        for (var i = 0; i < n; i++) {
-          stars.push({
-            x: Math.random() * W,
-            y: Math.random() * H,
-            r: L.r[0] + Math.random() * (L.r[1] - L.r[0]),
-            base: L.alpha * (0.5 + Math.random() * 0.7),
-            phase: Math.random() * Math.PI * 2,
-            speed: 0.0005 + Math.random() * 0.0014,
-            p: L.p,
-            warm: Math.random() < 0.16
-          });
-        }
-      });
-    }
-
-    function measure() {
-      W = cv.clientWidth || stage.clientWidth || 0;
-      H = cv.clientHeight || stage.clientHeight || 0;
-      if (!W || !H) {
-        var r = stage.getBoundingClientRect();
-        if (!W) W = Math.round(r.width);
-        if (!H) H = Math.round(r.height);
-      }
-      if (!W || !H) return false;
-
-      if (cv.width !== Math.round(W * DPR) || cv.height !== Math.round(H * DPR)) {
-        DPR = Math.min(window.devicePixelRatio || 1, 2);
-        cv.width  = Math.round(W * DPR);
-        cv.height = Math.round(H * DPR);
-        if (c) c.setTransform(DPR, 0, 0, DPR, 0, 0);
-        build();
-      }
-      return true;
-    }
-
-    function drawStars(t) {
-      c.clearRect(0, 0, W, H);
-
-      nearList.length = 0;
-
-      for (var i = 0; i < stars.length; i++) {
-        var s = stars[i];
-        var a = s.base * (0.55 + 0.45 * Math.sin(t * s.speed + s.phase));
-
-        var x = s.x + par.x * s.p;
-        var y = s.y + par.y * s.p;
-
-        // 指针靠近提亮
-        if (mx > -9000) {
-          var dx = x - mx, dy = y - my;
-          var d2 = dx * dx + dy * dy;
-          if (d2 < 15000) a += (1 - d2 / 15000) * 0.7;
-          if (d2 < 34000) nearList.push({ x: x, y: y, d2: d2 });
-        }
-
-        // 点击荡开的光扫过
-        for (var k = 0; k < shocks.length; k++) {
-          var sh = shocks[k];
-          var sx = x - sh.x, sy = y - sh.y;
-          var band = Math.sqrt(sx * sx + sy * sy) - sh.r;
-          if (band < 0) band = -band;
-          if (band < 80) a += (1 - band / 80) * sh.power * 0.85;
-        }
-
-        if (a <= 0.012) continue;
-        if (a > 1) a = 1;
-
-        c.beginPath();
-        c.arc(x, y, s.r, 0, Math.PI * 2);
-        c.fillStyle = s.warm
-          ? 'rgba(217, 187, 132, ' + a.toFixed(3) + ')'
-          : 'rgba(203, 221, 255, ' + a.toFixed(3) + ')';
-        c.fill();
-
-        if (s.r > 1.7) {
-          c.beginPath();
-          c.arc(x, y, s.r * 3.6, 0, Math.PI * 2);
-          c.fillStyle = 'rgba(160, 195, 255, ' + (a * 0.08).toFixed(3) + ')';
-          c.fill();
-        }
-      }
-
-      // 星座连线：把指针附近最近的一批星连起来
-      if (nearList.length > 1) {
-        nearList.sort(function (a, b) { return a.d2 - b.d2; });
-        var N = Math.min(nearList.length, 13);
-        c.lineWidth = 0.6;
-        for (var u = 0; u < N; u++) {
-          var A = nearList[u];
-          for (var v = u + 1; v < N; v++) {
-            var B = nearList[v];
-            var lx = A.x - B.x, ly = A.y - B.y;
-            var ld = Math.sqrt(lx * lx + ly * ly);
-            if (ld > 132) continue;
-            var la = (1 - ld / 132) * 0.34;
-            if (la < 0.02) continue;
-            c.beginPath();
-            c.moveTo(A.x, A.y);
-            c.lineTo(B.x, B.y);
-            c.strokeStyle = 'rgba(169, 200, 255, ' + la.toFixed(3) + ')';
-            c.stroke();
-          }
-        }
-      }
-    }
-
-    function spawnMeteor() {
-      var left = Math.random() < 0.5;
-      var ang = left ? (0.3 + Math.random() * 0.18) : (Math.PI - 0.3 - Math.random() * 0.18);
-      var v = 0.30 + Math.random() * 0.3;
-      meteors.push({
-        x: W * (0.1 + Math.random() * 0.8),
-        y: -30 - Math.random() * 50,
-        dx: Math.cos(ang), dy: Math.abs(Math.sin(ang)),
-        vx: Math.cos(ang) * v, vy: Math.abs(Math.sin(ang)) * v,
-        len: 100 + Math.random() * 150,
-        life: 1, decay: 0.0006 + Math.random() * 0.0006
-      });
-    }
-
-    function drawMeteors(dt) {
-      for (var i = meteors.length - 1; i >= 0; i--) {
-        var m = meteors[i];
-        m.x += m.vx * dt;
-        m.y += m.vy * dt;
-        m.life -= m.decay * dt;
-        if (m.life <= 0 || m.y > H + 120) { meteors.splice(i, 1); continue; }
-
-        var tx = m.x - m.dx * m.len;
-        var ty = m.y - m.dy * m.len;
-        var g = c.createLinearGradient(m.x, m.y, tx, ty);
-        g.addColorStop(0, 'rgba(233, 240, 255, ' + m.life.toFixed(3) + ')');
-        g.addColorStop(0.3, 'rgba(180, 208, 255, ' + (m.life * 0.4).toFixed(3) + ')');
-        g.addColorStop(1, 'rgba(180, 208, 255, 0)');
-
-        c.beginPath();
-        c.strokeStyle = g;
-        c.lineWidth = 1.3;
-        c.lineCap = 'round';
-        c.moveTo(m.x, m.y);
-        c.lineTo(tx, ty);
-        c.stroke();
-      }
-    }
-
-    function advance(dt) {
-      for (var i = shocks.length - 1; i >= 0; i--) {
-        var sh = shocks[i];
-        sh.r += dt * 0.5;
-        sh.power -= dt * 0.0006;
-        if (sh.power <= 0) shocks.splice(i, 1);
-      }
-    }
-
-    function loop(now) {
-      requestAnimationFrame(loop);
-      if (document.hidden) { lastT = now; return; }
-
-      var dt = lastT ? Math.min(now - lastT, 64) : 16;
-      lastT = now;
-
-      if (!c || !measure()) return;
-
-      clock += dt;
-      advance(dt);
-
-      meteorTimer -= dt;
-      if (meteorTimer <= 0) {
-        if (meteors.length < 2 && !reduceMotion) spawnMeteor();
-        meteorTimer = 6000 + Math.random() * 9000;
-      }
-
-      if (reduceMotion) {
-        if (!loop.done) { drawStars(0); loop.done = true; }
-        return;
-      }
-
-      // 视差缓动放在这里：每帧只写一次，且只在真的动了才写
-      if (par.x !== parTarget.x || par.y !== parTarget.y) {
-        par.x += (parTarget.x - par.x) * 0.075;
-        par.y += (parTarget.y - par.y) * 0.075;
-        if (Math.abs(par.x - parTarget.x) < 0.0004) par.x = parTarget.x;
-        if (Math.abs(par.y - parTarget.y) < 0.0004) par.y = parTarget.y;
-        parallaxQuotes();
-      }
-
-      drawStars(clock);
-      drawMeteors(dt);
-    }
-
-    /* ── 交互 ── */
-    function toLocal(e) {
-      var r = stage.getBoundingClientRect();
-      return { x: e.clientX - r.left, y: e.clientY - r.top };
-    }
-
-    function parallaxQuotes() {
-      for (var i = 0; i < nodes.length; i++) {
-        var o = offs[i];
-        nodes[i].style.translate =
-          (o.dx + par.x * o.depth).toFixed(2) + 'px ' +
-          (o.dy + par.y * o.depth).toFixed(2) + 'px';
-      }
-    }
-
-    // 名言中心点预先量好存下来 —— 每帧现量会触发 layout，是抖的另一个来源
-    var centers = [];
-    function cacheCenters() {
-      var r = stage.getBoundingClientRect();
-      centers = nodes.map(function (n) {
-        var q = n.getBoundingClientRect();
-        return {
-          x: q.left + q.width / 2 - r.left,
-          y: q.top + q.height / 2 - r.top,
-          rr: Math.max(q.width, q.height)
-        };
-      });
-    }
-    setTimeout(cacheCenters, 500);
-    setTimeout(cacheCenters, 2200);          // 进场动画走完再量一次
-
-    // 页面正在滚的时候不更新视差
-    var scrolling = false, scrollTimer = null;
-    window.addEventListener('scroll', function () {
-      scrolling = true;
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(function () { scrolling = false; }, 150);
-    }, { passive: true });
-
-    stage.addEventListener('pointermove', function (e) {
-      var p = toLocal(e);
-      mx = p.x; my = p.y;
-
-      // 视差用"指尖在屏幕上的位置"，跟页面滚没滚无关
-      if (!scrolling) {
-        parTarget.x = (e.clientX / window.innerWidth - 0.5) * 2;
-        parTarget.y = (e.clientY / window.innerHeight - 0.5) * 2;
-      }
-
-      // 用缓存的中心点判断靠近，不再现量布局
-      for (var i = 0; i < nodes.length; i++) {
-        var qc = centers[i];
-        if (!qc) continue;
-        var dx = p.x - qc.x, dy = p.y - qc.y;
-        nodes[i].classList.toggle('near', dx * dx + dy * dy < qc.rr * qc.rr * 0.64);
-      }
-    }, { passive: true });
-
-    stage.addEventListener('pointerdown', function (e) {
-      var p = toLocal(e);
-      mx = p.x; my = p.y;
-      shocks.push({ x: p.x, y: p.y, r: 0, power: 1 });
-      if (shocks.length > 5) shocks.shift();
-    }, { passive: true });
-
-    stage.addEventListener('pointerleave', function () {
-      mx = my = -9999;
-      parTarget.x = parTarget.y = 0;
-      for (var i = 0; i < nodes.length; i++) nodes[i].classList.remove('near');
-    });
-
-    // 偶尔有哪句自己亮一下，像星星闪
-    (function twinkle() {
-      if (document.hidden || !nodes.length) {
-        setTimeout(twinkle, 3000);
-        return;
-      }
-      var i = (Math.random() * nodes.length) | 0;
-      nodes[i].classList.add('twinkle');
-      setTimeout(function () { nodes[i].classList.remove('twinkle'); }, 1900);
-      setTimeout(twinkle, 2600 + Math.random() * 3600);
-    })();
-
-    window.addEventListener('resize', function () { setTimeout(cacheCenters, 280); });
-    window.addEventListener('orientationchange', function () { setTimeout(cacheCenters, 460); });
-
-    if (c) requestAnimationFrame(loop);
-  })();
-
-  /* ─────────── 点按：板块波动 ─────────── */
-  function pulseSection(sec) {
-    var items = sec.querySelectorAll('.reveal');
-    Array.prototype.forEach.call(items, function (el, i) {
-      el.classList.remove('pulsing');
-      void el.offsetWidth;                       // 强制重排，动画才会重播
-      el.style.animationDelay = (i * 0.055).toFixed(3) + 's';
-      el.classList.add('pulsing');
-      setTimeout(function () { el.classList.remove('pulsing'); }, 1300 + i * 55);
-    });
-  }
-
-  Array.prototype.forEach.call(document.querySelectorAll('section .sec-title'), function (t) {
-    t.style.cursor = 'pointer';
-    t.addEventListener('click', function () {
-      var sec = t;
-      while (sec && sec.tagName !== 'SECTION') sec = sec.parentNode;
-      if (sec) pulseSection(sec);
-    });
-  });
-
-  /* ─────────── 开场收尾 ─────────── */
-  // 名字的逐字延迟写在元素上，这里直接拆就行
-  buildName();
-
-  // 遮罩由 CSS 自己淡出，这里只是等它隐掉之后把节点摘了
-  (function clearCurtain() {
-    var curtain = document.getElementById('curtain');
-    if (!curtain) return;
-    setTimeout(function () { curtain.remove(); }, 2000);
-  })();
-
-})();
+  if (location.search.indexOf('static') !== -1) document.documentElement.setAttribute('data-motion', 'off');
+  document.documentElement.classList.add('js', 'm-enter');
+  setTimeout(function () { document.documentElement.classList.add('m-enter-done'); }, 900);
 </script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<div class="grain" aria-hidden="true"></div>
+
+<button class="motion-toggle" type="button" aria-pressed="false" aria-label="暂停动效">
+  <svg class="motion-toggle__pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3" width="2.2" height="10" rx=".6"></rect><rect x="9.8" y="3" width="2.2" height="10" rx=".6"></rect></svg>
+  <svg class="motion-toggle__play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2 12.4 8 5 12.8Z"></path></svg>
+</button>
+
+<nav class="stations" aria-label="页面站点">
+  <ol class="stations__list">
+    <li><a class="stations__item" href="#about" aria-label="关于"><span class="stations__dot"></span><span class="stations__label">关于</span></a></li>
+    <li><a class="stations__item" href="#numbers" aria-label="一些数字"><span class="stations__dot"></span><span class="stations__label">一些数字</span></a></li>
+    <li><a class="stations__item" href="#doing" aria-label="在折腾什么"><span class="stations__dot"></span><span class="stations__label">在折腾什么</span></a></li>
+    <li><a class="stations__item" href="#motto" aria-label="两句话"><span class="stations__dot"></span><span class="stations__label">两句话</span></a></li>
+    <li><a class="stations__item" href="#poem" aria-label="诗云"><span class="stations__dot"></span><span class="stations__label">诗云</span></a></li>
+    <li><a class="stations__item" href="#colophon" aria-label="关于这个页面"><span class="stations__dot"></span><span class="stations__label">关于这个页面</span></a></li>
+    <li><a class="stations__item" href="#contact" aria-label="找到我"><span class="stations__dot"></span><span class="stations__label">找到我</span></a></li>
+  </ol>
+</nav>
+
+<main id="main">
+
+  <!-- ── 首屏：轨道 ─────────────────────────────── -->
+  <section class="hero phase-night has-stars" id="hero" data-enter aria-labelledby="hero-h">
+    <div class="hero__field" aria-hidden="true">
+      <div class="hero__photo"></div>
+      <svg class="orbit" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="signalGlow">
+            <stop offset="0" stop-color="#9c5326" stop-opacity=".55"></stop>
+            <stop offset=".45" stop-color="#9c5326" stop-opacity=".16"></stop>
+            <stop offset="1" stop-color="#9c5326" stop-opacity="0"></stop>
+          </radialGradient>
+        </defs>
+        <ellipse class="orbit__outer" cx="800" cy="500" rx="860" ry="430" transform="rotate(-16 800 500)"></ellipse>
+        <ellipse class="orbit__path" cx="800" cy="500" rx="720" ry="330" transform="rotate(-16 800 500)"></ellipse>
+        <g class="orbit__ticks" transform="rotate(-16 800 500)"></g>
+        <g class="orbit__runner" transform="rotate(-16 800 500)">
+          <g class="orbit__trail"></g>
+          <circle class="orbit__glow" cx="800" cy="170" r="22" fill="url(#signalGlow)"></circle>
+          <circle class="orbit__signal" cx="800" cy="170" r="3.4"></circle>
+        </g>
+      </svg>
+    </div>
+
+    <div class="hero__inner wrap">
+      <h1 class="hero__name" id="hero-h" aria-label="Aripple_star">
+        <span class="hero__name-line" aria-hidden="true"><span class="ch" style="--i:0">A</span><span class="ch" style="--i:1">r</span><span class="ch" style="--i:2">i</span><span class="ch" style="--i:3">p</span><span class="ch" style="--i:4">p</span><span class="ch" style="--i:5">l</span><span class="ch" style="--i:6">e</span><span class="ch" style="--i:7">_</span><span class="ch" style="--i:8">s</span><span class="ch" style="--i:9">t</span><span class="ch" style="--i:10">a</span><span class="ch" style="--i:11">r</span></span>
+      </h1>
+      <p class="hero__tag">
+        <span class="hero__tag-static">生电玩家 · 刘慈欣书迷 · 代码折腾者</span>
+        <span class="hero__tag-type" aria-hidden="true"><span class="hero__tag-text"></span><span class="hero__caret"></span></span>
+      </p>
+    </div>
+
+    <div class="hero__foot wrap">
+      <dl class="readout" aria-label="B 站数据，截至 2026 年 11 月">
+        <div class="readout__item"><dt>B 站投稿</dt><dd>19</dd></div>
+        <div class="readout__item"><dt>粉丝</dt><dd>76</dd></div>
+        <div class="readout__item"><dt>个长梦</dt><dd>1</dd></div>
+      </dl>
+      <a class="cue" href="#about">
+        <span class="cue__text">沿轨道进入</span>
+        <span class="cue__line" aria-hidden="true"><i></i></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── 关于 ───────────────────────────────────── -->
+  <section class="section about phase-deep has-stars" id="about" aria-labelledby="about-h">
+    <div class="about__photo" aria-hidden="true"></div>
+    <div class="wrap about__grid">
+      <div class="about__copy">
+        <h2 class="section-title" id="about-h">关于</h2>
+        <p class="about__lead" data-reveal style="--i:0">随和，慢性子，偶尔犯懒。</p>
+        <p data-reveal style="--i:1">喜欢在 Minecraft 里搭红石机器 —— 生电这块还是个小萌新，但看着机器自己跑起来的那一刻，是真会上瘾。也喜欢在编辑器里跟编译器较劲，敲点<span class="mark">没什么用但很好玩</span>的小玩意儿。</p>
+        <p data-reveal style="--i:2">看刘慈欣的书，听音乐，看风景。“面壁”在《三体》里是面壁计划；签名里那句“面壁十年”，出自周恩来。</p>
+        <p class="about__dream" data-reveal style="--i:3">梦想是走遍全世界 —— 慢慢来，但一定要去。</p>
+      </div>
+      <figure class="about__figure" data-reveal style="--i:1">
+        <div class="portrait">
+          <span class="portrait__ring" aria-hidden="true"></span>
+          <span class="portrait__dot" aria-hidden="true"></span>
+          <img src="assets/avatar.webp" alt="Aripple_star 的头像" width="396" height="396" decoding="async">
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ── 一些数字 ───────────────────────────────── -->
+  <section class="section numbers phase-predawn has-stars" id="numbers" aria-labelledby="numbers-h">
+    <div class="wrap">
+      <h2 class="section-title" id="numbers-h">一些数字</h2>
+      <div class="readouts">
+        <div class="readout-big" data-reveal style="--i:0">
+          <span class="readout-big__value">19</span>
+          <span class="readout-big__label">B 站投稿</span>
+          <span class="readout-big__rule" aria-hidden="true"></span>
+        </div>
+        <div class="readout-big" data-reveal style="--i:1">
+          <span class="readout-big__value">76</span>
+          <span class="readout-big__label">粉丝</span>
+          <span class="readout-big__rule" aria-hidden="true"></span>
+        </div>
+        <div class="readout-big" data-reveal style="--i:2">
+          <span class="readout-big__value">1</span>
+          <span class="readout-big__label">个长梦</span>
+          <span class="readout-big__rule" aria-hidden="true"></span>
+        </div>
+      </div>
+      <p class="numbers__note" data-reveal style="--i:3">B 站数据截至 2026.11</p>
+    </div>
+  </section>
+
+  <!-- ── 在折腾什么 ─────────────────────────────── -->
+  <section class="section doing phase-predawn-2 has-stars has-arc" id="doing" aria-labelledby="doing-h">
+    <div class="wrap">
+      <h2 class="section-title" id="doing-h">在折腾什么</h2>
+      <ol class="pursuits">
+        <li class="pursuit" data-reveal style="--i:0">
+          <span class="pursuit__pulse" aria-hidden="true"></span>
+          <div class="pursuit__body">
+            <h3 class="pursuit__title">Minecraft 生电 <span class="pursuit__key">redstone</span></h3>
+            <p class="pursuit__text">红石机器爱好者，自称小萌新。喜欢自动化搭起来之后，那种“它自己会跑”的安静。</p>
+          </div>
+          <svg class="pursuit__art" viewBox="0 0 140 84" aria-hidden="true">
+            <path d="M8 62h34v-8H8zM48 54h22V44H48zM76 44h20v-8H76z" fill="none"></path>
+            <path d="M96 36h16M104 36v-10M104 26l8-6M112 26v10" fill="none"></path>
+            <circle cx="18" cy="58" r="2.2"></circle><circle cx="60" cy="50" r="2.2"></circle><circle cx="86" cy="40" r="2.2"></circle>
+            <path d="M14 74h112" stroke-dasharray="1 5"></path>
+          </svg>
+        </li>
+        <li class="pursuit" data-reveal style="--i:1">
+          <span class="pursuit__pulse" aria-hidden="true"></span>
+          <div class="pursuit__body">
+            <h3 class="pursuit__title">科幻与刘慈欣 <span class="pursuit__key">fiction</span></h3>
+            <p class="pursuit__text">看他的书，也看他把人的尺度放到宇宙里去量。《三体》的面壁计划，和签名里那句“面壁十年”，在我这儿是同一个姿势。</p>
+          </div>
+          <svg class="pursuit__art" viewBox="0 0 140 84" aria-hidden="true">
+            <circle cx="70" cy="44" r="18" fill="none"></circle>
+            <ellipse cx="70" cy="44" rx="40" ry="11" fill="none" transform="rotate(-16 70 44)"></ellipse>
+            <circle cx="106" cy="30" r="2.4"></circle>
+            <path d="M18 24h12M24 18v12M118 62h8M122 58v8" fill="none"></path>
+          </svg>
+        </li>
+        <li class="pursuit" data-reveal style="--i:2">
+          <span class="pursuit__pulse" aria-hidden="true"></span>
+          <div class="pursuit__body">
+            <h3 class="pursuit__title">写代码 <span class="pursuit__key">code</span></h3>
+            <p class="pursuit__text">爱折腾各种小玩意儿，想到什么就动手试试。GitHub 上零零散散放了一些。</p>
+          </div>
+          <svg class="pursuit__art" viewBox="0 0 140 84" aria-hidden="true">
+            <path d="M34 24 16 42l18 18M62 24l18 18-18 18" fill="none"></path>
+            <path d="M86 34h36M86 44h26M86 54h32" fill="none"></path>
+            <rect x="118" y="40" width="6" height="10" fill="none"></rect>
+          </svg>
+        </li>
+        <li class="pursuit" data-reveal style="--i:3">
+          <span class="pursuit__pulse" aria-hidden="true"></span>
+          <div class="pursuit__body">
+            <h3 class="pursuit__title">音乐与风景 <span class="pursuit__key">wander</span></h3>
+            <p class="pursuit__text">耳机里放着歌，看窗外往后跑。走遍世界这件事，是早晚要做的。</p>
+          </div>
+          <svg class="pursuit__art" viewBox="0 0 140 84" aria-hidden="true">
+            <path d="M8 60h124" fill="none"></path>
+            <path d="M46 60 70 30l24 30" fill="none"></path>
+            <path d="M30 60c8-10 18-16 30-18M110 60c-8-10-18-16-30-18" fill="none" stroke-dasharray="1 5"></path>
+            <circle cx="100" cy="24" r="8" fill="none"></circle>
+          </svg>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ── 两句话：滚动点亮的时刻 ─────────────────── -->
+  <section class="section motto phase-dawn" id="motto" data-moment aria-labelledby="motto-h">
+    <div class="motto__sticky">
+      <div class="wrap motto__grid">
+        <div class="motto__en">
+          <h2 class="section-title" id="motto-h">两句话</h2>
+          <p class="motto__quote" data-reveal style="--i:0">“It must achieve in the long dream of life, not the short dream of game.”</p>
+          <p class="motto__trans" data-reveal style="--i:1">要在人生这场长梦里有所成就，而不是在游戏的短梦里。</p>
+        </div>
+        <div class="motto__cn" data-reveal style="--i:2">
+          <p class="motto__line"><span class="motto__dim">面壁十年图破壁</span><span class="motto__lit" aria-hidden="true">面壁十年图破壁</span></p>
+          <p class="motto__line"><span class="motto__dim">难酬蹈海亦英雄</span><span class="motto__lit" aria-hidden="true">难酬蹈海亦英雄</span></p>
+          <p class="motto__from">周恩来</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 诗云：星图里的引文 ─────────────────────── -->
+  <section class="section poem phase-daybreak" id="poem" data-moment aria-labelledby="poem-h">
+    <div class="wrap poem__grid">
+      <div class="poem__head">
+        <h2 class="section-title" id="poem-h">诗云</h2>
+        <p class="poem__lead" data-reveal style="--i:0">刘慈欣写过一篇《诗云》—— 一个神级文明把整个<span class="nowrap">太阳系</span>拆了，用来存下所有可能的诗。我摘了几句自己认的话，散在这片星海里。靠近它们，会亮一点。</p>
+      </div>
+
+      <div class="poem__side" data-reveal style="--i:1">
+        <div class="poem__list" role="group" aria-label="诗云引文">
+          <button class="poem__item is-active" type="button" data-index="0" aria-pressed="true" aria-label="面壁十年图破壁，难酬蹈海亦英雄 —— 周恩来">
+            <span class="poem__src">周恩来</span>
+          </button>
+          <button class="poem__item" type="button" data-index="1" aria-pressed="false" aria-label="给岁月以文明，而不是给文明以岁月 —— 刘慈欣《三体》">
+            <span class="poem__src">刘慈欣《三体》</span>
+          </button>
+          <button class="poem__item" type="button" data-index="2" aria-pressed="false" aria-label="弱小和无知不是生存的障碍，傲慢才是 —— 刘慈欣《三体》">
+            <span class="poem__src">刘慈欣《三体》</span>
+          </button>
+          <button class="poem__item" type="button" data-index="3" aria-pressed="false" aria-label="不要回答！不要回答！不要回答！ —— 刘慈欣《三体》">
+            <span class="poem__src">刘慈欣《三体》</span>
+          </button>
+          <button class="poem__item" type="button" data-index="4" aria-pressed="false" aria-label="路漫漫其修远兮，吾将上下而求索 —— 屈原《离骚》">
+            <span class="poem__src">屈原《离骚》</span>
+          </button>
+          <button class="poem__item" type="button" data-index="5" aria-pressed="false" aria-label="朝闻道，夕死可矣 —— 《论语·里仁》">
+            <span class="poem__src">《论语·里仁》</span>
+          </button>
+          <button class="poem__item" type="button" data-index="6" aria-pressed="false" aria-label="前进！前进！不择手段地前进！ —— 刘慈欣《三体》">
+            <span class="poem__src">刘慈欣《三体》</span>
+          </button>
+          <button class="poem__item" type="button" data-index="7" aria-pressed="false" aria-label="长风破浪会有时，直挂云帆济沧海 —— 李白《行路难》">
+            <span class="poem__src">李白《行路难》</span>
+          </button>
+        </div>
+
+        <div class="poem__panel" aria-live="polite">
+          <p class="poem__panel-text">
+            <span class="poem__panel-full sr-only">面壁十年图破壁，难酬蹈海亦英雄</span>
+            <span class="poem__panel-type" aria-hidden="true"><span class="poem__panel-chars">面壁十年图破壁，难酬蹈海亦英雄</span><span class="poem__panel-caret"></span></span>
+          </p>
+          <p class="poem__panel-src">—— 周恩来</p>
+        </div>
+
+        <noscript>
+          <ul class="poem__fallback">
+            <li>面壁十年图破壁，难酬蹈海亦英雄 —— 周恩来</li>
+            <li>给岁月以文明，而不是给文明以岁月 —— 刘慈欣《三体》</li>
+            <li>弱小和无知不是生存的障碍，傲慢才是 —— 刘慈欣《三体》</li>
+            <li>不要回答！不要回答！不要回答！ —— 刘慈欣《三体》</li>
+            <li>路漫漫其修远兮，吾将上下而求索 —— 屈原《离骚》</li>
+            <li>朝闻道，夕死可矣 —— 《论语·里仁》</li>
+            <li>前进！前进！不择手段地前进！ —— 刘慈欣《三体》</li>
+            <li>长风破浪会有时，直挂云帆济沧海 —— 李白《行路难》</li>
+          </ul>
+        </noscript>
+      </div>
+
+      <div class="poem__stage" data-reveal style="--i:1">
+        <div class="poem__photo" aria-hidden="true"></div>
+        <canvas id="poem-canvas" aria-hidden="true"></canvas>
+        <span class="poem__stage-orbit" aria-hidden="true"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 关于这个页面 ───────────────────────────── -->
+  <section class="section colophon phase-morning has-arc" id="colophon" aria-labelledby="colophon-h">
+    <div class="wrap colophon__grid">
+      <div>
+        <h2 class="section-title" id="colophon-h">关于这个页面</h2>
+        <p class="colophon__note" data-reveal style="--i:0">没有框架，没有构建步骤。想改哪儿，改哪儿。</p>
+      </div>
+      <dl class="specs">
+        <div class="spec" data-reveal style="--i:0"><dt>结构</dt><dd>一个文件夹装下全部 —— HTML、CSS、脚本、字体、头像都在里面。</dd></div>
+        <div class="spec" data-reveal style="--i:1"><dt>字体</dt><dd>Gloock 拉丁字面随站点本地加载；中文走系统衬线字体，不请求外部字体服务。</dd></div>
+        <div class="spec" data-reveal style="--i:2"><dt>零外部请求</dt><dd>没有 CDN、统计脚本或第三方请求，断网也能看。</dd></div>
+        <div class="spec" data-reveal style="--i:3"><dt>Canvas</dt><dd>首屏轨道是 SVG；诗云星图是 Canvas 2D，按需重绘。</dd></div>
+        <div class="spec" data-reveal style="--i:4"><dt>动效</dt><dd>版块进视口时轻轻上浮，章节标题逐字写出；以 transform、opacity 和颜色为主，尊重系统的减少动态设置，可以随时关掉。</dd></div>
+        <div class="spec" data-reveal style="--i:5"><dt>手写</dt><dd>没有依赖，没有编译。一个 HTML、一个 CSS、一个脚本，读完就能改。</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ── 找到我 ─────────────────────────────────── -->
+  <section class="section contact phase-day" id="contact" aria-labelledby="contact-h">
+    <div class="wrap contact__inner">
+      <h2 class="section-title contact__title" id="contact-h">找到我</h2>
+      <p class="contact__lead" data-reveal style="--i:0">B 站、GitHub、邮箱，三个地方都能找到我。</p>
+
+      <div class="contact__links">
+        <a class="contact__link" data-reveal style="--i:0" href="https://space.bilibili.com/3546669826181699" target="_blank" rel="noopener noreferrer">
+          <span class="contact__key">Bilibili</span>
+          <span class="contact__value">Aripple_star<small>19 投稿 · 76 粉丝</small></span>
+          <span class="contact__arrow" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 12 12 4M6 4h6v6"></path></svg></span>
+        </a>
+        <a class="contact__link" data-reveal style="--i:1" href="https://github.com/hajcklll" target="_blank" rel="noopener noreferrer">
+          <span class="contact__key">GitHub</span>
+          <span class="contact__value">hajcklll</span>
+          <span class="contact__arrow" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 12 12 4M6 4h6v6"></path></svg></span>
+        </a>
+        <a class="contact__link" data-reveal style="--i:2" href="mailto:yunchuan03@outlook.com">
+          <span class="contact__key">Email</span>
+          <span class="contact__value">yunchuan03@<wbr>outlook.com</span>
+          <span class="contact__arrow" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4"></path></svg></span>
+        </a>
+      </div>
+
+      <footer class="footer" data-reveal style="--i:3">
+        <p>Aripple_star · 2026</p>
+        <p>Gloock by Duarte Pinto, SIL OFL 1.1 · 摄影 Unsplash · 星空 NASA/ESA（Hubble XDF） · 数据截至 2026.11</p>
+        <a class="footer__top" href="#hero">回到轨道顶部 <svg class="footer__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4"></path></svg></a>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Aripple_star",
+  "description": "生电玩家、刘慈欣书迷、代码折腾者。",
+  "sameAs": [
+    "https://github.com/hajcklll",
+    "https://space.bilibili.com/3546669826181699"
+  ]
+}
+</script>
+<script src="script.js"></script>
 </body>
 </html>
