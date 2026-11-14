@@ -18,6 +18,9 @@
 
   --paper: #f3eee4;
   --ink: #1f1b15;
+  --ink-2: #4a4237;
+  --muted: #6f6557;
+  --accent: #9c5326;
   --ease: cubic-bezier(.2, .8, .2, 1);
   --ease-enter: cubic-bezier(.22, 1, .36, 1);
 }
@@ -28,9 +31,13 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
   scroll-behavior: smooth;
   scrollbar-color: rgba(156, 83, 38, .55) transparent;
   scrollbar-width: thin;
+}
+@supports (overflow: clip) {
+  html { overflow-x: clip; }
 }
 
 body {
@@ -197,7 +204,9 @@ html.js [data-reveal].is-in {
 }
 .section > .wrap { position: relative; z-index: 2; }
 
-/* 无照片的章节：一道裁出画面的轨道弧，让纸面有远山一样的层次 */
+/* 无照片的章节：一道裁出画面的轨道弧，让纸面有远山一样的层次
+   overflow 收在本节里，弧线不撑出横向滚动条 */
+.has-arc { overflow: hidden; }
 .has-arc::before {
   content: "";
   position: absolute;
@@ -345,6 +354,88 @@ html.js [data-reveal].is-in {
 html[data-motion="off"] .motion-toggle__pause { display: none; }
 html[data-motion="off"] .motion-toggle__play { display: block; }
 html:not(.js) .motion-toggle { display: none; }
+
+/* ── 语言开关 ─────────────────────────────────── */
+.lang {
+  position: fixed;
+  right: calc(max(clamp(14px, 2vw, 24px), calc(env(safe-area-inset-right, 0px) + 10px)) + 52px);
+  bottom: max(clamp(14px, 2vw, 24px), calc(env(safe-area-inset-bottom, 0px) + 10px));
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 44px;
+  padding-inline: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+.lang__btn {
+  min-width: 30px;
+  height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  transition: color .15s var(--ease);
+}
+.lang__btn:hover,
+.lang__btn:focus-visible { color: var(--accent); }
+.lang__btn.is-active { color: var(--ink); }
+.lang__sep { opacity: .45; }
+html:not(.js) .lang { display: none; }
+
+/* 英文排版：标题和引文回到 Gloock，首屏标签允许换行 */
+html[data-lang="en"] .section-title {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: -.01em;
+}
+html[data-lang="en"] .about__lead,
+html[data-lang="en"] .about__dream,
+html[data-lang="en"] .pursuit__title,
+html[data-lang="en"] .poem__panel-text,
+html[data-lang="en"] .contact__value {
+  font-family: var(--display);
+  font-weight: 400;
+}
+html[data-lang="en"] .hero__tag {
+  white-space: normal;
+  max-width: min(92vw, 42em);
+}
+html[data-lang="en"] .hero__tag-type {
+  white-space: normal;
+  width: 100%;
+  text-align: center;
+}
+html[data-lang="en"] .motto__trans { display: none; }
+html[data-lang="en"] .motto__gloss { display: block; }
+html[data-lang="en"] .pursuit__text { max-width: 60ch; }
+html[data-lang="en"] .poem__lead { max-width: 54ch; }
+html[data-lang="en"] .poem__item { padding: 9px 0; }
+html[data-lang="en"] .poem__list { margin-top: 18px; }
+html[data-lang="en"] .poem__panel {
+  margin-top: 14px;
+  padding-top: 12px;
+  min-height: 5.4em;
+}
+html[data-lang="en"] .poem__panel-text {
+  font-size: clamp(1.05rem, 1.5vw, 1.4rem);
+  line-height: 1.5;
+}
+.motto__gloss {
+  display: none;
+  max-width: 36ch;
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(.9rem, 1vw, 1rem);
+  line-height: 1.75;
+  color: var(--muted);
+}
 
 /* ── 首屏 ─────────────────────────────────────── */
 .hero {
@@ -502,7 +593,7 @@ html:not(.js) .motion-toggle { display: none; }
   gap: clamp(18px, 3vw, 44px);
   margin: 0;
 }
-.readout__item { display: flex; flex-direction: column-reverse; gap: 3px; }
+.readout__item { display: flex; flex: 0 0 auto; flex-direction: column-reverse; gap: 3px; }
 .readout dd {
   min-width: 1.6ch;
   margin: 0;
@@ -512,6 +603,7 @@ html:not(.js) .motion-toggle { display: none; }
   letter-spacing: -.02em;
 }
 .readout dt {
+  white-space: nowrap;
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: .12em;
@@ -555,6 +647,7 @@ html:not(.js) .motion-toggle { display: none; }
 .cue:hover .cue__line i, .cue:focus-visible .cue__line i { transform: translate(-50%, 4px); }
 
 /* ── 关于 ─────────────────────────────────────── */
+.about { overflow: hidden; }
 .about__photo {
   position: absolute;
   inset: 0;
@@ -910,6 +1003,7 @@ html[data-motion="off"] .motto__lit { display: none; }
 .poem__side { grid-area: side; }
 .poem__stage {
   position: relative;
+  overflow: hidden;
   grid-area: stage;
   align-self: center;
   width: 100%;
@@ -1223,6 +1317,11 @@ html:not(.js) .poem__grid {
   .stations { display: none; }
 }
 
+/* 平板宽度：把头像让进来一点，旋转的环就不会被裁到 */
+@media (min-width: 901px) and (max-width: 1100px) {
+  .about__figure { padding-right: 16px; }
+}
+
 @media (max-width: 900px) {
   .about__photo {
     background:
@@ -1242,6 +1341,12 @@ html:not(.js) .poem__grid {
     top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px));
     right: max(14px, calc(env(safe-area-inset-right, 0px) + 10px));
     bottom: auto;
+  }
+  .lang {
+    top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px));
+    right: calc(max(14px, calc(env(safe-area-inset-right, 0px) + 10px)) + 52px);
+    bottom: auto;
+    left: auto;
   }
 }
 
@@ -1409,7 +1514,7 @@ html[data-motion="off"] .motto__lit { display: none; }
 html[data-motion="off"] .motto__dim { color: var(--ink); }
 
 @media print {
-  .stations, .motion-toggle, .grain, .hero__field, .poem__stage { display: none !important; }
+  .stations, .motion-toggle, .lang, .grain, .hero__field, .poem__stage { display: none !important; }
   .section, .hero { min-height: 0; padding: 24px 0; break-inside: avoid; }
   body { background: #fff; color: #111; }
 }

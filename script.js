@@ -15,13 +15,15 @@
   // 预览 / 截图模式：?static 强制静态，方便在无头浏览器里看稳定帧。
   if (new URLSearchParams(window.location.search).has("static")) motionOn = false;
 
+  let currentLang = "zh";
   const toggle = document.querySelector(".motion-toggle");
 
   function syncMotion() {
     root.dataset.motion = motionOn ? "on" : "off";
     if (!toggle) return;
+    const en = currentLang === "en";
     toggle.setAttribute("aria-pressed", String(!motionOn));
-    toggle.setAttribute("aria-label", motionOn ? "暂停动效" : "播放动效");
+    toggle.setAttribute("aria-label", motionOn ? (en ? "Pause motion" : "暂停动效") : (en ? "Play motion" : "播放动效"));
   }
 
   /* ── 首屏入场 ───────────────────────────────── */
@@ -351,14 +353,38 @@
   const ctx = canvas ? canvas.getContext("2d") : null;
 
   const QUOTES = [
-    { text: "面壁十年图破壁，难酬蹈海亦英雄", src: "周恩来" },
-    { text: "给岁月以文明，而不是给文明以岁月", src: "刘慈欣《三体》" },
-    { text: "弱小和无知不是生存的障碍，傲慢才是", src: "刘慈欣《三体》" },
-    { text: "不要回答！不要回答！不要回答！", src: "刘慈欣《三体》" },
-    { text: "路漫漫其修远兮，吾将上下而求索", src: "屈原《离骚》" },
-    { text: "朝闻道，夕死可矣", src: "《论语·里仁》" },
-    { text: "前进！前进！不择手段地前进！", src: "刘慈欣《三体》" },
-    { text: "长风破浪会有时，直挂云帆济沧海", src: "李白《行路难》" }
+    {
+      zh: { text: "面壁十年图破壁，难酬蹈海亦英雄", src: "周恩来" },
+      en: { text: "Ten years facing the wall to break through; failing to cross the sea, still a hero.", src: "Zhou Enlai" }
+    },
+    {
+      zh: { text: "给岁月以文明，而不是给文明以岁月", src: "刘慈欣《三体》" },
+      en: { text: "Give civilization to the years, not years to civilization.", src: "Liu Cixin, The Three-Body Problem" }
+    },
+    {
+      zh: { text: "弱小和无知不是生存的障碍，傲慢才是", src: "刘慈欣《三体》" },
+      en: { text: "Weakness and ignorance are not obstacles to survival; arrogance is.", src: "Liu Cixin, The Three-Body Problem" }
+    },
+    {
+      zh: { text: "不要回答！不要回答！不要回答！", src: "刘慈欣《三体》" },
+      en: { text: "Do not answer! Do not answer! Do not answer!", src: "Liu Cixin, The Three-Body Problem" }
+    },
+    {
+      zh: { text: "路漫漫其修远兮，吾将上下而求索", src: "屈原《离骚》" },
+      en: { text: "The road ahead is long and far; I will search high and low.", src: "Qu Yuan, Li Sao" }
+    },
+    {
+      zh: { text: "朝闻道，夕死可矣", src: "《论语·里仁》" },
+      en: { text: "If you hear the Way in the morning, you may die content in the evening.", src: "The Analects" }
+    },
+    {
+      zh: { text: "前进！前进！不择手段地前进！", src: "刘慈欣《三体》" },
+      en: { text: "Advance! Advance! Advance by any means necessary!", src: "Liu Cixin, The Three-Body Problem" }
+    },
+    {
+      zh: { text: "长风破浪会有时，直挂云帆济沧海", src: "李白《行路难》" },
+      en: { text: "A time will come to ride the wind and cleave the waves; I will set my cloud-white sail and cross the sea.", src: "Li Bai, Hard Is the Road" }
+    }
   ];
 
   const NODES = [
@@ -407,14 +433,15 @@
     if (panelChars && panelFull) panelChars.textContent = panelFull.textContent;
   }
 
-  function setPanel(index) {
+  function setPanel(index, animate = true) {
     if (!panel || !panelFull || !panelChars || !panelSrc) return;
-    const q = QUOTES[index];
-    if (!q) return;
+    const quote = QUOTES[index];
+    if (!quote) return;
+    const q = quote[currentLang] || quote.zh;
     stopPanelTyping();
     panelFull.textContent = q.text;
-    panelSrc.textContent = "—— " + q.src;
-    if (motionOn && !reduceQuery.matches) {
+    panelSrc.textContent = (currentLang === "en" ? "— " : "—— ") + q.src;
+    if (animate && motionOn && !reduceQuery.matches) {
       panelTyping = true;
       panel.classList.add("is-typing");
       panelChars.textContent = "";
@@ -575,6 +602,226 @@
     resizeCanvas();
   }
 
+  /* ── 中英切换 ───────────────────────────────── */
+  const I18N = {
+    zh: {
+      "doc.title": "Aripple_star — 生电玩家 · 刘慈欣书迷 · 代码折腾者",
+      "doc.desc": "Aripple_star 的个人介绍：Minecraft 生电、刘慈欣与科幻、写代码，以及一个走遍世界的长梦。",
+      "skip": "跳到正文",
+      "nav.about": "关于",
+      "nav.numbers": "一些数字",
+      "nav.doing": "在折腾什么",
+      "nav.motto": "两句话",
+      "nav.poem": "诗云",
+      "nav.colophon": "关于这个页面",
+      "nav.contact": "找到我",
+      "hero.readout.aria": "B 站数据，截至 2026 年 11 月",
+      "hero.tag": "生电玩家 · 刘慈欣书迷 · 代码折腾者",
+      "hero.videos": "B 站投稿",
+      "hero.fans": "粉丝",
+      "hero.dream": "个长梦",
+      "hero.cue": "沿轨道进入",
+      "about.title": "关于",
+      "about.lead": "随和，慢性子，偶尔犯懒。",
+      "about.p1": `喜欢在 Minecraft 里搭红石机器 —— 生电这块还是个小萌新，但看着机器自己跑起来的那一刻，是真会上瘾。也喜欢在编辑器里跟编译器较劲，敲点<span class="mark">没什么用但很好玩</span>的小玩意儿。`,
+      "about.p2": "看刘慈欣的书，听音乐，看风景。“面壁”在《三体》里是面壁计划；签名里那句“面壁十年”，出自周恩来。",
+      "about.dream": "梦想是走遍全世界：慢慢来，但一定要去。",
+      "about.avatarAlt": "Aripple_star 的头像",
+      "numbers.title": "一些数字",
+      "numbers.videos": "B 站投稿",
+      "numbers.fans": "粉丝",
+      "numbers.dream": "个长梦",
+      "numbers.note": "B 站数据截至 2026.11",
+      "doing.title": "在折腾什么",
+      "doing.1.title": "Minecraft 生电",
+      "doing.1.text": "红石机器爱好者，自称小萌新。喜欢自动化搭起来之后，那种“它自己会跑”的安静。",
+      "doing.2.title": "科幻与刘慈欣",
+      "doing.2.text": "看他的书，也看他把人的尺度放到宇宙里去量。《三体》的面壁计划，和签名里那句“面壁十年”，在我这儿是同一个姿势。",
+      "doing.3.title": "写代码",
+      "doing.3.text": "爱折腾各种小玩意儿，想到什么就动手试试。GitHub 上零零散散放了一些。",
+      "doing.4.title": "音乐与风景",
+      "doing.4.text": "耳机里放着歌，看窗外往后跑。走遍世界这件事，是早晚要做的。",
+      "motto.title": "两句话",
+      "motto.trans": "要在人生这场长梦里有所成就，而不是在游戏的短梦里。",
+      "motto.gloss": "On the wall for ten years, to break through; failing to cross the sea, still a hero.",
+      "motto.source": "周恩来",
+      "poem.title": "诗云",
+      "poem.lead": `刘慈欣写过一篇《诗云》—— 一个神级文明把整个<span class="nowrap">太阳系</span>拆了，用来存下所有可能的诗。我摘了几句自己认的话，散在这片星海里。靠近它们，会亮一点。`,
+      "colophon.title": "关于这个页面",
+      "colophon.note": "没有框架，没有构建步骤。想改哪儿，改哪儿。",
+      "colophon.structure": "结构",
+      "colophon.structure.text": "一个文件夹装下全部 —— HTML、CSS、脚本、字体、头像都在里面。",
+      "colophon.type": "字体",
+      "colophon.type.text": "Gloock 拉丁字面随站点本地加载；中文走系统衬线字体，不请求外部字体服务。",
+      "colophon.zero": "零外部请求",
+      "colophon.zero.text": "没有 CDN、统计脚本或第三方请求，断网也能看。",
+      "colophon.canvas": "Canvas",
+      "colophon.canvas.text": "首屏轨道是 SVG；诗云星图是 Canvas 2D，按需重绘。",
+      "colophon.motion": "动效",
+      "colophon.motion.text": "版块进视口时轻轻上浮，章节标题逐字写出；以 transform、opacity 和颜色为主，尊重系统的减少动态设置，可以随时关掉。",
+      "colophon.hand": "手写",
+      "colophon.hand.text": "没有依赖，没有编译。一个 HTML、一个 CSS、一个脚本，读完就能改。",
+      "contact.title": "找到我",
+      "contact.lead": "B 站、GitHub、邮箱，三个地方都能找到我。",
+      "contact.stats": "19 投稿 · 76 粉丝",
+      "footer.credit": "Gloock by Duarte Pinto, SIL OFL 1.1 · 摄影 Unsplash · 星空 NASA/ESA（Hubble XDF） · 数据截至 2026.11",
+      "footer.top": "回到轨道顶部"
+    },
+    en: {
+      "doc.title": "Aripple_star — Redstone player · Liu Cixin reader · Code tinkerer",
+      "doc.desc": "Aripple_star's personal page: Minecraft redstone, Liu Cixin and science fiction, code, and a long dream of seeing the world.",
+      "skip": "Skip to content",
+      "nav.about": "About",
+      "nav.numbers": "Numbers",
+      "nav.doing": "What I'm Up To",
+      "nav.motto": "Two Lines",
+      "nav.poem": "Poem Cloud",
+      "nav.colophon": "About This Page",
+      "nav.contact": "Find Me",
+      "hero.readout.aria": "Bilibili data, as of November 2026",
+      "hero.tag": "Redstone player · Liu Cixin reader · Code tinkerer",
+      "hero.videos": "videos",
+      "hero.fans": "followers",
+      "hero.dream": "dream",
+      "hero.cue": "Follow the orbit",
+      "about.title": "About",
+      "about.lead": "Easygoing, slow, occasionally lazy.",
+      "about.p1": `I like building redstone machines in Minecraft — still a beginner at technical Minecraft, but watching a machine run by itself is genuinely addictive. I also like arguing with compilers in the editor, making <span class="mark">small things that are useless but fun</span>.`,
+      "about.p2": `I read Liu Cixin, listen to music, and look at scenery. In <em>The Three-Body Problem</em>, “Wallfacer” is the Wallfacer Project; the line “ten years facing the wall” in my bio comes from Zhou Enlai.`,
+      "about.dream": "The dream is to see the whole world — slowly, but I will go.",
+      "about.avatarAlt": "Aripple_star's avatar",
+      "numbers.title": "A Few Numbers",
+      "numbers.videos": "Bilibili videos",
+      "numbers.fans": "followers",
+      "numbers.dream": "long dream",
+      "numbers.note": "Bilibili data as of Nov 2026",
+      "doing.title": "What I'm Up To",
+      "doing.1.title": "Minecraft redstone",
+      "doing.1.text": "A redstone machine enthusiast, self-described beginner. I like the quiet after automation is built — the feeling that “it runs by itself.”",
+      "doing.2.title": "Science Fiction & Liu Cixin",
+      "doing.2.text": "I read his books and watch him measure human scale against the universe. The Wallfacer Project in “The Three-Body Problem” and the line “ten years facing the wall” in my bio feel like the same posture to me.",
+      "doing.3.title": "Writing Code",
+      "doing.3.text": "I like tinkering with small things; when an idea comes, I try it. A few of them are scattered on GitHub.",
+      "doing.4.title": "Music & Scenery",
+      "doing.4.text": "Music in my headphones, watching the window run backwards. Seeing the whole world is something I'll do sooner or later.",
+      "motto.title": "Two Lines",
+      "motto.trans": "要在人生这场长梦里有所成就，而不是在游戏的短梦里。",
+      "motto.gloss": "On the wall for ten years, to break through; failing to cross the sea, still a hero.",
+      "motto.source": "Zhou Enlai",
+      "poem.title": "Poem Cloud",
+      "poem.lead": "Liu Cixin wrote a story called “Poem Cloud” — a godlike civilization dismantles the entire solar system to store every possible poem. I picked a few lines I believe in and scattered them across this sea of stars. Move closer, and they brighten.",
+      "colophon.title": "About This Page",
+      "colophon.note": "No framework, no build step. Change whatever you want.",
+      "colophon.structure": "Structure",
+      "colophon.structure.text": "One folder holds everything — HTML, CSS, script, fonts, avatar.",
+      "colophon.type": "Type",
+      "colophon.type.text": "Gloock's Latin face loads locally with the site; Chinese uses the system serif. No external font service.",
+      "colophon.zero": "Zero external requests",
+      "colophon.zero.text": "No CDN, analytics, or third-party requests. It works offline.",
+      "colophon.canvas": "Canvas",
+      "colophon.canvas.text": "The hero orbit is SVG; the poem star map is Canvas 2D, redrawn on demand.",
+      "colophon.motion": "Motion",
+      "colophon.motion.text": "Sections rise gently into view; section titles write themselves out character by character. Mostly transform, opacity, and color; respects reduced motion and can be paused.",
+      "colophon.hand": "Handwritten",
+      "colophon.hand.text": "No dependencies, no compilation. One HTML, one CSS, one script — readable and editable.",
+      "contact.title": "Find Me",
+      "contact.lead": "Bilibili, GitHub, email — three places to find me.",
+      "contact.stats": "19 videos · 76 followers",
+      "footer.credit": "Gloock by Duarte Pinto, SIL OFL 1.1 · Photography Unsplash · Star image NASA/ESA (Hubble XDF) · Data as of 2026.11",
+      "footer.top": "Back to the top of the orbit"
+    }
+  };
+
+  const langButtons = Array.from(document.querySelectorAll("[data-set-lang]"));
+  const docDesc = document.querySelector('meta[name="description"]');
+  const poemGroup = document.querySelector(".poem__list");
+
+  function t(key) {
+    const dict = I18N[currentLang] || I18N.zh;
+    const value = dict[key];
+    return typeof value === "string" ? value : "";
+  }
+
+  function setTitleText(el, text) {
+    const job = titleJobs.find((item) => item.el === el);
+    if (!job) { el.textContent = text; return; }
+    window.clearTimeout(job.timer);
+    job.typing = false;
+    job.done = true;
+    job.text = text;
+    const sr = el.querySelector(".sr-only");
+    if (sr) sr.textContent = text;
+    if (job.span) job.span.textContent = text;
+    if (job.caret) { job.caret.remove(); job.caret = null; }
+  }
+
+  function syncPoemButtons() {
+    buttons.forEach((button, i) => {
+      const q = QUOTES[i] && QUOTES[i][currentLang];
+      if (!q) return;
+      const src = button.querySelector(".poem__src");
+      if (src) src.textContent = q.src;
+      button.setAttribute("aria-label", q.text + " — " + q.src);
+    });
+    if (poemGroup) {
+      poemGroup.setAttribute("aria-label", currentLang === "en" ? "Poem Cloud quotations" : "诗云引文");
+    }
+  }
+
+  function applyLanguage(code, { persist = false } = {}) {
+    currentLang = code === "en" ? "en" : "zh";
+    if (persist) store.set("aripple-lang", currentLang);
+    root.lang = currentLang === "en" ? "en" : "zh-CN";
+    root.dataset.lang = currentLang;
+
+    document.title = t("doc.title");
+    if (docDesc) docDesc.setAttribute("content", t("doc.desc"));
+
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      const value = t(el.getAttribute("data-i18n"));
+      if (!value) return;
+      if (el.classList.contains("section-title")) setTitleText(el, value);
+      else el.textContent = value;
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+      const value = t(el.getAttribute("data-i18n-html"));
+      if (value) el.innerHTML = value;
+    });
+    document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+      const value = t(el.getAttribute("data-i18n-aria"));
+      if (value) el.setAttribute("aria-label", value);
+    });
+    document.querySelectorAll("[data-i18n-alt]").forEach((el) => {
+      const value = t(el.getAttribute("data-i18n-alt"));
+      if (value) el.setAttribute("alt", value);
+    });
+
+    document.querySelectorAll(".stations__item").forEach((link) => {
+      const label = link.querySelector(".stations__label");
+      if (label) link.setAttribute("aria-label", label.textContent.trim());
+    });
+
+    if (heroTagStatic) heroTagStatic.textContent = t("hero.tag");
+    clearTypewriter();
+
+    syncPoemButtons();
+    setPanel(active, false);
+
+    langButtons.forEach((button) => {
+      const isActive = button.getAttribute("data-set-lang") === currentLang;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+
+    syncMotion();
+  }
+
+  langButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      applyLanguage(button.getAttribute("data-set-lang"), { persist: true });
+    });
+  });
+
   /* ── 诗云键盘 / 站点高亮 / 首屏读数 ─────────── */
   const poemList = document.querySelector(".poem__list");
   if (poemList) {
@@ -689,7 +936,9 @@
     }
   });
 
-  syncMotion();
+  const langParam = new URLSearchParams(window.location.search).get("lang");
+  const initialLang = langParam === "en" ? "en" : (langParam === "zh" ? "zh" : (store.get("aripple-lang") === "en" ? "en" : "zh"));
+  applyLanguage(initialLang);
   setupTitleTyping();
   scheduleTypewriter();
   scheduleReadout();
