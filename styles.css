@@ -1234,6 +1234,36 @@ html:not(.js) .poem__grid {
   color: var(--muted);
 }
 .specs { margin: 0; }
+.log__title {
+  margin: clamp(24px, 3.5vh, 34px) 0 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: .14em;
+  color: var(--muted);
+}
+.log {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+.log li {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+.log time {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: var(--muted);
+}
 .spec {
   display: grid;
   grid-template-columns: 96px minmax(0, 1fr);
@@ -1505,6 +1535,12 @@ html:not(.js) .poem__grid {
   .motto__line { font-size: clamp(6.3rem, 5.5vw, 7.4rem); }
   .poem__lead { max-width: 46ch; }
   .pursuit__text { max-width: 48ch; }
+}
+
+/* 固定语言片的位置：给每节标题留出上沿，避免被压住 */
+.section:not(.motto) { padding-block-start: max(clamp(72px, 10vh, 140px), 84px); }
+@media (max-width: 760px) {
+  .section:not(.motto) { padding-block-start: max(clamp(58px, 9vh, 90px), 84px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
