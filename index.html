@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-lang="zh" data-motion="on">
+<html lang="en" data-lang="en" data-motion="on">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Aripple_star — 生电玩家 · 刘慈欣书迷 · 代码折腾者</title>
-<meta name="description" content="Aripple_star 的个人介绍：Minecraft 生电、刘慈欣与科幻、写代码，以及一个走遍世界的长梦。">
+<title>Aripple_star — Redstone player · Liu Cixin reader · Code tinkerer</title>
+<meta name="description" content="Aripple_star's personal page: Minecraft redstone, Liu Cixin and science fiction, code, and a long dream of seeing the world.">
 <meta name="theme-color" content="#f3eee4">
-<meta property="og:title" content="Aripple_star — 生电玩家 · 刘慈欣书迷 · 代码折腾者">
-<meta property="og:description" content="Minecraft 生电、刘慈欣与科幻、写代码，以及一个走遍世界的长梦。">
+<meta property="og:title" content="Aripple_star — Redstone player · Liu Cixin reader · Code tinkerer">
+<meta property="og:description" content="Minecraft redstone, Liu Cixin and science fiction, code, and a long dream of seeing the world.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hajcklll.github.io/Instructions-/">
 <meta property="og:image" content="https://hajcklll.github.io/Instructions-/share.jpg">
@@ -23,12 +23,13 @@
   if (location.search.indexOf('static') !== -1) document.documentElement.setAttribute('data-motion', 'off');
   document.documentElement.classList.add('js', 'm-enter');
   setTimeout(function () { document.documentElement.classList.add('m-enter-done'); }, 900);
+  setTimeout(function () { document.documentElement.classList.add('i18n-ready'); }, 1500);
 </script>
 </head>
 <body>
 <a class="skip" href="#main" data-i18n="skip">跳到正文</a>
 <div class="lang" role="group" aria-label="语言 / Language">
-  <button class="lang__btn is-active" type="button" data-set-lang="zh" aria-pressed="true" lang="zh-CN">中</button>
+  <button class="lang__btn is-active" type="button" data-set-lang="zh" aria-pressed="true" lang="zh-CN">中文</button>
   <span class="lang__sep" aria-hidden="true">/</span>
   <button class="lang__btn" type="button" data-set-lang="en" aria-pressed="false" lang="en">EN</button>
 </div>
@@ -44,6 +45,7 @@
     <li><a class="stations__item" href="#about" aria-label="关于"><span class="stations__dot"></span><span class="stations__label" data-i18n="nav.about">关于</span></a></li>
     <li><a class="stations__item" href="#numbers" aria-label="一些数字"><span class="stations__dot"></span><span class="stations__label" data-i18n="nav.numbers">一些数字</span></a></li>
     <li><a class="stations__item" href="#doing" aria-label="在折腾什么"><span class="stations__dot"></span><span class="stations__label" data-i18n="nav.doing">在折腾什么</span></a></li>
+    <li><a class="stations__item" href="#reading" aria-label="书单"><span class="stations__dot"></span><span class="stations__label" data-i18n="nav.reading">书单</span></a></li>
     <li><a class="stations__item" href="#motto" aria-label="两句话"><span class="stations__dot"></span><span class="stations__label" data-i18n="nav.motto">两句话</span></a></li>
     <li><a class="stations__item" href="#poem" aria-label="诗云"><span class="stations__dot"></span><span class="stations__label" data-i18n="nav.poem">诗云</span></a></li>
     <li><a class="stations__item" href="#colophon" aria-label="关于这个页面"><span class="stations__dot"></span><span class="stations__label" data-i18n="nav.colophon">关于这个页面</span></a></li>
@@ -202,6 +204,37 @@
           </svg>
         </li>
       </ol>
+    </div>
+  </section>
+
+  <!-- ── 书单 ───────────────────────────────────── -->
+  <section class="section reading phase-predawn has-stars" id="reading" aria-labelledby="reading-h">
+    <div class="wrap">
+      <h2 class="section-title" id="reading-h" data-i18n="reading.title">书单</h2>
+      <p class="reading__lead" data-reveal style="--i:0" data-i18n="reading.lead">如果你也是从《三体》进来的，这几本可以接着读。</p>
+      <ol class="reading__list">
+        <li class="book" data-reveal style="--i:0">
+          <h3 class="book__title"><span data-i18n="reading.1.title">《三体》三部曲</span> <span class="book__year">2006–2010</span></h3>
+          <p class="book__note" data-i18n="reading.1.note">面壁计划、黑暗森林、死神永生。先把这套读完，再读别的。</p>
+        </li>
+        <li class="book" data-reveal style="--i:1">
+          <h3 class="book__title"><span data-i18n="reading.2.title">《球状闪电》</span> <span class="book__year">2004</span></h3>
+          <p class="book__note" data-i18n="reading.2.note">宏电子、量子玫瑰，还有一场只在被观察时才存在的雨。</p>
+        </li>
+        <li class="book" data-reveal style="--i:2">
+          <h3 class="book__title"><span data-i18n="reading.3.title">《超新星纪元》</span> <span class="book__year">1991</span></h3>
+          <p class="book__note" data-i18n="reading.3.note">超新星爆发之后，世界被交到孩子手里。</p>
+        </li>
+        <li class="book" data-reveal style="--i:3">
+          <h3 class="book__title"><span data-i18n="reading.4.title">《乡村教师》</span> <span class="book__year">2001</span></h3>
+          <p class="book__note" data-i18n="reading.4.note">一间山村教室，和一场宇宙尺度的战争。</p>
+        </li>
+        <li class="book" data-reveal style="--i:4">
+          <h3 class="book__title"><span data-i18n="reading.5.title">《诗云》</span> <span class="book__year">2003</span></h3>
+          <p class="book__note" data-i18n="reading.5.note">一个神级文明拆掉太阳系，只为存下所有可能的诗。</p>
+        </li>
+      </ol>
+      <p class="reading__note" data-reveal style="--i:5" data-i18n="reading.note">先读《三体》，再往外走；不是必读顺序。</p>
     </div>
   </section>
 

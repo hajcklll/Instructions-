@@ -48,7 +48,7 @@ The page’s current light theme uses five pale prints. They are local duotone/t
 
 ## share.jpg
 
-- Source: a Firefox headless screenshot of the built light hero at 1440×900 with `?static=1`, taken 2026-11-14 from the light mountain-light plate.
+- Source: a Firefox headless screenshot of the built light English hero at 1440×900 with `?static=1&lang=en`, taken 2026-11-14 from the light mountain-light plate.
 - Processing: cropped to 1200×630 and saved as JPEG (quality 88) with Pillow. No generative model.
 - Usage: Open Graph / Twitter share image (`og:image`).
 

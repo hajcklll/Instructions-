@@ -611,6 +611,7 @@
       "nav.about": "关于",
       "nav.numbers": "一些数字",
       "nav.doing": "在折腾什么",
+      "nav.reading": "书单",
       "nav.motto": "两句话",
       "nav.poem": "诗云",
       "nav.colophon": "关于这个页面",
@@ -641,6 +642,19 @@
       "doing.3.text": "爱折腾各种小玩意儿，想到什么就动手试试。GitHub 上零零散散放了一些。",
       "doing.4.title": "音乐与风景",
       "doing.4.text": "耳机里放着歌，看窗外往后跑。走遍世界这件事，是早晚要做的。",
+      "reading.title": "书单",
+      "reading.lead": "如果你也是从《三体》进来的，这几本可以接着读。",
+      "reading.1.title": "《三体》三部曲",
+      "reading.1.note": "面壁计划、黑暗森林、死神永生。先把这套读完，再读别的。",
+      "reading.2.title": "《球状闪电》",
+      "reading.2.note": "宏电子、量子玫瑰，还有一场只在被观察时才存在的雨。",
+      "reading.3.title": "《超新星纪元》",
+      "reading.3.note": "超新星爆发之后，世界被交到孩子手里。",
+      "reading.4.title": "《乡村教师》",
+      "reading.4.note": "一间山村教室，和一场宇宙尺度的战争。",
+      "reading.5.title": "《诗云》",
+      "reading.5.note": "一个神级文明拆掉太阳系，只为存下所有可能的诗。",
+      "reading.note": "先读《三体》，再往外走；不是必读顺序。",
       "motto.title": "两句话",
       "motto.trans": "要在人生这场长梦里有所成就，而不是在游戏的短梦里。",
       "motto.gloss": "On the wall for ten years, to break through; failing to cross the sea, still a hero.",
@@ -674,6 +688,7 @@
       "nav.about": "About",
       "nav.numbers": "Numbers",
       "nav.doing": "What I'm Up To",
+      "nav.reading": "Reading",
       "nav.motto": "Two Lines",
       "nav.poem": "Poem Cloud",
       "nav.colophon": "About This Page",
@@ -704,6 +719,19 @@
       "doing.3.text": "I like tinkering with small things; when an idea comes, I try it. A few of them are scattered on GitHub.",
       "doing.4.title": "Music & Scenery",
       "doing.4.text": "Music in my headphones, watching the window run backwards. Seeing the whole world is something I'll do sooner or later.",
+      "reading.title": "Reading List",
+      "reading.lead": "If you came in through The Three-Body Problem, these are the next stops.",
+      "reading.1.title": "The Three-Body Problem trilogy",
+      "reading.1.note": "The Wallfacer Project, the dark forest, Death's End. Finish the trilogy before the rest.",
+      "reading.2.title": "Ball Lightning",
+      "reading.2.note": "Macro-electrons, a quantum rose, and rain that exists only while observed.",
+      "reading.3.title": "Supernova Era",
+      "reading.3.note": "After a supernova, the world is handed to its children.",
+      "reading.4.title": "The Village Teacher",
+      "reading.4.note": "One mountain classroom, and a war on a cosmic scale.",
+      "reading.5.title": "The Poetry Cloud",
+      "reading.5.note": "A godlike civilization dismantles the solar system to store every possible poem.",
+      "reading.note": "Start with the trilogy, then wander; not a required order.",
       "motto.title": "Two Lines",
       "motto.trans": "要在人生这场长梦里有所成就，而不是在游戏的短梦里。",
       "motto.gloss": "On the wall for ten years, to break through; failing to cross the sea, still a hero.",
@@ -773,6 +801,7 @@
     if (persist) store.set("aripple-lang", currentLang);
     root.lang = currentLang === "en" ? "en" : "zh-CN";
     root.dataset.lang = currentLang;
+    root.classList.add("i18n-ready");
 
     document.title = t("doc.title");
     if (docDesc) docDesc.setAttribute("content", t("doc.desc"));
@@ -937,7 +966,7 @@
   });
 
   const langParam = new URLSearchParams(window.location.search).get("lang");
-  const initialLang = langParam === "en" ? "en" : (langParam === "zh" ? "zh" : (store.get("aripple-lang") === "en" ? "en" : "zh"));
+  const initialLang = langParam === "zh" ? "zh" : (langParam === "en" ? "en" : (store.get("aripple-lang") === "zh" ? "zh" : "en"));
   applyLanguage(initialLang);
   setupTitleTyping();
   scheduleTypewriter();
