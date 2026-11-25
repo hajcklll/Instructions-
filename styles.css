@@ -1153,6 +1153,50 @@ html[data-motion="off"] .motto__lit { display: none; }
 .poem__item.is-active { color: var(--ink); }
 .poem__item.is-active::before { background: var(--accent); opacity: 1; }
 .poem__src { font-size: 13px; }
+.poem__riemann {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin-top: clamp(18px, 2.5vh, 24px);
+  padding: 12px 14px;
+  border: 1px solid var(--line-strong);
+  background: rgba(247, 243, 234, .5);
+  color: var(--ink-2);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .25s ease, border-color .25s ease, background-color .25s ease;
+}
+.poem__riemann:hover,
+.poem__riemann:focus-visible,
+.poem__riemann.is-active {
+  color: var(--ink);
+  border-color: var(--accent);
+  background: rgba(156, 83, 38, .06);
+}
+.poem__riemann-glyph {
+  flex: none;
+  font-family: var(--serif);
+  font-size: 26px;
+  line-height: 1;
+  color: var(--accent);
+}
+.poem__riemann-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.poem__riemann-label { font-size: 14px; letter-spacing: .02em; }
+.poem__riemann-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--muted);
+}
+.poem__riemann-arrow { margin-left: auto; color: var(--accent); font-size: 14px; }
 .poem__panel {
   min-height: 7.6em;
   margin-top: clamp(22px, 3vh, 30px);

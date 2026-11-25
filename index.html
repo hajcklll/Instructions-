@@ -18,7 +18,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f3eee4'/%3E%3Cellipse cx='16' cy='16' rx='11' ry='5' fill='none' stroke='%239c5326' stroke-width='1.2' transform='rotate(-18 16 16)'/%3E%3Ccircle cx='16' cy='16' r='2.2' fill='%231f1b15'/%3E%3C/svg%3E">
 <link rel="preload" href="assets/fonts/gloock-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/bg-ridge-light.webp" as="image" type="image/webp">
-<link rel="stylesheet" href="styles.css?v=20261114b">
+<link rel="stylesheet" href="styles.css?v=20261125c">
 <script>
   if (location.search.indexOf('static') !== -1) document.documentElement.setAttribute('data-motion', 'off');
   document.documentElement.classList.add('js', 'm-enter');
@@ -293,6 +293,15 @@
           </button>
         </div>
 
+        <a class="poem__riemann" href="riemann.html">
+          <span class="poem__riemann-glyph" aria-hidden="true">ζ</span>
+          <span class="poem__riemann-copy">
+            <span class="poem__riemann-label" data-i18n="poem.riemann.label">黎曼猜想 · 证明公布</span>
+            <span class="poem__riemann-date" data-i18n="poem.riemann.date">1859 — 2026</span>
+          </span>
+          <span class="poem__riemann-arrow" aria-hidden="true">→</span>
+        </a>
+
         <div class="poem__panel" aria-live="polite">
           <p class="poem__panel-text">
             <span class="poem__panel-full sr-only">面壁十年图破壁，难酬蹈海亦英雄</span>
@@ -311,6 +320,7 @@
             <li>朝闻道，夕死可矣 —— 《论语·里仁》</li>
             <li>前进！前进！不择手段地前进！ —— 刘慈欣《三体》</li>
             <li>长风破浪会有时，直挂云帆济沧海 —— 李白《行路难》</li>
+            <li>所有非平凡零点，都落在临界线上 —— 黎曼猜想 · 1859—2026</li>
           </ul>
         </noscript>
       </div>
@@ -331,8 +341,9 @@
         <p class="colophon__note" data-reveal style="--i:0" data-i18n="colophon.note">没有框架，没有构建步骤。想改哪儿，改哪儿。</p>
         <h3 class="log__title" data-reveal style="--i:1" data-i18n="log.title">轨道日志</h3>
         <ol class="log" data-i18n-aria="log.aria">
-          <li data-reveal style="--i:2"><time datetime="2026-11-14">2026.11.14</time><span data-i18n="log.1">亮色纸本版：中英切换、书单、8 句诗云、默认英文。</span></li>
-          <li data-reveal style="--i:3"><time datetime="2026-11-14">2026.11.14</time><span data-i18n="log.2">长梦轨道初版：夜→日相位、首屏轨道、诗云星图。</span></li>
+          <li data-reveal style="--i:2"><time datetime="2026-11-25">2026.11.25</time><span data-i18n="log.3">为纪念黎曼猜想的一个证明被公布，诗云添了一枚独立诗签：临界线。</span></li>
+          <li data-reveal style="--i:3"><time datetime="2026-11-14">2026.11.14</time><span data-i18n="log.1">亮色纸本版：中英切换、书单、8 句诗云、默认英文。</span></li>
+          <li data-reveal style="--i:4"><time datetime="2026-11-14">2026.11.14</time><span data-i18n="log.2">长梦轨道初版：夜→日相位、首屏轨道、诗云星图。</span></li>
         </ol>
       </div>
       <dl class="specs">
@@ -392,6 +403,6 @@
   ]
 }
 </script>
-<script src="script.js?v=20261114b"></script>
+<script src="script.js?v=20261125c"></script>
 </body>
 </html>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>临界线 — 纪念黎曼猜想的一个证明被公布</title>
+<meta id="desc" name="description" content="为纪念黎曼猜想的一个证明被公布：Levent Alpöge 与 Claude 的证明已通过 Lean 核验，但尚未经同行评议，克雷数学研究所（Clay）仍列为未解决。">
+<meta name="theme-color" content="#f3eee4">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f3eee4'/%3E%3Cellipse cx='16' cy='16' rx='11' ry='5' fill='none' stroke='%239c5326' stroke-width='1.2' transform='rotate(-18 16 16)'/%3E%3Ccircle cx='16' cy='16' r='2.2' fill='%231f1b15'/%3E%3C/svg%3E">
+<link rel="preload" href="assets/fonts/gloock-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css?v=20261125c">
+<script>
+  document.documentElement.classList.add('js');
+  if (location.search.indexOf('static') !== -1) document.documentElement.classList.add('rm-static');
+  (function () {
+    var q = new URLSearchParams(location.search).get('lang');
+    var stored = null;
+    try { stored = localStorage.getItem('aripple-lang'); } catch (_) {}
+    var lang = q === 'zh' || q === 'en' ? q : (stored === 'zh' ? 'zh' : 'en');
+    document.documentElement.dataset.lang = lang;
+    document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+  })();
+</script>
+<style>
+  /* ── 纪念页：临界线 ───────────────────────────── */
+  body.memorial {
+    min-height: 100vh;
+    background:
+      radial-gradient(90% 62% at 50% -12%, rgba(156, 83, 38, .07), transparent 62%),
+      var(--paper);
+  }
+  .memorial__main { padding-bottom: clamp(36px, 7vh, 80px); }
+
+  .memorial__top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 18px;
+    padding-top: clamp(84px, 11vh, 112px);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .06em;
+    color: var(--muted);
+  }
+  .memorial__back {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color .15s var(--ease), border-color .15s var(--ease);
+  }
+  .memorial__back:hover,
+  .memorial__back:focus-visible {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+  }
+  .memorial__no { flex: none; }
+
+  .memorial__article {
+    max-width: 860px;
+    padding-top: clamp(40px, 8vh, 88px);
+  }
+  .memorial__title {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(3.4rem, 9vw, 7.2rem);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: .02em;
+    color: var(--ink);
+  }
+  html[data-lang="en"] .memorial__title {
+    font-family: var(--display);
+    font-weight: 400;
+    letter-spacing: -.02em;
+  }
+  .memorial__sub {
+    margin: 20px 0 0;
+    font-family: var(--serif);
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    line-height: 1.7;
+    letter-spacing: .04em;
+    color: var(--ink-2);
+  }
+  .memorial__date {
+    margin-left: .5em;
+    white-space: nowrap;
+  }
+
+  .memorial__mark {
+    position: relative;
+    height: clamp(170px, 27vh, 240px);
+    margin: clamp(44px, 7vh, 76px) 0 0;
+  }
+  .memorial__line {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg,
+      transparent, var(--accent) 12%, var(--accent) 88%, transparent);
+    opacity: .75;
+  }
+  .memorial__line-label {
+    position: absolute;
+    left: calc(50% + 14px);
+    top: -6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .memorial__zero {
+    position: absolute;
+    left: 50%;
+    top: var(--y);
+    width: 7px;
+    height: 7px;
+    margin: -3.5px 0 0 -3.5px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    background: var(--paper);
+  }
+  .memorial__zero::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 17px;
+    height: 1px;
+    margin-left: -8.5px;
+    background: rgba(156, 83, 38, .35);
+  }
+
+  .memorial__statement {
+    margin: 0 0 clamp(38px, 6vh, 64px);
+    padding: clamp(18px, 3vh, 26px) 0;
+    border-top: 1px solid var(--line-strong);
+    border-bottom: 1px solid var(--line-strong);
+    font-family: var(--serif);
+    font-size: clamp(1.35rem, 2.5vw, 2rem);
+    font-weight: 600;
+    line-height: 1.65;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  html[data-lang="en"] .memorial__statement {
+    font-family: var(--display);
+    font-weight: 400;
+    letter-spacing: -.005em;
+  }
+
+  .memorial__prose { max-width: 62ch; }
+  .memorial__prose p {
+    margin: 0 0 1.3em;
+    font-size: clamp(15px, 1.1vw, 17px);
+    line-height: 2;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .memorial__prose p:last-child { margin-bottom: 0; }
+
+  .memorial__record {
+    max-width: 62ch;
+    margin: clamp(38px, 6vh, 62px) 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  .memorial__record li {
+    display: flex;
+    align-items: baseline;
+    gap: 22px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .memorial__record time {
+    flex: none;
+    min-width: 5.5ch;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .08em;
+    color: var(--accent);
+  }
+  .memorial__record span {
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+
+  .memorial__facts {
+    max-width: 62ch;
+    margin-top: clamp(44px, 7vh, 72px);
+  }
+  .memorial__h2 {
+    margin: 0 0 18px;
+    font-family: var(--serif);
+    font-size: clamp(1.3rem, 2vw, 1.65rem);
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  html[data-lang="en"] .memorial__h2 {
+    font-family: var(--display);
+    font-weight: 400;
+  }
+  .memorial__facts-list {
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .memorial__facts-list > div {
+    display: grid;
+    grid-template-columns: 8.5em minmax(0, 1fr);
+    gap: 18px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .memorial__facts-list dt {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .06em;
+    color: var(--accent);
+  }
+  .memorial__facts-list dd {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--ink-2);
+  }
+
+  .memorial__end {
+    margin: clamp(48px, 8vh, 84px) 0 0;
+    font-family: var(--serif);
+    font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+    line-height: 1.9;
+    color: var(--muted);
+  }
+  html[data-lang="en"] .memorial__end { font-family: var(--display); }
+
+  .memorial .footer { max-width: 860px; }
+
+  /* ── 动效：入场、临界线画出、滚动显现 ───────── */
+  @keyframes memorial-rise {
+    from { opacity: 0; transform: translateY(16px); filter: blur(4px); }
+    to { opacity: 1; transform: none; filter: none; }
+  }
+  @keyframes memorial-draw {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+  @keyframes memorial-dot {
+    from { opacity: 0; transform: scale(.35); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes memorial-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .memorial__title { animation: memorial-rise .85s var(--ease-enter) both; }
+  .memorial__sub { animation: memorial-rise .85s var(--ease-enter) .1s both; }
+  .memorial__line {
+    transform-origin: top;
+    animation: memorial-draw 1.3s var(--ease-enter) .22s both;
+  }
+  .memorial__zero {
+    animation: memorial-dot .65s var(--ease-enter) both;
+    animation-delay: calc(.55s + var(--i, 0) * .11s);
+  }
+  .memorial__line-label { animation: memorial-fade .9s ease .95s both; }
+
+  html.js [data-rm-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(3px);
+    transition:
+      opacity .7s var(--ease-enter),
+      transform .7s var(--ease-enter),
+      filter .7s var(--ease-enter);
+    transition-delay: calc(var(--i, 0) * 60ms);
+  }
+  html.js [data-rm-reveal].is-in {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  html.rm-static .memorial__title,
+  html.rm-static .memorial__sub,
+  html.rm-static .memorial__line,
+  html.rm-static .memorial__zero,
+  html.rm-static .memorial__line-label { animation: none !important; }
+  html.rm-static [data-rm-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+
+  @media (max-width: 700px) {
+    .memorial__top { padding-top: 78px; }
+    .memorial__record li { gap: 16px; }
+    .memorial__line-label { left: calc(50% + 10px); }
+    .memorial__facts-list > div { grid-template-columns: 1fr; gap: 4px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .memorial * { transition-duration: .01ms !important; }
+    .memorial__title,
+    .memorial__sub,
+    .memorial__line,
+    .memorial__zero,
+    .memorial__line-label { animation: none !important; }
+    html.js [data-rm-reveal] {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      transition: none;
+    }
+  }
+</style>
+</head>
+<body class="memorial phase-night">
+<a class="skip" href="#main" data-i18n="skip">跳到正文</a>
+<div class="lang" role="group" aria-label="语言 / Language">
+  <button class="lang__btn is-active" type="button" data-set-lang="zh" aria-pressed="true" lang="zh-CN">中文</button>
+  <span class="lang__sep" aria-hidden="true">/</span>
+  <button class="lang__btn" type="button" data-set-lang="en" aria-pressed="false" lang="en">EN</button>
+</div>
+<div class="grain" aria-hidden="true"></div>
+
+<main id="main" class="memorial__main">
+  <div class="wrap memorial__top">
+    <a class="memorial__back" href="index.html#poem">← <span data-i18n="rm.back">回到诗云</span></a>
+    <span class="memorial__no" data-i18n="rm.no">纪念页 · 001</span>
+  </div>
+
+  <article class="wrap memorial__article">
+    <h1 class="memorial__title" data-i18n="rm.title">临界线</h1>
+    <p class="memorial__sub"><span data-i18n="rm.sub">为纪念黎曼猜想的一个证明被公布</span> <span class="memorial__date">1859—2026</span></p>
+
+    <div class="memorial__mark" aria-hidden="true">
+      <span class="memorial__line"></span>
+      <span class="memorial__line-label">Re(s) = 1/2</span>
+      <span class="memorial__zero" style="--y:8%; --i:0"></span>
+      <span class="memorial__zero" style="--y:24%; --i:1"></span>
+      <span class="memorial__zero" style="--y:39%; --i:2"></span>
+      <span class="memorial__zero" style="--y:57%; --i:3"></span>
+      <span class="memorial__zero" style="--y:72%; --i:4"></span>
+      <span class="memorial__zero" style="--y:88%; --i:5"></span>
+    </div>
+
+    <p class="memorial__statement" data-rm-reveal style="--i:0" data-i18n="rm.statement">所有非平凡零点，都落在 Re(s) = 1/2 上。</p>
+
+    <div class="memorial__prose">
+      <p data-rm-reveal style="--i:0" data-i18n="rm.p1">1859 年，黎曼在一篇八页的论文里留下一个猜想：ζ 函数的所有非平凡零点，都落在复平面中央的一条直线上。他没有证明它。他只是把它放在那里，然后离开了。</p>
+      <p data-rm-reveal style="--i:1" data-i18n="rm.p2">此后一百六十七年，这条线成了数学里最安静也最拥挤的地方。有人算出了前几十亿个零点，有人绕着它建起整座解析数论，也有人用一辈子，只把它向前推了一寸。</p>
+      <p data-rm-reveal style="--i:2" data-i18n="rm.p3">2026 年 11 月 20 日，Anthropic 的 Levent Alpöge 与 Claude 公布了一份证明：四页说明，加上约一千七百万行 Lean 4。第二天，Lean FRO 与 Mathlib 联合声明核验通过。数学界还在读它——克雷数学研究所（Clay）仍把黎曼猜想列为未解决。</p>
+    </div>
+
+    <ol class="memorial__record" data-rm-reveal style="--i:0" data-i18n-aria="rm.record.aria" aria-label="证明时间线">
+      <li><time datetime="1859">1859</time><span data-i18n="rm.r1">黎曼提出猜想</span></li>
+      <li><time>167</time><span data-i18n="rm.r2">年，无数双手接力</span></li>
+      <li><time datetime="2026-11-20">2026.11.20</time><span data-i18n="rm.r3">Alpöge 与 Claude 公布证明</span></li>
+      <li><time datetime="2026-11-21">2026.11.21</time><span data-i18n="rm.r4">Lean FRO / Mathlib 核验通过</span></li>
+    </ol>
+
+    <section class="memorial__facts" data-rm-reveal style="--i:1" aria-labelledby="facts-h">
+      <h2 class="memorial__h2" id="facts-h" data-i18n="rm.facts.title">证明人与状态</h2>
+      <dl class="memorial__facts-list">
+        <div><dt data-i18n="rm.who.k">证明人</dt><dd data-i18n="rm.who.v">Levent Alpöge（Anthropic）与 Claude</dd></div>
+        <div><dt data-i18n="rm.date.k">公布</dt><dd data-i18n="rm.date.v">2026.11.20；次日 Lean FRO 与 Mathlib 联合声明核验通过</dd></div>
+        <div><dt data-i18n="rm.form.k">形式</dt><dd data-i18n="rm.form.v">4 页说明 + 约 1,700 万行 Lean 4（175,187 个文件）</dd></div>
+        <div><dt data-i18n="rm.check.k">核验</dt><dd data-i18n="rm.check.v">Lean 官方内核与多个独立检查器通过；MIT 的 Andrew Sutherland 等独立编译核验</dd></div>
+        <div><dt data-i18n="rm.reaction.k">学界反应</dt><dd data-i18n="rm.reaction.v">James Maynard 估计有 98–99% 的把握；陶哲轩说仍需时间消化；Kevin Buzzard 指出还没人真正理解证明讲了什么</dd></div>
+        <div><dt data-i18n="rm.status.k">状态</dt><dd data-i18n="rm.status.v">尚未经同行评议；克雷数学研究所（Clay）仍列为未解决，千禧年奖程序未启动（需至少两年审查）</dd></div>
+        <div><dt data-i18n="rm.rival.k">同日另一份</dt><dd data-i18n="rm.rival.v">Alessandro Maria Masullo 的 940 页纯人工手稿《素数的音乐》，由美国数学会主席 Ravi Vakil 紧急公开；数小时内被指出多处缺口，仍在修订</dd></div>
+      </dl>
+    </section>
+
+    <p class="memorial__end" data-rm-reveal style="--i:0" data-i18n="rm.end">没有烟花。只有一条直线，和一场还没结束的核验。</p>
+
+    <footer class="footer">
+      <p>Aripple_star · 2026</p>
+      <p data-i18n="rm.footer">为纪念黎曼猜想的一个证明被公布 · 1859—2026</p>
+      <a class="footer__top" href="index.html#poem"><span data-i18n="rm.back">回到诗云</span> <svg class="footer__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4"></path></svg></a>
+    </footer>
+  </article>
+</main>
+
+<script>
+(function () {
+  var I18N = {
+    zh: {
+      "doc.title": "临界线 — 纪念黎曼猜想的一个证明被公布",
+      "doc.desc": "为纪念黎曼猜想的一个证明被公布：Levent Alpöge 与 Claude 的证明已通过 Lean 核验，但尚未经同行评议，克雷数学研究所（Clay）仍列为未解决。",
+      "skip": "跳到正文",
+      "rm.back": "回到诗云",
+      "rm.no": "纪念页 · 001",
+      "rm.title": "临界线",
+      "rm.sub": "为纪念黎曼猜想的一个证明被公布",
+      "rm.statement": "所有非平凡零点，都落在 Re(s) = 1/2 上。",
+      "rm.p1": "1859 年，黎曼在一篇八页的论文里留下一个猜想：ζ 函数的所有非平凡零点，都落在复平面中央的一条直线上。他没有证明它。他只是把它放在那里，然后离开了。",
+      "rm.p2": "此后一百六十七年，这条线成了数学里最安静也最拥挤的地方。有人算出了前几十亿个零点，有人绕着它建起整座解析数论，也有人用一辈子，只把它向前推了一寸。",
+      "rm.p3": "2026 年 11 月 20 日，Anthropic 的 Levent Alpöge 与 Claude 公布了一份证明：四页说明，加上约一千七百万行 Lean 4。第二天，Lean FRO 与 Mathlib 联合声明核验通过。数学界还在读它——克雷数学研究所（Clay）仍把黎曼猜想列为未解决。",
+      "rm.record.aria": "证明时间线",
+      "rm.r1": "黎曼提出猜想",
+      "rm.r2": "年，无数双手接力",
+      "rm.r3": "Alpöge 与 Claude 公布证明",
+      "rm.r4": "Lean FRO / Mathlib 核验通过",
+      "rm.facts.title": "证明人与状态",
+      "rm.who.k": "证明人",
+      "rm.who.v": "Levent Alpöge（Anthropic）与 Claude",
+      "rm.date.k": "公布",
+      "rm.date.v": "2026.11.20；次日 Lean FRO 与 Mathlib 联合声明核验通过",
+      "rm.form.k": "形式",
+      "rm.form.v": "4 页说明 + 约 1,700 万行 Lean 4（175,187 个文件）",
+      "rm.check.k": "核验",
+      "rm.check.v": "Lean 官方内核与多个独立检查器通过；MIT 的 Andrew Sutherland 等独立编译核验",
+      "rm.reaction.k": "学界反应",
+      "rm.reaction.v": "James Maynard 估计有 98–99% 的把握；陶哲轩说仍需时间消化；Kevin Buzzard 指出还没人真正理解证明讲了什么",
+      "rm.status.k": "状态",
+      "rm.status.v": "尚未经同行评议；克雷数学研究所（Clay）仍列为未解决，千禧年奖程序未启动（需至少两年审查）",
+      "rm.rival.k": "同日另一份",
+      "rm.rival.v": "Alessandro Maria Masullo 的 940 页纯人工手稿《素数的音乐》，由美国数学会主席 Ravi Vakil 紧急公开；数小时内被指出多处缺口，仍在修订",
+      "rm.end": "没有烟花。只有一条直线，和一场还没结束的核验。",
+      "rm.footer": "为纪念黎曼猜想的一个证明被公布 · 1859—2026"
+    },
+    en: {
+      "doc.title": "The Critical Line — In Commemoration of the Announcement of a Proof of the Riemann Hypothesis",
+      "doc.desc": "In commemoration of the announcement of a proof of the Riemann Hypothesis: Levent Alpöge and Claude's proof has passed Lean verification, but it has not yet been peer-reviewed and the Clay Mathematics Institute still lists the problem as open.",
+      "skip": "Skip to content",
+      "rm.back": "Back to Poem Cloud",
+      "rm.no": "Memorial · 001",
+      "rm.title": "The Critical Line",
+      "rm.sub": "In commemoration of the announcement of a proof of the Riemann Hypothesis",
+      "rm.statement": "Every nontrivial zero lies on Re(s) = 1/2.",
+      "rm.p1": "In 1859, in an eight-page paper, Riemann left behind a conjecture: every nontrivial zero of the zeta function lies on a single line through the middle of the complex plane. He did not prove it. He simply put it there, and walked away.",
+      "rm.p2": "For the next one hundred and sixty-seven years, that line became the quietest and most crowded place in mathematics. Some computed the first billions of zeros; some built an entire analytic number theory around it; some spent a lifetime pushing it forward by an inch.",
+      "rm.p3": "On November 20, 2026, Levent Alpöge of Anthropic and Claude announced a proof: a four-page outline plus roughly seventeen million lines of Lean 4. The next day, Lean FRO and the Mathlib Initiative jointly announced that it verified. The mathematical community is still reading it — and the Clay Mathematics Institute still lists the Riemann Hypothesis as open.",
+      "rm.record.aria": "Timeline of the proof",
+      "rm.r1": "Riemann states the conjecture",
+      "rm.r2": "years, countless hands",
+      "rm.r3": "Alpöge and Claude announce the proof",
+      "rm.r4": "Lean FRO / Mathlib verification announced",
+      "rm.facts.title": "Prover and Status",
+      "rm.who.k": "Prover",
+      "rm.who.v": "Levent Alpöge (Anthropic) with Claude",
+      "rm.date.k": "Announced",
+      "rm.date.v": "November 20, 2026; the next day, Lean FRO and the Mathlib Initiative jointly announced verification",
+      "rm.form.k": "Form",
+      "rm.form.v": "A 4-page outline + roughly 17 million lines of Lean 4 (175,187 files)",
+      "rm.check.k": "Verification",
+      "rm.check.v": "Accepted by Lean's official kernel and multiple independent checkers; independently compiled and checked by Andrew Sutherland (MIT) and others",
+      "rm.reaction.k": "Reaction",
+      "rm.reaction.v": "James Maynard put his confidence at 98–99%; Terence Tao said the community needs time to digest it; Kevin Buzzard noted that nobody yet understands what the proof shows",
+      "rm.status.k": "Status",
+      "rm.status.v": "Not yet peer-reviewed; the Clay Mathematics Institute still lists it as open, and the Millennium Prize process has not started (at least two years of scrutiny are required)",
+      "rm.rival.k": "A rival claim",
+      "rm.rival.v": "Alessandro Maria Masullo's 940-page all-human manuscript “The Music of the Primes,” released early by Ravi Vakil, president of the AMS; multiple gaps were reported within hours, and it is still being revised",
+      "rm.end": "No fireworks. Only a straight line, and a verification that is still running.",
+      "rm.footer": "In commemoration of the announcement of a proof of the Riemann Hypothesis · 1859–2026"
+    }
+  };
+
+  var root = document.documentElement;
+  var current = root.dataset.lang === "zh" ? "zh" : "en";
+  var buttons = Array.from(document.querySelectorAll("[data-set-lang]"));
+  var desc = document.getElementById("desc");
+
+  function t(key) {
+    var dict = I18N[current] || I18N.zh;
+    return typeof dict[key] === "string" ? dict[key] : "";
+  }
+
+  function apply(lang, persist) {
+    current = lang === "zh" ? "zh" : "en";
+    root.lang = current === "en" ? "en" : "zh-CN";
+    root.dataset.lang = current;
+    document.title = t("doc.title");
+    if (desc) desc.setAttribute("content", t("doc.desc"));
+
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      var value = t(el.getAttribute("data-i18n"));
+      if (value) el.textContent = value;
+    });
+    document.querySelectorAll("[data-i18n-aria]").forEach(function (el) {
+      var value = t(el.getAttribute("data-i18n-aria"));
+      if (value) el.setAttribute("aria-label", value);
+    });
+
+    buttons.forEach(function (button) {
+      var on = button.getAttribute("data-set-lang") === current;
+      button.classList.toggle("is-active", on);
+      button.setAttribute("aria-pressed", String(on));
+    });
+
+    root.classList.add("i18n-ready");
+    if (persist) {
+      try { localStorage.setItem("aripple-lang", current); } catch (_) {}
+    }
+  }
+
+  buttons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      apply(button.getAttribute("data-set-lang"), true);
+    });
+  });
+
+  apply(current, false);
+
+  var revealTargets = document.querySelectorAll("[data-rm-reveal]");
+  if ("IntersectionObserver" in window) {
+    var revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-in");
+        revealObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -10% 0px", threshold: 0.05 });
+    revealTargets.forEach(function (el) { revealObserver.observe(el); });
+  } else {
+    revealTargets.forEach(function (el) { el.classList.add("is-in"); });
+  }
+})();
+</script>
+
+<script>
+/*
+ * 此函数由一位疲惫的开发者在凌晨三点写完。
+ * 写下这行注释时，他正盯着窗外一只迷路的外卖电动车，
+ * 脑子里却在想：如果质数分布真有规律，那这规律是不是也
+ * 藏在某个我们还没发明出来的数学语言里？
+ *
+ * 总之——别动这段代码，它在呼吸。
+ * 如果有人问起为什么这里要用 BigInt 而不是 Number，
+ * 告诉他：因为黎曼在那一年还没有出生，
+ * 但质数已经等了他很久。
+ *
+ * 附：如果你读到这里，说明你不是在找 bug，
+ * 而是在找一个能解释这一切的人。
+ * 抱歉，那人不在，只有这句注释。
+ */
+const riemannZeros = computeZetaZeros(/* ... */);
+
+function computeZetaZeros() {
+  const scale = 10n ** 12n;
+  return [141347251417n, 210220396387n, 250108575801n].map((z) => Number(z) / Number(scale));
+}
+</script>
+</body>
+</html>
