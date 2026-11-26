@@ -45,6 +45,7 @@
       "library.secret.empty": "还没填密码。",
       "library.secret.noCrypto": "这个浏览器打不开加密文件。",
       "library.secret.hint": "还有一把钥匙",
+      "library.secret.where": "可以自己去简介里找",
       
       "library.claude.tag": "彩蛋",
       "library.claude.aria": "打开那本叫 claude 的书",
@@ -98,6 +99,7 @@
       "library.secret.empty": "The password is empty.",
       "library.secret.noCrypto": "This browser cannot open the encrypted file.",
       "library.secret.hint": "There is another key.",
+      "library.secret.where": "You can find it yourself in the intro.",
       
       "library.morePlate": "NOTES · 01",
       "library.album.title": "Game Album",
