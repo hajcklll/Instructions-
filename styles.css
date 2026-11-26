@@ -47,7 +47,6 @@ body {
   font-family: var(--sans);
   font-size: 16px;
   line-height: 1.7;
-  overflow-x: hidden;
   caret-color: #9c5326;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -143,6 +142,33 @@ html.js[data-lang="en"]:not(.i18n-ready) body { visibility: hidden; }
   background-size: 160px 160px;
 }
 
+/* ── 名单到星图的连线 ─────────────────────────── */
+.threads {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .26s var(--ease);
+}
+.threads.is-live { opacity: 1; }
+.threads__line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-dasharray: 2 6;
+  opacity: .6;
+}
+.threads__node { fill: var(--accent); opacity: 0; transition: opacity .2s var(--ease); }
+.threads.is-live .threads__node { opacity: .92; }
+@media (max-width: 760px), (prefers-reduced-motion: reduce) {
+  .threads { display: none; }
+}
+
 .has-stars::before {
   content: "";
   position: absolute;
@@ -205,6 +231,60 @@ html.js [data-reveal].is-in {
 }
 .section > .wrap { position: relative; z-index: 2; }
 
+/* ── 接缝：上一节的纸色漫进这一节 ─────────────── */
+/* 每个非首屏章节顶上都有一层上一相的纸色，向下化开。
+   它不是一条分割线，而是光在换相位时的一次呼吸。 */
+.seam {
+  --seam-fade: linear-gradient(
+    to bottom,
+    var(--prev) 0%,
+    color-mix(in srgb, var(--prev) 78%, transparent) 30%,
+    color-mix(in srgb, var(--prev) 30%, transparent) 66%,
+    transparent 100%
+  );
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  height: clamp(190px, 34vh, 340px);
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 74% 52% at 6% 0%, rgba(156, 83, 38, .055), transparent 62%),
+    var(--seam-fade);
+}
+/* 首屏不是 .section，底下没有那层铜色；这里只留纸色 */
+.seam--valley { background: var(--seam-fade); }
+.seam::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 62% 82% at 30% 58%, rgba(255, 255, 255, .30), transparent 70%),
+    radial-gradient(ellipse 46% 62% at 82% 70%, rgba(156, 83, 38, .05), transparent 72%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 34%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 34%, #000 100%);
+}
+.seam--sunrise::before {
+  background:
+    radial-gradient(ellipse 44% 90% at calc(16% + var(--i, 0) * 8%) 62%, rgba(156, 83, 38, .13), transparent 70%),
+    radial-gradient(ellipse 62% 82% at 30% 58%, rgba(255, 255, 255, .26), transparent 70%);
+}
+.seam--stars::before {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='%231f1b15'%3E%3Ccircle cx='18' cy='36' r='.7' opacity='.5'/%3E%3Ccircle cx='62' cy='14' r='.5' opacity='.3'/%3E%3Ccircle cx='104' cy='52' r='.6' opacity='.4'/%3E%3Ccircle cx='146' cy='22' r='.45' opacity='.28'/%3E%3Ccircle cx='196' cy='64' r='.7' opacity='.46'/%3E%3Ccircle cx='34' cy='96' r='.5' opacity='.3'/%3E%3Ccircle cx='88' cy='112' r='.6' opacity='.36'/%3E%3Ccircle cx='176' cy='124' r='.7' opacity='.42'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 240px 240px,
+    radial-gradient(ellipse 70% 80% at 34% 60%, rgba(255, 255, 255, .24), transparent 72%);
+  opacity: .8;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 40%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 40%, transparent 100%);
+}
+.seam--noon::before {
+  background:
+    radial-gradient(ellipse 70% 100% at 24% 60%, rgba(255, 255, 255, .45), transparent 72%),
+    radial-gradient(ellipse 40% 70% at 86% 72%, rgba(156, 83, 38, .06), transparent 70%);
+}
+@media (max-width: 900px) {
+  .seam { height: clamp(150px, 26vh, 240px); }
+}
+
 /* 无照片的章节：一道裁出画面的轨道弧，让纸面有远山一样的层次
    overflow 收在本节里，弧线不撑出横向滚动条 */
 .has-arc { overflow: hidden; }
@@ -259,6 +339,20 @@ html.js [data-reveal].is-in {
   transition: transform .3s var(--ease);
 }
 .section-title:hover::after { transform: scaleX(1); }
+.section-title::before {
+  content: "";
+  position: absolute;
+  right: -9px;
+  bottom: calc(-.16em - 1.5px);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transform: scale(.3);
+  transition: opacity .2s var(--ease), transform .25s var(--ease);
+}
+.section-title:hover::before { opacity: 1; transform: none; }
 
 /* ── 站点导航 ─────────────────────────────────── */
 .stations {
@@ -278,15 +372,36 @@ html.js [data-reveal].is-in {
   flex-direction: column;
   gap: 0;
 }
-.stations__list::before {
-  content: "";
+.stations__rail {
   position: absolute;
   left: 2px;
-  top: 20px;
-  bottom: 20px;
+  top: 22px;
+  bottom: 22px;
   width: 1px;
-  background: currentColor;
-  opacity: .32;
+  background: rgba(31, 27, 21, .32);
+  pointer-events: none;
+}
+.stations__signal {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: calc(var(--station-p, 0) * 100%);
+  background: var(--accent);
+  opacity: 0;
+  transition: height .55s var(--ease-enter), opacity .3s var(--ease);
+}
+.stations.has-current .stations__signal { opacity: 1; }
+.stations__signal::after {
+  content: "";
+  position: absolute;
+  left: -1.5px;
+  bottom: -2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(156, 83, 38, .10);
 }
 .stations__item {
   position: relative;
@@ -304,7 +419,7 @@ html.js [data-reveal].is-in {
   border: 1px solid currentColor;
   border-radius: 50%;
   background: transparent;
-  transition: background .2s var(--ease), transform .2s var(--ease);
+  transition: background .2s var(--ease), border-color .2s var(--ease), transform .2s var(--ease);
 }
 .stations__label {
   position: absolute;
@@ -323,6 +438,11 @@ html.js [data-reveal].is-in {
   background: var(--accent);
   border-color: var(--accent);
   transform: scale(1.55);
+}
+.stations__item:hover .stations__dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1.35);
 }
 .stations__item:hover .stations__label,
 .stations__item:focus-visible .stations__label { opacity: 1; transform: none; }
@@ -351,6 +471,30 @@ html.js [data-reveal].is-in {
 .motion-toggle:hover { background: #fffdf8; }
 .motion-toggle:active { transform: scale(.96); }
 .motion-toggle svg { width: 16px; height: 16px; fill: currentColor; }
+/* 开关自己也是一条小轨道：暂停时，珠子停在原处 */
+.motion-toggle__orbit {
+  position: absolute;
+  inset: -6px;
+  border: 1px solid rgba(31, 27, 21, .13);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: toggle-orbit 22s linear infinite;
+}
+.motion-toggle__orbit i {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: box-shadow .3s var(--ease), opacity .3s var(--ease);
+}
+.motion-toggle:hover .motion-toggle__orbit i { box-shadow: 0 0 0 4px rgba(156, 83, 38, .12); }
+@keyframes toggle-orbit { to { transform: rotate(1turn); } }
+html[data-motion="off"] .motion-toggle__orbit { animation-play-state: paused; }
+html[data-motion="off"] .motion-toggle__orbit i { opacity: .35; }
 .motion-toggle__play { display: none; }
 html[data-motion="off"] .motion-toggle__pause { display: none; }
 html[data-motion="off"] .motion-toggle__play { display: block; }
@@ -390,17 +534,72 @@ html:not(.js) .motion-toggle { display: none; }
 .lang__btn:hover,
 .lang__btn:focus-visible { color: var(--accent); }
 .lang__btn.is-active { color: var(--ink); }
-.lang__btn.is-active::after {
-  content: "";
+/* 铜点跟着当前语言走，像读针落到刻度上 */
+.lang__bead {
   position: absolute;
-  left: 4px;
-  right: 4px;
-  bottom: 7px;
-  height: 1px;
+  bottom: 8px;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
   background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(156, 83, 38, .10);
+  pointer-events: none;
+  transition: left .34s var(--ease-enter);
 }
 .lang__sep { opacity: .45; }
 html:not(.js) .lang { display: none; }
+
+/* ── 回到书签页 ───────────────────────────────── */
+.cover-return {
+  display: none;
+  position: fixed;
+  top: max(clamp(14px, 2vw, 24px), calc(env(safe-area-inset-top, 0px) + 10px));
+  right: max(clamp(14px, 2vw, 24px), calc(env(safe-area-inset-right, 0px) + 10px));
+  z-index: 80;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 13px 0 12px;
+  border: 1px solid rgba(31, 27, 21, .22);
+  background: rgba(247, 243, 234, .94);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .15s var(--ease), border-color .15s var(--ease), background .15s var(--ease);
+}
+html.js .cover-return { display: inline-flex; }
+html.cover-open .cover-return,
+html.cover-leaving .cover-return { display: none; }
+.cover-return:hover,
+.cover-return:focus-visible {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line-strong));
+  background: #fffdf8;
+}
+.cover-return__mark {
+  width: 11px;
+  height: 15px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+html[data-motion="off"] .cover-return { transition: none; }
+@media (max-width: 900px) {
+  .cover-return {
+    top: calc(max(clamp(14px, 2vw, 24px), calc(env(safe-area-inset-top, 0px) + 10px)) + 56px);
+    left: max(clamp(14px, 2vw, 24px), calc(env(safe-area-inset-left, 0px) + 10px));
+    right: auto;
+  }
+}
+@media (max-width: 380px) {
+  .cover-return { height: 40px; padding: 0 10px; }
+}
 
 /* 英文排版：标题和引文回到 Gloock，首屏标签允许换行 */
 html[data-lang="en"] .section-title {
@@ -482,7 +681,7 @@ html[data-lang="en"] .poem__panel-text {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to bottom, transparent 52%, color-mix(in srgb, var(--bg) 80%, transparent) 94%),
+    linear-gradient(to bottom, transparent 52%, color-mix(in srgb, var(--bg) 80%, transparent) 94%, var(--bg) 100%),
     radial-gradient(ellipse 58% 58% at 50% 45%, color-mix(in srgb, var(--bg) 84%, transparent) 0%, color-mix(in srgb, var(--bg) 54%, transparent) 46%, transparent 76%);
 }
 .js .hero__photo { opacity: 0; transform: scale(1.035); }
@@ -521,6 +720,8 @@ html[data-lang="en"] .poem__panel-text {
   z-index: 2;
   text-align: center;
 }
+.hero__name:focus,
+.hero__name:focus-visible { outline: none; }
 .hero__name {
   margin: 0;
   font-family: var(--display);
@@ -632,33 +833,62 @@ html[data-lang="en"] .poem__panel-text {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding-bottom: 2px;
   color: var(--muted);
   text-decoration: none;
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: .12em;
-  transition: color .15s var(--ease);
+  transition: color .18s var(--ease);
 }
 .cue:hover, .cue:focus-visible { color: var(--ink); }
+/* 轨道闸口：铜珠从上落到下，发亮的一段线跟着落下去 */
 .cue__line {
   position: relative;
   width: 1px;
-  height: 54px;
+  height: 62px;
   background: var(--line-strong);
+}
+.cue__line::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 11px;
+  height: 1px;
+  background: var(--line-strong);
+  transform: translateX(-50%);
+}
+.cue__line::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 0;
+  background: linear-gradient(to bottom, transparent, var(--accent));
+  transition: height .5s var(--ease-enter);
 }
 .cue__line i {
   position: absolute;
   left: 50%;
   bottom: 0;
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--accent);
+  box-shadow: 0 0 0 0 rgba(156, 83, 38, .16);
   transform: translateX(-50%);
-  transition: transform .2s var(--ease);
+  transition: transform .5s var(--ease-enter), box-shadow .3s var(--ease);
 }
-.cue:hover .cue__line i, .cue:focus-visible .cue__line i { transform: translate(-50%, 4px); }
+.cue:hover .cue__line::after,
+.cue:focus-visible .cue__line::after { height: 100%; }
+.cue:hover .cue__line i,
+.cue:focus-visible .cue__line i {
+  transform: translate(-50%, 6px);
+  box-shadow: 0 0 0 4px rgba(156, 83, 38, .10);
+}
 
 /* ── 关于 ─────────────────────────────────────── */
 .about { overflow: hidden; }
@@ -674,6 +904,18 @@ html[data-lang="en"] .poem__panel-text {
   filter: saturate(.9) contrast(1.01);
   -webkit-mask-image: radial-gradient(ellipse 82% 84% at 66% 44%, #000 0%, #000 56%, transparent 84%);
   mask-image: radial-gradient(ellipse 82% 84% at 66% 44%, #000 0%, #000 56%, transparent 84%);
+}
+/* 让山谷在进入下一节之前先化进纸里，而不是被一条直线切断 */
+.about::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  height: 26%;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--bg) 70%, transparent) 62%, var(--bg) 100%);
 }
 .about__grid {
   display: grid;
@@ -718,9 +960,16 @@ html[data-lang="en"] .poem__panel-text {
   justify-content: flex-end;
 }
 .portrait {
+  --px: 0;
+  --py: 0;
   position: relative;
   width: min(100%, 360px);
   aspect-ratio: 1;
+  transform: perspective(760px)
+    rotateX(calc(var(--py) * -2.4deg))
+    rotateY(calc(var(--px) * 2.4deg));
+  transform-style: preserve-3d;
+  transition: transform .5s var(--ease);
 }
 .portrait img {
   display: block;
@@ -731,28 +980,46 @@ html[data-lang="en"] .poem__panel-text {
   filter: grayscale(1) sepia(.16) contrast(1.03) brightness(1.03);
   transition: transform .6s var(--ease-enter);
 }
+/* 头像是一枚印相：光随指针在纸面上走 */
+.portrait__shine {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at calc(50% + var(--px) * 46%) calc(50% + var(--py) * 46%),
+    rgba(255, 255, 255, .34) 0%,
+    rgba(255, 255, 255, .12) 38%,
+    transparent 66%
+  );
+  opacity: 0;
+  transition: opacity .4s var(--ease);
+}
 .portrait__ring {
   position: absolute;
   inset: -7%;
+  z-index: 2;
   border: 1px solid var(--line-strong);
   border-top-color: var(--accent);
   border-radius: 50%;
-  transform: rotate(-12deg);
+  transform: rotate(calc(-12deg + var(--px) * 3deg));
   transition: transform .6s var(--ease-enter), border-color .3s var(--ease);
 }
 .portrait__dot {
   position: absolute;
   top: 4%;
   right: 2%;
+  z-index: 3;
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--accent);
+  transform: translate(calc(var(--px) * 5px), calc(var(--py) * 5px));
   transition: transform .6s var(--ease-enter);
 }
 .portrait:hover img { transform: scale(1.02); }
-.portrait:hover .portrait__ring { transform: rotate(-6deg); }
-.portrait:hover .portrait__dot { transform: translate(2px, -2px); }
+.portrait:hover .portrait__shine { opacity: .9; }
 
 /* ── 数字 ─────────────────────────────────────── */
 .readouts {
@@ -784,12 +1051,33 @@ html[data-lang="en"] .poem__panel-text {
   color: var(--muted);
 }
 .readout-big__rule {
+  position: relative;
   display: block;
   height: 10px;
   margin-top: clamp(20px, 3vh, 32px);
+  overflow: hidden;
   border-top: 1px solid var(--line);
   background: repeating-linear-gradient(90deg, var(--line-strong) 0 1px, transparent 1px 13px);
   transition: border-color .2s var(--ease), background .2s var(--ease);
+}
+.readout-big__rule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transform: translateX(-130%);
+}
+.readout-big:hover .readout-big__rule::after {
+  animation: tick-scan 1.1s var(--ease) 1;
+}
+@keyframes tick-scan {
+  0% { opacity: 0; transform: translateX(-130%); }
+  12% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(560%); }
 }
 .readout-big:hover .readout-big__value { color: var(--accent); }
 .readout-big:hover .readout-big__rule { border-color: var(--accent); }
@@ -897,6 +1185,16 @@ html[data-lang="en"] .poem__panel-text {
   stroke-width: 1;
   fill: none;
 }
+/* 进入这一行时，线稿像通电一样自己画出来 */
+html.js .pursuit:hover .pursuit__art .is-drawable,
+html.js .pursuit:focus-within .pursuit__art .is-drawable {
+  animation: art-wake .85s var(--ease-enter) both;
+  animation-delay: calc(var(--d, 0) * 65ms);
+}
+@keyframes art-wake {
+  from { stroke-dashoffset: var(--len, 0); opacity: .15; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
 
 /* ── 书单 ─────────────────────────────────────── */
 .reading__lead {
@@ -914,13 +1212,16 @@ html[data-lang="en"] .poem__panel-text {
   border-top: 1px solid var(--line);
 }
 .book {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
   align-items: baseline;
   gap: clamp(20px, 4vw, 64px);
   padding: clamp(15px, 2.2vh, 24px) 0;
   border-bottom: 1px solid var(--line);
+  transition: border-color .25s var(--ease);
 }
+.book:hover { border-bottom-color: color-mix(in srgb, var(--accent) 42%, var(--line)); }
 .book__title {
   margin: 0;
   font-family: var(--serif);
@@ -929,7 +1230,18 @@ html[data-lang="en"] .poem__panel-text {
   line-height: 1.3;
   color: var(--ink);
 }
+/* 书脊：悬停时标题下抽出一条铜线，年份旁边亮一粒点 */
+.book__title > span:first-child {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 1px;
+  padding-bottom: .06em;
+  transition: background-size .35s var(--ease);
+}
+.book:hover .book__title > span:first-child { background-size: 100% 1px; }
 .book__year {
+  position: relative;
   display: inline-block;
   margin-left: .6em;
   font-family: var(--mono);
@@ -937,14 +1249,32 @@ html[data-lang="en"] .poem__panel-text {
   font-weight: 400;
   letter-spacing: .08em;
   color: var(--muted);
+  transition: color .2s var(--ease);
 }
+.book__year::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transform: scale(.2);
+  transition: opacity .2s var(--ease), transform .25s var(--ease);
+}
+.book:hover .book__year { color: var(--accent); }
+.book:hover .book__year::before { opacity: 1; transform: none; }
 .book__note {
   margin: 0;
   max-width: 48ch;
   font-size: clamp(14px, 1.05vw, 16px);
   line-height: 1.85;
   color: var(--ink-2);
+  transition: color .25s var(--ease);
 }
+.book:hover .book__note { color: var(--ink); }
 .reading__note {
   margin: clamp(18px, 3vh, 26px) 0 0;
   text-align: right;
@@ -978,6 +1308,17 @@ html[data-lang="en"] .poem__panel-text {
   filter: saturate(.9);
   -webkit-mask-image: radial-gradient(ellipse 84% 82% at 62% 44%, #000 0%, #000 54%, transparent 84%);
   mask-image: radial-gradient(ellipse 84% 82% at 62% 44%, #000 0%, #000 54%, transparent 84%);
+}
+.motto::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  height: 22vh;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--bg));
 }
 .motto__sticky {
   position: sticky;
@@ -1035,6 +1376,21 @@ html[data-lang="en"] .poem__panel-text {
   letter-spacing: .07em;
   color: var(--muted);
 }
+.motto__head {
+  position: absolute;
+  left: -14px;
+  top: calc(var(--p, 0) * 100%);
+  width: 4px;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(156, 83, 38, .10);
+  opacity: calc(var(--p, 0) * .95);
+  pointer-events: none;
+}
+html:not(.js) .motto__head,
+html[data-motion="off"] .motto__head { display: none; }
 .motto__lit {
   position: absolute;
   inset: 0;
@@ -1146,14 +1502,59 @@ html[data-motion="off"] .motto__lit { display: none; }
   border-radius: 50%;
   background: currentColor;
   opacity: .5;
-  transition: background .15s var(--ease), opacity .15s var(--ease);
+  transition: background .15s var(--ease), opacity .15s var(--ease), transform .2s var(--ease);
 }
 .poem__item:hover,
 .poem__item:focus-visible,
+.poem__item.is-hover,
 .poem__item.is-active { color: var(--ink); }
-.poem__item.is-active::before { background: var(--accent); opacity: 1; }
-.poem__src { font-size: 13px; }
+.poem__item:hover::before,
+.poem__item:focus-visible::before,
+.poem__item.is-hover::before {
+  width: 7px;
+  height: 7px;
+  margin-left: -1px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  box-shadow: none;
+  opacity: 1;
+  transform: none;
+}
+.poem__item.is-active::before {
+  width: 5px;
+  height: 5px;
+  margin-left: 0;
+  border: 0;
+  background: var(--accent);
+  box-shadow: none;
+  opacity: 1;
+  transform: scale(1.35);
+}
+.poem__src {
+  position: relative;
+  font-size: 13px;
+}
+.poem__src::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform .3s var(--ease);
+}
+.poem__item:hover .poem__src::after,
+.poem__item:focus-visible .poem__src::after,
+.poem__item.is-hover .poem__src::after,
+.poem__item.is-active .poem__src::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
 .poem__riemann {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -1161,14 +1562,19 @@ html[data-motion="off"] .motto__lit { display: none; }
   margin-top: clamp(18px, 2.5vh, 24px);
   padding: 12px 14px;
   border: 1px solid var(--line-strong);
-  background: rgba(247, 243, 234, .5);
+  background-color: rgba(247, 243, 234, .5);
+  background-image: linear-gradient(105deg, transparent 42%, rgba(156, 83, 38, .10) 50%, transparent 58%);
+  background-repeat: no-repeat;
+  background-size: 260% 100%;
+  background-position: 140% 0;
   color: var(--ink-2);
   font: inherit;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-  transition: color .25s ease, border-color .25s ease, background-color .25s ease;
+  transition: color .25s ease, border-color .25s ease, background-color .25s ease, background-position .8s var(--ease);
 }
+.poem__riemann:hover { background-position: -40% 0; }
 .poem__riemann:hover,
 .poem__riemann:focus-visible,
 .poem__riemann.is-active {
@@ -1177,12 +1583,42 @@ html[data-motion="off"] .motto__lit { display: none; }
   background: rgba(156, 83, 38, .06);
 }
 .poem__riemann-glyph {
+  position: relative;
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid transparent;
+  border-radius: 50%;
   font-family: var(--serif);
   font-size: 26px;
   line-height: 1;
   color: var(--accent);
+  transition: border-color .3s var(--ease), transform .5s var(--ease-enter);
 }
+.poem__riemann:hover .poem__riemann-glyph,
+.poem__riemann:focus-visible .poem__riemann-glyph {
+  border-color: var(--line-strong);
+  transform: rotate(-8deg);
+}
+.poem__riemann-glyph::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transform: scale(.2);
+  transition: opacity .25s var(--ease), transform .3s var(--ease);
+}
+.poem__riemann:hover .poem__riemann-glyph::after,
+.poem__riemann:focus-visible .poem__riemann-glyph::after { opacity: 1; transform: none; }
 .poem__riemann-copy {
   display: flex;
   flex-direction: column;
@@ -1367,6 +1803,7 @@ html:not(.js) .poem__grid {
 }
 .contact__links { border-top: 1px solid var(--line-strong); }
 .contact__link {
+  position: relative;
   display: grid;
   grid-template-columns: 120px minmax(0, 1fr) auto;
   align-items: baseline;
@@ -1375,13 +1812,68 @@ html:not(.js) .poem__grid {
   border-bottom: 1px solid var(--line);
   color: var(--ink);
   text-decoration: none;
+  transition: border-color .25s var(--ease);
 }
+.contact__link:hover,
+.contact__link:focus-visible {
+  border-bottom-color: color-mix(in srgb, var(--accent) 48%, var(--line));
+}
+/* 箭头前面长出一条铜色引线，像信号离站 */
+.contact__link::after {
+  content: "";
+  position: absolute;
+  right: 27px;
+  top: 50%;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(to left, var(--accent), transparent);
+  opacity: .75;
+  transition: width .35s var(--ease);
+}
+.contact__link::before {
+  content: "";
+  position: absolute;
+  right: 73px;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity .2s var(--ease), transform .35s var(--ease);
+}
+.contact__link:hover::after,
+.contact__link:focus-visible::after { width: 46px; }
+.contact__link:hover::before,
+.contact__link:focus-visible::before { opacity: 1; transform: none; }
 .contact__key {
+  position: relative;
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: .1em;
   color: var(--muted);
+  transition: color .2s var(--ease);
 }
+.contact__key::before {
+  content: "";
+  position: absolute;
+  left: -11px;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  margin-top: -1.5px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transform: scale(.2);
+  transition: opacity .2s var(--ease), transform .25s var(--ease);
+}
+.contact__link:hover .contact__key,
+.contact__link:focus-visible .contact__key { color: var(--ink); }
+.contact__link:hover .contact__key::before,
+.contact__link:focus-visible .contact__key::before { opacity: 1; transform: none; }
 .contact__value {
   display: inline-block;
   justify-self: start;
@@ -1442,6 +1934,21 @@ html:not(.js) .poem__grid {
   color: var(--muted);
 }
 .footer p { margin: 0; }
+.footer__key {
+  margin: 0;
+  opacity: 0;
+  font-family: var(--mono);
+  font-size: 7px;
+  line-height: 1.5;
+  letter-spacing: .08em;
+  color: var(--muted);
+  transition: opacity .3s var(--ease);
+  pointer-events: none;
+}
+.footer__key b { font-weight: 400; color: var(--accent); }
+.footer__credit:hover + .footer__key,
+.footer__credit:focus + .footer__key { opacity: .8; }
+html[data-lang="zh"] .footer__key { display: none; }
 .footer__top {
   display: inline-flex;
   align-items: center;
@@ -1587,8 +2094,644 @@ html:not(.js) .poem__grid {
   .section:not(.motto) { padding-block-start: max(clamp(58px, 9vh, 90px), 84px); }
 }
 
+/* 矮一点的桌面屏幕：让诗云的面板留在第一屏里 */
+@media (min-width: 721px) and (max-height: 980px) {
+  .poem.section { padding-block: clamp(44px, 6vh, 64px); }
+  .poem .section-title { margin-bottom: 18px; }
+  .poem__lead { font-size: 15px; line-height: 1.75; }
+  .poem__list { margin-top: 16px; }
+  .poem__item { padding: 11px 0; }
+  .poem__riemann {
+    margin-top: 12px;
+    padding: 8px 12px;
+  }
+  .poem__riemann-glyph { width: 32px; height: 32px; font-size: 22px; }
+  .poem__panel {
+    min-height: 4.6em;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+  .poem__panel-text { font-size: clamp(1.05rem, 1.5vw, 1.35rem); }
+  .poem__panel-src { margin-top: 6px; }
+}
+
+/* ── 封面：晾衣绳上的便签 ─────────────────────── */
+html.cover-open,
+html.cover-open body {
+  height: 100%;
+  overflow: hidden;
+}
+html.cover-open main#main,
+html.cover-open .stations,
+html.cover-open .threads,
+html.cover-open .skip { visibility: hidden; }
+.cover {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 92% 58% at 62% 0%, rgba(255, 255, 255, .58), transparent 66%),
+    linear-gradient(to bottom, transparent 24%, color-mix(in srgb, var(--paper) 80%, transparent) 56%, var(--paper) 88%),
+    url("assets/bg-ridge-light.webp") center 36% / cover no-repeat,
+    var(--paper);
+}
+html.cover-open .cover { display: block; }
+.cover.is-leaving { display: block; }
+.cover.is-entering {
+  transform: translateY(-100%);
+  transition: transform .82s cubic-bezier(.4, 0, .2, 1);
+  box-shadow: 0 40px 90px rgba(31, 27, 21, .18);
+  pointer-events: none;
+}
+.cover.is-gone { display: none; }
+/* ── 封面：落叶与风 ───────────────────────────── */
+.cover-leaves {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.cover-leaf {
+  position: absolute;
+  top: 0;
+  left: var(--x);
+  width: var(--s);
+  height: calc(var(--s) * .62);
+  border-radius: 0 100% 0 100%;
+  background: var(--tone);
+  opacity: 0;
+  box-shadow: inset 1px 1px 0 rgba(255, 253, 247, .18);
+  transform-origin: 50% 50%;
+  animation: cover-leaf-fall var(--dur) linear var(--delay) infinite;
+  will-change: transform, opacity;
+}
+.cover-leaf::before {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 52%;
+  height: 1px;
+  background: rgba(255, 253, 247, .48);
+  transform: rotate(-8deg);
+}
+.cover-leaf::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -3px;
+  width: 1px;
+  height: 5px;
+  background: var(--tone);
+  transform: translateX(-50%) rotate(8deg);
+}
+.cover-leaf--1 { --x: 7%; --s: 14px; --tone: #9c5326; --dur: 18s; --delay: -2.2s; --drift: 32px; --rot: 24deg; --op: .42; }
+.cover-leaf--2 { --x: 17%; --s: 10px; --tone: #a8753c; --dur: 14.5s; --delay: -7.1s; --drift: -22px; --rot: 112deg; --op: .34; }
+.cover-leaf--3 { --x: 28%; --s: 12px; --tone: #7a6b45; --dur: 20s; --delay: -4.6s; --drift: 44px; --rot: 58deg; --op: .32; }
+.cover-leaf--4 { --x: 38%; --s: 9px; --tone: #b08045; --dur: 16.5s; --delay: -11s; --drift: -30px; --rot: 148deg; --op: .3; }
+.cover-leaf--5 { --x: 52%; --s: 13px; --tone: #9c5326; --dur: 19s; --delay: -8.4s; --drift: 26px; --rot: 76deg; --op: .36; }
+.cover-leaf--6 { --x: 63%; --s: 9px; --tone: #a65e3b; --dur: 15s; --delay: -1.5s; --drift: -36px; --rot: 196deg; --op: .3; }
+.cover-leaf--7 { --x: 73%; --s: 15px; --tone: #8b6b3d; --dur: 21s; --delay: -9.7s; --drift: 38px; --rot: 42deg; --op: .33; }
+.cover-leaf--8 { --x: 84%; --s: 11px; --tone: #9c5326; --dur: 17.5s; --delay: -5.6s; --drift: -28px; --rot: 128deg; --op: .38; }
+.cover-leaf--9 { --x: 93%; --s: 9px; --tone: #b08045; --dur: 14s; --delay: -12s; --drift: 20px; --rot: 64deg; --op: .28; }
+@keyframes cover-rope-wind {
+  0%, 100% { transform: translate3d(-2px, 1px, 0) rotate(-.72deg); }
+  23% { transform: translate3d(2.6px, -2px, 0) rotate(.4deg); }
+  48% { transform: translate3d(.4px, 3.2px, 0) rotate(.92deg); }
+  72% { transform: translate3d(-3px, -1px, 0) rotate(-.28deg); }
+  88% { transform: translate3d(-.6px, 2px, 0) rotate(.25deg); }
+}
+@keyframes cover-leaf-fall {
+  0% { transform: translate3d(0, -14vh, 0) rotate(var(--rot)); opacity: 0; }
+  7% { opacity: var(--op, .4); }
+  50% { transform: translate3d(var(--drift), 46vh, 0) rotate(calc(var(--rot) + 150deg)); opacity: var(--op, .4); }
+  90% { opacity: var(--op, .4); }
+  100% { transform: translate3d(calc(var(--drift) * -.3), 112vh, 0) rotate(calc(var(--rot) + 320deg)); opacity: 0; }
+}
+
+.cover-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(ellipse 60% 52% at 50% 42%, rgba(255, 253, 247, .72), transparent 72%),
+    linear-gradient(to bottom, #f3eee4, #e9e1d3);
+  transition: opacity .9s var(--ease), transform .9s var(--ease), visibility 0s .9s;
+}
+.cover-loader__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+.cover-loader__mark {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+  letter-spacing: .01em;
+  color: var(--ink);
+}
+.cover-loader__line {
+  width: 72px;
+  height: 1px;
+  overflow: hidden;
+  background: rgba(31, 27, 21, .16);
+}
+.cover-loader__line::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: cover-loader-line 1.15s var(--ease) infinite;
+}
+@keyframes cover-loader-line {
+  0% { transform: scaleX(0); transform-origin: left; }
+  46% { transform: scaleX(1); transform-origin: left; }
+  54% { transform: scaleX(1); transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; }
+}
+.cover-loader__label {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: .15em;
+  color: var(--muted);
+}
+.cover.is-ready .cover-loader {
+  opacity: 0;
+  transform: translateY(-2.4vh);
+  visibility: hidden;
+  pointer-events: none;
+}
+.cover:not(.is-ready) .cover__inner > * { opacity: 0; }
+.cover.is-ready .cover__inner > * {
+  animation: cover-emerge 1s var(--ease-enter) both;
+}
+.cover.is-ready .cover__inner > :nth-child(1) { animation-delay: .12s; }
+.cover.is-ready .cover__inner > :nth-child(2) { animation-delay: .2s; }
+.cover.is-ready .cover__inner > :nth-child(3) { animation-delay: .3s; }
+.cover.is-ready .cover__inner > :nth-child(4) { animation-delay: .42s; }
+.cover.is-ready .cover__inner > :nth-child(5) { animation-delay: .56s; }
+.cover.is-ready .cover__inner > :nth-child(6) { animation-delay: .72s; }
+@keyframes cover-emerge {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+html[data-motion="off"] .cover-loader { display: none; }
+html[data-motion="off"] .cover:not(.is-ready) .cover__inner > * { opacity: 1; }
+html[data-motion="off"] .cover__inner > * { animation: none !important; }
+.cover__inner {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 2.6vh, 30px);
+  padding: clamp(92px, 11vh, 124px) 0 clamp(54px, 7vh, 76px);
+  text-align: center;
+}
+.cover__eyebrow {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: var(--muted);
+}
+.cover__title {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(2.4rem, 6.2vw, 4.6rem);
+  font-weight: 400;
+  line-height: .95;
+  letter-spacing: -.03em;
+  color: var(--ink);
+}
+.cover__sub {
+  max-width: 34em;
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(.95rem, 1.2vw, 1.1rem);
+  line-height: 1.8;
+  color: var(--ink-2);
+  text-wrap: balance;
+}
+.cover__line {
+  position: relative;
+  width: 100%;
+  margin-top: clamp(6px, 2vh, 24px);
+}
+.cover__rope {
+  position: absolute;
+  left: -3%;
+  top: 0;
+  width: 106%;
+  height: 64px;
+  transform-origin: 50% 0;
+  animation: cover-rope-wind 8.4s ease-in-out infinite;
+  will-change: transform;
+  overflow: visible;
+  pointer-events: none;
+}
+.cover__rope path {
+  fill: none;
+  stroke: rgba(31, 27, 21, .42);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.cover__rope .cover__rope-hi {
+  stroke: rgba(255, 255, 255, .5);
+  stroke-width: .9;
+}
+.cover__notes {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(10px, 3.2vw, 54px);
+  margin: 0;
+  padding: 32px 0 clamp(30px, 5vh, 54px);
+  list-style: none;
+}
+.cover-note {
+  position: relative;
+  flex: 0 0 auto;
+  transform: translateY(var(--drop, 0px));
+}
+.cover-note:nth-child(1) { --drop: 0px; }
+.cover-note:nth-child(2) { --drop: 2px; --tilt: -2.4deg; --fly: -18vw; }
+.cover-note:nth-child(3) { --drop: 0px; --tilt: 1.8deg; --fly: 16vw; }
+.cover-note:nth-child(4) { --drop: 3px; --tilt: -1.2deg; --fly: -22vw; }
+.cover-note__sway {
+  display: block;
+  transform-origin: 50% 0;
+  animation: cover-sway 7.2s ease-in-out infinite;
+  animation-delay: -2.4s;
+  will-change: transform;
+}
+.cover-note:nth-child(1) .cover-note__sway { animation-duration: 7.6s; animation-delay: -1.2s; }
+.cover-note:nth-child(2) .cover-note__sway { animation-duration: 6.4s; animation-delay: -3.1s; }
+.cover-note:nth-child(3) .cover-note__sway { animation-duration: 8.2s; animation-delay: -4.6s; }
+.cover-note:nth-child(4) .cover-note__sway { animation-duration: 7.0s; animation-delay: -2.3s; }
+@keyframes cover-sway {
+  0%, 100% { transform: rotate(-1.6deg); }
+  18% { transform: rotate(2.7deg); }
+  39% { transform: rotate(.5deg); }
+  62% { transform: rotate(-2.3deg); }
+  81% { transform: rotate(.9deg); }
+  92% { transform: rotate(-.4deg); }
+}
+.cover-note__pin {
+  position: absolute;
+  left: 50%;
+  top: -7px;
+  z-index: 2;
+  width: 6px;
+  height: 18px;
+  margin-left: -3px;
+  background: linear-gradient(to bottom, var(--accent), var(--accent-hi));
+  box-shadow: 0 1px 2px rgba(31, 27, 21, .15);
+  transition: transform .3s var(--ease);
+}
+.cover-note__pin::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 0;
+  width: 10px;
+  height: 4px;
+  background: var(--accent);
+}
+.cover-note__body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: clamp(100px, 10vw, 168px);
+  min-height: clamp(148px, 21vh, 206px);
+  margin: 0;
+  padding: 22px 14px 14px;
+  border: 1px solid var(--line-strong);
+  background: #fbf8f1;
+  box-shadow: 0 9px 22px rgba(31, 27, 21, .10);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transform: rotate(var(--tilt, 0deg));
+  transform-origin: top center;
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s var(--ease);
+}
+.cover-note__body::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(225deg, transparent 48%, color-mix(in srgb, var(--ink) 10%, transparent) 50%);
+}
+.cover-note:hover .cover-note__body,
+.cover-note:focus-within .cover-note__body {
+  transform: rotate(var(--tilt, 0deg)) translateY(-4px);
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--line-strong));
+  box-shadow: 0 15px 30px rgba(31, 27, 21, .14);
+}
+.cover-note__word {
+  font-family: var(--serif);
+  font-size: clamp(.95rem, 1.2vw, 1.15rem);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.cover-note__num {
+  font-family: var(--display);
+  font-size: clamp(1.3rem, 1.8vw, 1.8rem);
+  line-height: 1;
+  color: var(--accent);
+}
+.cover-note__src {
+  margin-top: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+.cover-note--enter .cover-note__body {
+  width: clamp(150px, 14vw, 236px);
+  min-height: clamp(174px, 25vh, 242px);
+  padding: 24px 16px 16px;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line-strong));
+  background: #fdfaf3;
+}
+.cover-note--enter .cover-note__body::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent);
+}
+.cover-note--enter .cover-note__word {
+  font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+  color: var(--accent-hi);
+}
+.cover-note__name {
+  display: block;
+  font-family: var(--display);
+  font-size: clamp(.95rem, 1.3vw, 1.15rem);
+  line-height: 1.2;
+  letter-spacing: -.01em;
+  color: var(--ink);
+}
+.cover-note__arrow {
+  margin-top: auto;
+  font-size: 14px;
+  color: var(--accent);
+  transition: transform .25s var(--ease);
+}
+.cover-note--enter:hover .cover-note__arrow { transform: translateX(4px); }
+.cover-note--library .cover-note__body {
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--line-strong));
+}
+.cover-note--library .cover-note__body::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--accent);
+}
+.cover-note--library .cover-note__body:hover .cover-note__arrow,
+.cover-note--library .cover-note__body:focus-visible .cover-note__arrow {
+  transform: translateX(4px);
+}
+.cover-note--library .cover-note__arrow {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--accent);
+  transition: transform .25s var(--ease);
+}
+.cover-note--library .cover-note__src {
+  margin-top: auto;
+  color: var(--accent-hi);
+}
+.cover-note.is-pulled .cover-note__pin { animation: cover-pin-tick .58s var(--ease); }
+.cover-note.is-returning .cover-note__pin { animation: cover-pin-tick .58s .9s var(--ease); }
+@keyframes cover-pin-tick {
+  0%, 100% { transform: rotate(0); }
+  28% { transform: rotate(-7deg); }
+  62% { transform: rotate(4deg); }
+  84% { transform: rotate(-1.5deg); }
+}
+.cover-note.is-pulled .cover-note__sway,
+.cover-note.is-away .cover-note__sway,
+.cover-note.is-returning .cover-note__sway { animation-play-state: paused; }
+.cover-note:hover .cover-note__sway,
+.cover-note:focus-within .cover-note__sway { animation-play-state: paused; }
+.cover-note.is-pulled .cover-note__body {
+  animation: cover-fall .95s cubic-bezier(.35, .05, .6, 1) forwards;
+  pointer-events: none;
+}
+.cover-note.is-pulled .cover-note__pin::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 50%;
+  background: var(--paper);
+}
+@keyframes cover-fall {
+  0% { transform: rotate(var(--tilt, 0deg)) translate(0, 0) scale(1); opacity: 1; }
+  7% { transform: rotate(calc(var(--tilt, 0deg) - 2.5deg)) translate(0, -4px) scale(1.005); opacity: 1; }
+  18% { transform: rotate(calc(var(--tilt, 0deg) + 8deg)) translate(calc(var(--fly, 18vw) * .035), 30px); opacity: 1; }
+  36% { transform: rotate(calc(var(--tilt, 0deg) + 20deg)) translate(calc(var(--fly, 18vw) * .34), 44vh); opacity: 1; }
+  54% { transform: rotate(calc(var(--tilt, 0deg) + 8deg)) translate(calc(var(--fly, 18vw) * .62), 62vh); opacity: .96; }
+  72% { transform: rotate(calc(var(--tilt, 0deg) + 34deg)) translate(calc(var(--fly, 18vw) * .42), 78vh); opacity: .82; }
+  100% { transform: rotate(calc(var(--tilt, 0deg) + 58deg)) translate(var(--fly, 18vw), 96vh) scale(.96); opacity: 0; }
+}
+.cover-note.is-returning .cover-note__body {
+  animation: cover-return 1.05s cubic-bezier(.22, 1, .36, 1) both;
+  pointer-events: none;
+}
+.cover-note.is-away .cover-note__body { visibility: hidden; }
+@keyframes cover-return {
+  0% { transform: rotate(calc(var(--tilt, 0deg) - 16deg)) translate(calc(var(--fly, 18vw) * -.14), -76vh) scale(.96); opacity: 0; }
+  12% { opacity: 1; }
+  32% { transform: rotate(calc(var(--tilt, 0deg) + 9deg)) translate(calc(var(--fly, 18vw) * .11), -44vh) scale(1); opacity: 1; }
+  56% { transform: rotate(calc(var(--tilt, 0deg) - 6deg)) translate(calc(var(--fly, 18vw) * -.05), -15vh); opacity: 1; }
+  78% { transform: rotate(calc(var(--tilt, 0deg) + 2.5deg)) translate(0, 7px); opacity: 1; }
+  90% { transform: rotate(calc(var(--tilt, 0deg) - 1.1deg)) translate(0, -2px); opacity: 1; }
+  100% { transform: rotate(var(--tilt, 0deg)) translate(0, 0); opacity: 1; }
+}
+.cover__quote {
+  width: min(720px, 100%);
+  min-height: clamp(96px, 14vh, 132px);
+  margin: 0 auto;
+  padding-top: clamp(12px, 2vh, 18px);
+  border-top: 1px solid var(--line-strong);
+  text-align: center;
+}
+.cover__quote-text {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(1.15rem, 2.1vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.cover__quote.is-prompt .cover__quote-text {
+  font-weight: 400;
+  color: var(--muted);
+}
+.cover__quote-src {
+  margin: 10px 0 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+.cover__quote-caret {
+  display: none;
+  width: .06em;
+  height: .9em;
+  margin-left: .08em;
+  vertical-align: -.08em;
+  background: var(--accent);
+}
+.cover__quote.is-typing .cover__quote-caret {
+  display: inline-block;
+  animation: caret-blink 1s steps(1, end) infinite;
+}
+.cover__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--muted);
+}
+.cover__hint::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(156, 83, 38, .10);
+}
+@media (max-width: 900px) {
+  .cover__inner { padding-top: 94px; gap: 18px; }
+  .cover__notes { gap: 18px; padding-top: 26px; }
+  .cover-note__body { width: 120px; min-height: 176px; }
+  .cover-note--enter .cover-note__body { width: 150px; min-height: 202px; }
+}
+@media (max-width: 640px) {
+  .cover-leaf--7, .cover-leaf--8, .cover-leaf--9 { display: none; }
+  .cover__inner { padding: 82px 0 42px; gap: 14px; }
+  .cover__eyebrow { font-size: 10px; letter-spacing: .12em; }
+  .cover__title { font-size: clamp(2.1rem, 9vw, 2.8rem); }
+  .cover__sub { max-width: 26em; font-size: 13px; line-height: 1.75; }
+  .cover__notes { gap: 8px; padding: 20px 0 24px; }
+  .cover-note__body { width: 68px; min-height: 136px; padding: 18px 9px 10px; gap: 6px; }
+  .cover-note--enter .cover-note__body { width: 88px; min-height: 154px; padding: 20px 10px 12px; }
+  .cover-note__word { font-size: 12px; }
+  .cover-note--enter .cover-note__word { font-size: 14px; }
+  .cover-note__num { font-size: 18px; }
+  .cover-note__src { font-size: 9px; letter-spacing: .04em; }
+  .cover-note__name { font-size: 10px; }
+  .cover-note__pin { width: 5px; height: 15px; margin-left: -2.5px; }
+  .cover-note__pin::before { left: -1.5px; width: 8px; height: 3px; }
+  .cover-note:nth-child(2),
+  .cover-note:nth-child(3),
+  .cover-note:nth-child(4) { --drop: 0px; }
+  .cover__quote { min-height: 92px; }
+  .cover__quote-text { font-size: 15px; line-height: 1.7; }
+  .cover__hint { font-size: 10px; }
+}
+@media (max-width: 380px) {
+  .cover__notes { gap: 6px; }
+  .cover-note__body { width: 62px; min-height: 128px; padding: 16px 8px 8px; }
+  .cover-note--enter .cover-note__body { width: 80px; min-height: 146px; }
+  .cover-note__src { font-size: 8.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cover.is-entering { transition: none; }
+  .cover-note.is-pulled .cover-note__body { animation: none; opacity: 0; }
+  .cover__quote-caret { animation: none !important; }
+}
+html[data-motion="off"] .cover.is-entering { transition: none; }
+html[data-motion="off"] .cover-note.is-pulled .cover-note__body { animation: none; opacity: 0; }
+html[data-motion="off"] .cover__quote-caret { animation: none !important; }
+html[data-motion="off"] .cover-leaves { display: none; }
+html[data-motion="off"] .cover-note__sway { animation: none; }
+html[data-motion="off"] .cover__rope { animation: none; }
+html[data-motion="off"] .cover-note.is-returning .cover-note__body { animation: none; }
+html[data-motion="off"] .cover-note.is-pulled .cover-note__pin,
+html[data-motion="off"] .cover-note.is-returning .cover-note__pin { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-leaves { display: none; }
+  .cover-note__sway { animation: none; }
+  .cover__rope { animation: none; }
+  .cover-note.is-returning .cover-note__body { animation: none; }
+  .cover-note.is-pulled .cover-note__pin,
+  .cover-note.is-returning .cover-note__pin { animation: none; }
+  .cover-loader { display: none; }
+  .cover__inner > * { animation: none !important; opacity: 1 !important; }
+  .footer__key { transition: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .motion-toggle__orbit,
+  .readout-big__rule::after,
+  .pursuit__art .is-drawable { animation: none !important; }
+  .portrait { transform: none !important; transition: none !important; }
+  .portrait__shine { transition: none !important; }
+  .motto__head { display: none !important; }
+  .cue__line i,
+  .cue__line::after,
+  .book__title > span:first-child,
+  .book__year,
+  .book__year::before,
+  .book__note,
+  .poem__src::after,
+  .poem__riemann,
+  .poem__riemann-glyph,
+  .poem__riemann-glyph::after,
+  .contact__link,
+  .contact__link::before,
+  .contact__link::after,
+  .contact__key,
+  .contact__key::before,
+  .section-title::before,
+  .lang__bead,
+  .stations__signal,
+  .stations__dot,
+  .stations__label { transition-duration: .01ms !important; }
   html.js [data-reveal] {
     opacity: 1 !important;
     transform: none !important;
@@ -1658,9 +2801,12 @@ html[data-motion="off"] [data-reveal] {
 }
 html[data-motion="off"] .motto__lit { display: none; }
 html[data-motion="off"] .motto__dim { color: var(--ink); }
+html[data-motion="off"] .portrait { transform: none; }
+html[data-motion="off"] .readout-big:hover .readout-big__rule::after,
+html[data-motion="off"] .pursuit:hover .pursuit__art .is-drawable { animation: none !important; }
 
 @media print {
-  .stations, .motion-toggle, .lang, .grain, .hero__field, .poem__stage { display: none !important; }
+  .stations, .motion-toggle, .lang, .grain, .threads, .hero__field, .poem__stage { display: none !important; }
   .section, .hero { min-height: 0; padding: 24px 0; break-inside: avoid; }
   body { background: #fff; color: #111; }
 }

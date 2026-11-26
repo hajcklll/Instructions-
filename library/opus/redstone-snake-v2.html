@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171A1F">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23171A1F'/%3E%3Crect x='7' y='6' width='2' height='8' fill='%238A2C10'/%3E%3Crect x='5' y='2' width='6' height='6' fill='%23FF3B14'/%3E%3Crect x='6' y='3' width='4' height='3' fill='%23FF7A28'/%3E%3Crect x='7' y='4' width='2' height='1' fill='%23FFF6E6'/%3E%3C/svg%3E">
+<title>红石总线</title>
+<style>
+  :root{
+    color-scheme: dark;
+    --stone:#171A1F;
+    --stone-2:#1E232A;
+    --edge:#2C333B;
+    --ink:#E7E2DA;
+    --ink-2:#9A958C;
+    --ink-3:#868178;      /* 对 --stone 达 4.5:1，再暗就过不了 WCAG AA */
+    --redstone:#FF3B14;
+    --redstone-2:#C42B0F;
+    --torch:#FFB055;
+    /* 两族分工：界面文字走无衬线，等宽只留给数字。
+       整页 monospace 是偷懒 —— 红石的证据在方块和格线里，不在字体里。 */
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+            "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "DejaVu Sans Mono", monospace;
+
+    /* 类型尺度：比例约 1.25，小端排得更密 */
+    --fs-micro: 11.5px;   /* 字段标签 */
+    --fs-small: 13.5px;   /* 辅助文字 */
+    --fs-body:  15px;     /* 正文与按钮 */
+    --fs-num:   18px;     /* 次级数字 */
+    --fs-lead:  20px;     /* 强调（覆盖层标题、触控按钮） */
+    --fs-title: 23px;     /* 标题 */
+    --fs-hero:  32px;     /* 主数字 */
+
+    /* 间距：4px 基准 */
+    --sp-1:4px;  --sp-2:8px;   --sp-3:12px;
+    --sp-4:16px; --sp-5:24px;  --sp-6:32px;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box }
+
+  body{
+    /* 内容列宽，.shell 和 .keys 共用，保证两者左右对齐 */
+    --shell-w: min(880px, calc(100dvh - 140px));
+
+    margin:0;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content: safe center;
+    gap: var(--sp-4);
+    padding: clamp(var(--sp-4),3vh,var(--sp-6)) clamp(14px,4vw,var(--sp-6));
+    background:
+      /* 角落两抹冷灰，把暖色聚到中间 —— 整页不会一片红 */
+      radial-gradient(560px 420px at 4% -6%,   rgba(120,140,165,.05), transparent 70%),
+      radial-gradient(560px 420px at 96% -6%,  rgba(120,140,165,.05), transparent 70%),
+      radial-gradient(900px 620px at 50% 24%,  rgba(255,59,20,.065), transparent 68%),
+      radial-gradient(760px 460px at 50% 108%, rgba(255,140,40,.035), transparent 70%),
+      var(--stone);
+    color:var(--ink);
+    font:400 var(--fs-body)/1.55 var(--sans);
+    -webkit-text-size-adjust:100%;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  ::selection{ background:rgba(255,59,20,.35); color:#FFF3EC }
+
+  /* 板岩底噪，免得整页是一块平色 */
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+    opacity:.4;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ── 背景装饰：总线从四周汇入 ──────────
+     唯一保留的装饰。它跟主题有真实关联（红石总线就是电路），
+     而且是静态结构 —— 不闪、不扫、不呼吸，游戏时不会跟棋盘抢注意力。
+
+     做法：走线不是均匀铺满的网格（那看着像练习本），
+     而是用四个方向的 linear-gradient 从画面四边往中间收，
+     越靠中心越淡，形成「线从外向里汇入」的暗示。
+     中心区留给棋盘，让棋盘周围是干净的。 */
+  body::after{
+    content:'';
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+
+    background-image:
+      /* 从左边汇入的线 */
+      repeating-linear-gradient(90deg,
+        rgba(190,96,52,.07) 0 1px, transparent 1px 88px),
+      /* 从右边汇入的线（与左边的错开半格，避免完全对称） */
+      repeating-linear-gradient(90deg,
+        rgba(190,96,52,.05) 0 1px, transparent 1px 88px),
+      /* 从上下汇入的横线 */
+      repeating-linear-gradient(0deg,
+        rgba(190,96,52,.045) 0 1px, transparent 1px 88px);
+
+    /* 用一个径向遮罩把中心挖空：四边浓、中间净 */
+    -webkit-mask-image: radial-gradient(ellipse 62% 58% at 50% 52%,
+      transparent 0%, transparent 34%, rgba(0,0,0,.55) 62%, #000 100%);
+            mask-image: radial-gradient(ellipse 62% 58% at 50% 52%,
+      transparent 0%, transparent 34%, rgba(0,0,0,.55) 62%, #000 100%);
+  }
+
+  .shell{
+    width:100%;
+    max-width: var(--shell-w);
+    display:grid;
+    grid-template-columns: minmax(0,1fr) 172px;
+    grid-template-areas:
+      "head  head"
+      "stage stats";
+    gap: clamp(var(--sp-3),2vw,var(--sp-5));
+    align-content:start;
+  }
+
+  /* ── 头部 ───────────────────────────── */
+  .head{
+    grid-area:head;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:var(--sp-4);
+    padding-bottom:var(--sp-3);
+  }
+  /* 标题端得电，往右淡成普通石缝 —— 同一条总线 */
+  .head::after{
+    content:'';
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:1px;
+    background:linear-gradient(90deg,
+      var(--redstone-2) 0%,
+      rgba(196,43,15,.4) 16%,
+      var(--edge) 44%,
+      var(--edge) 100%);
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:var(--sp-3);
+    min-width:0;
+  }
+  /* 标题旁一直亮着的小火把：这条总线是活的 */
+  .mark{
+    flex:0 0 auto;
+    width:14px; height:22px;
+    filter:drop-shadow(0 0 7px rgba(255,59,20,.55));
+    animation:torch 3.4s ease-in-out infinite;
+  }
+  .mark svg{ display:block; width:100%; height:100% }
+  @keyframes torch{
+    0%, 41%, 75%, 100%{ opacity:1 }
+    44%{ opacity:.8 }
+    48%{ opacity:1 }
+    63%{ opacity:.9 }
+    67%{ opacity:1 }
+  }
+  h1{
+    margin:0;
+    font-size: clamp(20px,3.2vw,var(--fs-title));
+    font-weight:600;
+    letter-spacing:.04em;
+    /* 左上受光、右下硬阴影，再加一层红石辉光 */
+    text-shadow:
+      -1px -1px 0 rgba(255,176,85,.22),
+      2px 2px 0 rgba(74,14,4,.9),
+      0 0 26px rgba(255,59,20,.42);
+  }
+  .sub{
+    margin:var(--sp-1) 0 0;
+    font-size:var(--fs-small);
+    color:var(--ink-3);
+  }
+  .best{
+    display:flex;
+    align-items:baseline;
+    gap:var(--sp-2);
+    margin:0;
+    padding:6px 10px;
+    border:1px solid var(--edge);
+    border-top-color:var(--redstone-2);
+    border-radius:3px;
+    background:linear-gradient(180deg, rgba(255,59,20,.055), rgba(255,59,20,0) 75%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    white-space:nowrap;
+  }
+  .best-k{
+    font-size:var(--fs-micro);
+    letter-spacing:.08em;
+    color:var(--ink-3);
+  }
+  .best b{
+    font-family:var(--mono);
+    font-weight:600;
+    font-size:var(--fs-num);
+    letter-spacing:0;
+    color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* ── 棋盘 ───────────────────────────── */
+  .stage{ grid-area:stage; min-width:0 }
+
+  .board{
+    position:relative;
+    display:grid;
+    place-items:center;
+    padding:var(--sp-2);
+    border-radius:3px;
+    /* 面板自身是磨过的石面：斜向高光扫过，不是一块平色 */
+    background:
+      linear-gradient(152deg,
+        rgba(255,255,255,.06) 0%,
+        rgba(255,255,255,0)   30%,
+        rgba(0,0,0,.15)       100%),
+      var(--stone-2);
+    border:1px solid var(--edge);
+    /* 上下双色描边，模仿石砖的倒角 */
+    border-top-color:#4A525C;
+    border-left-color:#3D434B;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.08),      /* 顶边受光 */
+      inset 0 -1px 0 rgba(0,0,0,.5),            /* 底边背光 */
+      inset 0 0 32px rgba(0,0,0,.65),           /* 屏幕嵌进面板的深度感 */
+      0 0 80px -24px rgba(255,59,20,.6),        /* 红石光溢出面板 */
+      0 22px 50px -28px rgba(0,0,0,.95);        /* 落影 */
+    animation: power-on 1s ease-out backwards;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 四角定位角标，仪器面板的语言 */
+  .board::before,
+  .board::after{
+    content:'';
+    position:absolute;
+    z-index:2;
+    width:11px; height:11px;
+    border:1px solid var(--redstone-2);
+    opacity:.6;
+    pointer-events:none;
+  }
+  .board::before{ top:-1px; left:-1px; border-right:0; border-bottom:0 }
+  .board::after{ bottom:-1px; right:-1px; border-left:0; border-top:0 }
+
+  /* 另两角用 .stage 的伪元素补齐，避开 .board 只用两个伪元素的上限 */
+  .stage{ position:relative }
+  .stage::before,
+  .stage::after{
+    content:'';
+    position:absolute;
+    z-index:2;
+    width:11px; height:11px;
+    border:1px solid var(--redstone-2);
+    opacity:.6;
+    pointer-events:none;
+  }
+  .stage::before{ top:calc(var(--sp-2) - 1px);    right:calc(var(--sp-2) - 1px); border-left:0;  border-bottom:0 }
+  .stage::after { bottom:calc(var(--sp-2) - 1px); left:calc(var(--sp-2) - 1px);  border-right:0; border-top:0 }
+
+  @keyframes power-on{
+    from{ opacity:.3; box-shadow:0 0 0 0 rgba(255,59,20,0) }
+  }
+
+  canvas{ display:block; image-rendering:pixelated }
+
+  /* ── 覆盖层 ─────────────────────────── */
+  .ov{
+    position:absolute;
+    inset:0;
+    z-index:1;
+    padding:var(--sp-5);
+    text-align:center;
+    background:
+      radial-gradient(120% 90% at 50% 42%, rgba(255,59,20,.07), transparent 62%),
+      rgba(23,26,31,.82);
+    backdrop-filter:blur(3px);
+    -webkit-backdrop-filter:blur(3px);
+  }
+  /* 这层淡入是响应状态变化，不是进场表演，所以只有 .14s */
+  .ov:not([hidden]){
+    display:grid;
+    place-content:center;
+    gap:var(--sp-2);
+    animation:ov-in .2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @keyframes ov-in{
+    from{ opacity:0; transform: scale(0.98) translateY(4px); }
+    to{ opacity:1; transform: scale(1) translateY(0); }
+  }
+
+  .ov-t{
+    margin:0;
+    font-size:var(--fs-lead);
+    font-weight:600;
+    letter-spacing:.04em;
+    color:var(--torch);
+    text-shadow:0 0 22px rgba(255,140,40,.4);
+  }
+  .ov-p{
+    margin:0;
+    font-size:var(--fs-small);
+    color:var(--ink-2);
+  }
+  /* 结算时分数是主角，单独给一个大号读数 */
+  .ov-score{
+    margin:0;
+    font-family:var(--mono);
+    font-size:var(--fs-hero);
+    font-weight:600;
+    line-height:1.1;
+    color:var(--redstone);
+    text-shadow:0 0 24px rgba(255,59,20,.5);
+    font-variant-numeric:tabular-nums;
+  }
+  .ov-score span{
+    margin-left:2px;
+    font-size:.42em;
+    font-weight:500;
+    color:var(--ink-2);
+    text-shadow:none;
+  }
+  .ov-badge{
+    justify-self:center;
+    margin:0;
+    padding:2px 9px;
+    font-size:var(--fs-micro);
+    letter-spacing:.12em;
+    color:var(--torch);
+    border:1px solid rgba(255,176,85,.45);
+    background:rgba(255,176,85,.07);
+  }
+  .ov-btn{
+    margin-top:var(--sp-3);
+    justify-self:center;
+    font:inherit;
+    font-size:var(--fs-small);
+    letter-spacing:.04em;
+    color:var(--ink);
+    background:rgba(255,59,20,.08);
+    border:1px solid var(--redstone-2);
+    border-radius:3px;
+    padding:10px var(--sp-5);
+    cursor:pointer;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.08),
+      inset 0 -2px 0 rgba(0,0,0,.32);
+    transition:background .15s, border-color .15s, transform .1s;
+  }
+  .ov-btn:hover{ background:rgba(255,59,20,.2); border-color:var(--redstone) }
+  .ov-btn:active{ transform:translateY(1px); background:rgba(255,59,20,.28) }
+  .ov-btn:focus-visible{ outline:2px solid var(--torch); outline-offset:3px }
+
+  /* ── 数据栏 ─────────────────────────── */
+  .stats{
+    grid-area:stats;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    padding-left:18px;
+  }
+  /* 分隔线从红石色烧到熄灭，不用生硬的灰边 */
+  .stats::before{
+    content:'';
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width:1px;
+    background:linear-gradient(180deg, var(--edge), var(--redstone-2) 24%, var(--edge) 62%, transparent);
+  }
+  /* 只选字段块本身 —— 写成 .stats div 会把 .bars 也卷进来，
+     它的 flex-direction:column 会盖掉 .bars 的横排，5 段就摞成一条看不见的线 */
+  .stats .field{ display:flex; flex-direction:column; gap:var(--sp-1) }
+  dt{
+    font-size:var(--fs-micro);
+    letter-spacing:.08em;
+    color:var(--ink-3);
+  }
+  /* 分数是目标，长度是结果，速度只是参考 —— 三级重量分开 */
+  .num{
+    margin:0;
+    /* 等宽只给数字：分数跳动时位数不能晃，这是功能性对齐 */
+    font-family:var(--mono);
+    font-size:var(--fs-num);
+    font-weight:600;
+    line-height:1.1;
+    color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  .num-hero{
+    font-size:var(--fs-hero);
+    color:var(--redstone);
+    text-shadow:0 0 24px rgba(255,59,20,.5);
+    transform-origin:left center;
+  }
+  .num-dim{ font-size:var(--fs-small); color:var(--ink-2) }
+  .num .x{ font-size:.7em; color:var(--ink-2); margin-left:1px }
+
+  /* 信号强度：分段点亮，比纯数字更像仪表 */
+  .bars{
+    display:flex;
+    width:100%;           /* 父级是 column flex，显式撑满，别指望 stretch */
+    gap:3px;
+    margin-top:var(--sp-2);
+    min-height:5px;
+  }
+  .bars i{
+    display:block;
+    flex:1 1 0;           /* 明确 basis 0，段才等分且不会塌成 0 宽 */
+    min-width:6px;
+    height:5px;
+    background:var(--edge);
+    transition:background .18s ease, box-shadow .18s ease;
+  }
+  .bars i.on{
+    background:var(--redstone);
+    box-shadow:0 0 8px rgba(255,59,20,.7);
+  }
+  .bars i.on.hot{ background:var(--torch); box-shadow:0 0 10px rgba(255,176,85,.8) }
+
+  /* 满格时最右一段回光 —— 信号到头了。静态亮度差，不是循环动画。 */
+  .bars.is-max i:last-child.on{
+    background:#FFC978;
+    box-shadow:0 0 14px rgba(255,176,85,.95);
+  }
+
+  /* 窄屏下统计栏转成横向，电量条跟着压窄一点 */
+  @media (max-width:720px), (max-height:560px){
+    .bars{ width:auto; min-width:72px; margin-top:var(--sp-1) }
+  }
+
+  /* ── 红石信号表 ─────────────────────── */
+  /* 收起来只占一行，展开是一条总线刻度 —— 不是表格，是总线上的中继器节点。
+     数值来自 speedMs()，改速度公式要同步改 markup。 */
+  .signal{
+    width:100%;
+    max-width: var(--shell-w);
+    margin:0;
+    font-size:var(--fs-small);
+    color:var(--ink-3);
+  }
+  .signal summary{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:var(--sp-2);
+    padding:var(--sp-2) 0;
+    cursor:pointer;
+    list-style:none;
+    letter-spacing:.04em;
+    transition:color .15s;
+  }
+  .signal summary::-webkit-details-marker{ display:none }
+  .signal summary:hover{ color:var(--ink-2) }
+  .signal[open] summary{ color:var(--ink-2) }
+  .signal summary:focus-visible{ outline:2px solid var(--torch); outline-offset:2px }
+  /* 三角用 CSS 画，不用字符 —— 字符在不同系统上字形差太多 */
+  .signal summary::before{
+    content:'';
+    width:0; height:0;
+    border-left:4px solid currentColor;
+    border-top:3.5px solid transparent;
+    border-bottom:3.5px solid transparent;
+    transition:transform .18s ease;
+  }
+  .signal[open] summary::before{ transform:rotate(90deg) }
+
+  .signal-note{
+    margin:var(--sp-2) 0 var(--sp-4);
+    padding-left:var(--sp-3);
+    border-left:2px solid var(--redstone-2);
+    line-height:1.7;
+    color:var(--ink-2);
+  }
+  .signal-note b{ color:var(--torch); font-weight:600 }
+
+  /* 刻度本体：一条横线，四个节点挂上去 */
+  .scale{
+    position:relative;
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:var(--sp-2);
+    padding-top:var(--sp-4);
+    padding-bottom:var(--sp-2);
+  }
+  /* 总线本身：左端熄、右端满，跟蛇身的衰减同一个语言。
+     左端那抹暗红就是画布里的 TAIL 色（110,23,10）。 */
+  .scale-line{
+    position:absolute;
+    left:0; right:0;
+    top:calc(var(--sp-4) - 3px);
+    height:3px;
+    background:linear-gradient(90deg,
+      rgba(110,23,10,.55) 0%,
+      var(--redstone-2) 42%,
+      var(--redstone) 100%);
+    box-shadow:0 0 12px -2px rgba(255,59,20,.5);
+  }
+
+  .stop{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    text-align:center;
+  }
+  /* 节点：线上一颗方块，模仿红石中继器 */
+  .stop-tick{
+    display:block;
+    width:11px; height:11px;
+    margin-bottom:var(--sp-2);
+    background:var(--stone-2);
+    border:2px solid var(--redstone-2);
+    position:relative;
+    z-index:1;
+  }
+  .stop.is-cap .stop-tick{
+    background:var(--redstone);
+    border-color:var(--torch);
+    box-shadow:0 0 12px rgba(255,59,20,.8);
+  }
+
+  .stop-x{
+    font-family:var(--mono);
+    font-size:var(--fs-num);
+    font-weight:600;
+    line-height:1.1;
+    color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  .stop-x span{ font-size:.7em; color:var(--ink-2); margin-left:1px }
+  .stop.is-cap .stop-x{ color:var(--torch) }
+
+  .stop-at{
+    font-size:var(--fs-micro);
+    letter-spacing:.06em;
+    color:var(--ink-2);
+  }
+  .stop-sc{
+    font-size:var(--fs-micro);
+    font-style:normal;
+    color:var(--ink-3);
+  }
+  .stop.is-cap .stop-sc{ color:var(--torch) }
+
+  /* 走线彩蛋：折线 + 三个焊点，静态的，不呼吸 */
+  .signal-trace{
+    display:block;
+    width:min(420px,80%);
+    height:auto;
+    margin:0 auto var(--sp-2);
+    stroke:rgba(196,43,15,.5);
+    fill:rgba(255,59,20,.7);
+    filter:drop-shadow(0 0 6px rgba(255,59,20,.25));
+  }
+
+  .signal-foot{
+    margin:var(--sp-3) 0 0;
+    text-align:center;
+    font-size:var(--fs-micro);
+    color:var(--ink-3);
+    letter-spacing:.02em;
+  }
+
+  /* 窄屏：四列挤不开，压成两行两列 */
+  @media (max-width:720px), (max-height:560px){
+    .scale{
+      grid-template-columns:repeat(2, 1fr);
+      gap:var(--sp-3) var(--sp-2);
+      padding-top:0;
+    }
+    /* 两列排版时横线会穿过第二行，收掉，改由每列自带刻度感 */
+    .scale-line{ display:none }
+    .stop-tick{ margin-bottom:var(--sp-1) }
+  }
+  /* 按键提示：压在棋盘下面的一条窄铭牌，不抢主体 */
+  .keys{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:var(--sp-2) var(--sp-5);
+    width:100%;
+    max-width:var(--shell-w);
+    margin:0;
+    font-size:var(--fs-small);
+    color:var(--ink-3);
+  }
+  .keys span{ display:inline-flex; align-items:center; gap:5px; white-space:nowrap }
+  kbd{
+    display:inline-block;
+    min-width:1.8em;
+    padding:3px 7px;
+    border-radius:4px 4px 2px 2px;
+    text-align:center;
+    /* 键帽上的字符用等宽 —— 这是功能性等宽：W A S D 和箭头要对齐成键位 */
+    font-family:var(--mono);
+    font-size:var(--fs-micro);
+    font-weight:500;
+    color:var(--ink-2);
+    background:var(--stone-2);
+    border:1px solid var(--edge);
+    border-bottom-width:3px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .pad{ display:none }
+
+  /* ── 触屏方向键 ─────────────────────── */
+  @media (hover:none) and (pointer:coarse){
+    .keys{ display:none }
+    .pad{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      grid-template-rows:repeat(2,1fr);
+      gap:8px;
+      width:min(240px,64vw);
+    }
+    .pad button{
+      font:inherit;
+      font-size:var(--fs-lead);
+      color:var(--ink-2);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.035), transparent 62%),
+        var(--stone-2);
+      border:1px solid var(--edge);
+      border-bottom-width:3px;
+      border-radius:8px 8px 4px 4px;
+      padding:0;
+      height:56px;
+      touch-action:manipulation;
+      user-select:none;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+      transition:background .12s, border-color .12s, color .12s;
+    }
+    .pad button:active{
+      background:
+        linear-gradient(180deg, rgba(255,59,20,.1), transparent 62%),
+        rgba(255,59,20,.18);
+      border-color:var(--redstone-2);
+      color:var(--torch);
+      box-shadow:
+        inset 0 2px 6px rgba(0,0,0,.35),
+        0 0 14px -4px rgba(255,59,20,.7);
+    }
+    .pad .u{ grid-area:1/2 } .pad .l{ grid-area:2/1 }
+    .pad .d{ grid-area:2/2 } .pad .r{ grid-area:2/3 }
+  }
+
+  /* ── 窄屏 / 矮屏：单列 ──────────────── */
+  @media (max-width:720px), (max-height:560px){
+    body{
+      --shell-w: min(100%, calc(100dvh - 120px));
+      /* 窄屏重定义尺度本身，组件不用逐个覆盖 */
+      --fs-hero: 26px;
+      --fs-num: 17px;
+    }
+    .shell{
+      grid-template-columns:1fr;
+      grid-template-areas:"head" "stats" "stage";
+    }
+    .head{ padding-bottom:var(--sp-2) }
+    .sub{ display:none }
+    .stats{
+      flex-direction:row;
+      gap:var(--sp-5);
+      padding:0 0 var(--sp-3);
+    }
+    .stats::before{
+      left:0; right:0; bottom:0; top:auto;
+      width:auto; height:1px;
+      background:linear-gradient(90deg, var(--edge), var(--redstone-2) 28%, var(--edge) 62%, transparent);
+    }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{ transition:none !important; animation:none !important }
+  }
+
+  /* 为分数、最佳分数添加轻微跳动动画 */
+  .score-bump { animation: score-bump 0.3s ease-out; }
+
+  @keyframes score-bump { 0% { transform: scale(1); } 50% { transform: scale(1.12); } 100% { transform: scale(1); } }
+</style>
+<style>
+/* Additional animations */
+@keyframes fadeInBody {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+body {
+  opacity: 0;
+  animation: fadeInBody 0.8s ease-out forwards;
+}
+
+/* Button ripple effect */
+.button-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.button-ripple::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  width: 100px;
+  height: 100px;
+  transform: scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+.button-ripple.ripple-active::after {
+  animation: ripple 0.6s linear;
+}
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Torch pulse */
+.mark {
+  animation: torch 3.4s ease-in-out infinite, torchPulse 2s ease-in-out infinite;
+}
+@keyframes torchPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Board gentle pulse on score change */
+.board.pulse {
+  animation: boardPulse 0.4s ease-out;
+}
+@keyframes boardPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Overlay larger fade */
+.ov:not([hidden]) {
+  animation: ov-in 0.3s cubic-bezier(0.2,0.8,0.2,1);
+}
+
+/* Bar segment highlight */
+.bars i.on {
+  animation: barGlow 1s infinite;
+}
+@keyframes barGlow {
+  0%,100% { box-shadow:0 0 8px rgba(255,59,20,.7); }
+  50% { box-shadow:0 0 12px rgba(255,59,20,1); }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <header class="head">
+    <div class="brand">
+      <span class="mark" aria-hidden="true">
+        <svg viewBox="0 0 14 22">
+          <rect x="6" y="9"  width="2" height="12" fill="#5B3A24"/>
+          <rect x="6" y="9"  width="1" height="12" fill="#7A4D2E"/>
+          <rect x="4" y="4"  width="6" height="6"  fill="#FF3B14"/>
+          <rect x="5" y="5"  width="4" height="4"  fill="#FF7A28"/>
+          <rect x="6" y="6"  width="2" height="2"  fill="#FFF6E6"/>
+        </svg>
+      </span>
+      <div>
+        <h1>红石总线</h1>
+        <p class="sub">吃红石粉，别撞墙。</p>
+      </div>
+    </div>
+    <p class="best"><span class="best-k">最佳</span><b id="best">0</b></p>
+  </header>
+
+  <div class="stage">
+    <div class="board" id="board">
+      <canvas id="cv" width="400" height="400" role="img" aria-label="红石总线棋盘"></canvas>
+      <div class="ov" id="ov" hidden aria-live="polite"></div>
+    </div>
+  </div>
+
+  <dl class="stats">
+    <div class="field"><dt>分数</dt><dd class="num num-hero" id="score">0</dd></div>
+    <div class="field"><dt>长度</dt><dd class="num" id="len">3</dd></div>
+    <div class="field">
+      <dt>速度</dt>
+      <dd class="num num-dim"><span id="spd">1.0</span><span class="x">×</span></dd>
+      <div class="bars" id="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+  </dl>
+</div>
+
+<p class="keys" id="keys">
+  <span><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> 或 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动</span>
+  <span><kbd>空格</kbd> 暂停</span>
+  <span><kbd>R</kbd> 重开</span>
+</p>
+
+<nav class="pad" id="pad" aria-label="方向控制">
+  <button class="u" data-dir="up"    aria-label="上">↑</button>
+  <button class="l" data-dir="left"  aria-label="左">←</button>
+  <button class="d" data-dir="down"  aria-label="下">↓</button>
+  <button class="r" data-dir="right" aria-label="右">→</button>
+</nav>
+
+<!-- 红石信号表：数据直接来自 speedMs()，改速度公式时这里要跟着改 -->
+<details class="signal" id="signal">
+  <summary>红石信号表</summary>
+
+  <p class="signal-note">
+    每吃一颗红石粉，总线充能一次 —— 蛇走得快一档，到 <b>23 分往后</b> 就不再提速。
+  </p>
+
+  <div class="scale">
+    <div class="scale-line" aria-hidden="true"></div>
+
+    <div class="stop">
+      <span class="stop-tick" aria-hidden="true"></span>
+      <b class="stop-x">1.00<span>×</span></b>
+      <span class="stop-at">火把</span>
+      <em class="stop-sc">开局</em>
+    </div>
+
+    <div class="stop">
+      <span class="stop-tick" aria-hidden="true"></span>
+      <b class="stop-x">1.28<span>×</span></b>
+      <span class="stop-at">11 分</span>
+      <em class="stop-sc">提速三成</em>
+    </div>
+
+    <div class="stop">
+      <span class="stop-tick" aria-hidden="true"></span>
+      <b class="stop-x">1.60<span>×</span></b>
+      <span class="stop-at">19 分</span>
+      <em class="stop-sc">信号过半</em>
+    </div>
+
+    <div class="stop is-cap">
+      <span class="stop-tick" aria-hidden="true"></span>
+      <b class="stop-x">1.83<span>×</span></b>
+      <span class="stop-at">23 分</span>
+      <em class="stop-sc">封顶之后</em>
+    </div>
+  </div>
+
+  <!-- 彩蛋：总线走线，跟背景同一语言 -->
+  <svg class="signal-trace" viewBox="0 0 640 76" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+    <path d="M-4 56 H190 V22 H318 V56 H452 V22 H644" fill="none"/>
+    <circle cx="190" cy="56" r="3.5"/>
+    <circle cx="318" cy="22" r="3.5"/>
+    <circle cx="452" cy="56" r="3.5"/>
+  </svg>
+
+  <p class="signal-foot">
+    封顶之后不再提速。撑到那时候，靠的是手感。
+  </p>
+</details>
+
+<script>
+/* CORE-BEGIN —— 纯逻辑，不碰 DOM，可单独取出测试 */
+const DIRS = { up:[0,-1], down:[0,1], left:[-1,0], right:[1,0] };
+
+function newState(cols, rows, rnd){
+  const mid = rows >> 1, cx = cols >> 1;
+  const s = {
+    cols, rows,
+    alive:true, ate:false, dead:null, score:0,
+    dir:{x:1,y:0}, queue:[],
+    snake:[0,1,2].map(i => ({ x:cx - i, y:mid })),   // 头在正中，身向右铺开
+    food:null
+  };
+  placeFood(s, rnd);
+  return s;
+}
+
+function placeFood(s, rnd){
+  const taken = new Set(s.snake.map(p => p.y * s.cols + p.x));
+  const free = [];
+  for(let i = 0; i < s.cols * s.rows; i++) if(!taken.has(i)) free.push(i);
+  if(!free.length){ s.food = null; return; }
+  const k = free[(rnd() * free.length) | 0];
+  s.food = { x:k % s.cols, y:(k / s.cols) | 0 };
+}
+
+// 转向进队列，避免一帧内连按两次转出 180° 自杀
+function turn(s, name){
+  const d = DIRS[name];
+  if(!d || !s.alive || s.queue.length >= 2) return false;
+  const last = s.queue.length ? s.queue[s.queue.length - 1] : s.dir;
+  if(d[0] === last.x && d[1] === last.y) return false;
+  if(d[0] === -last.x && d[1] === -last.y) return false;
+  s.queue.push({ x:d[0], y:d[1] });
+  return true;
+}
+
+function step(s, rnd){
+  s.ate = false; s.dead = null;
+  if(!s.alive) return s;
+
+  if(s.queue.length) s.dir = s.queue.shift();
+  const head = { x:s.snake[0].x + s.dir.x, y:s.snake[0].y + s.dir.y };
+
+  if(head.x < 0 || head.y < 0 || head.x >= s.cols || head.y >= s.rows){
+    s.alive = false; s.dead = 'wall'; return s;
+  }
+
+  // 吃到食物时尾巴这步不挪，所以要把它排除在碰撞之外
+  const willEat = !!s.food && head.x === s.food.x && head.y === s.food.y;
+  const bodyLen = s.snake.length - (willEat ? 0 : 1);
+  for(let i = 0; i < bodyLen; i++){
+    if(s.snake[i].x === head.x && s.snake[i].y === head.y){
+      s.alive = false; s.dead = 'self'; return s;
+    }
+  }
+
+  s.snake.unshift(head);
+  if(willEat){ s.score++; s.ate = true; placeFood(s, rnd); }
+  else s.snake.pop();
+  return s;
+}
+/* CORE-END */
+
+/* ── 常量与元素 ──────────────────────── */
+const COLS = 20, ROWS = 20;
+const KEY = 'redstone-bus-best';
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const cv  = document.getElementById('cv');
+const g   = cv.getContext('2d');
+const board = document.getElementById('board');
+const ov  = document.getElementById('ov');
+const elScore = document.getElementById('score');
+const elLen   = document.getElementById('len');
+const elSpd   = document.getElementById('spd');
+const elBest  = document.getElementById('best');
+const barEls  = Array.prototype.slice.call(document.querySelectorAll('#bars i'));
+const barsEl  = document.getElementById('bars');
+const BARSEGS = barEls.length;
+
+let best = 0;
+try{ best = +(localStorage.getItem(KEY) || 0) || 0; }catch(e){}
+elBest.textContent = best;
+
+/* ── 尺寸：每格对齐物理像素，保证硬边 ── */
+// W/H 用 -1 起步：resize() 靠「尺寸没变就返回」防死循环，
+// 初值必须是一个永远撞不上的哨兵，否则第一次调用会被自己挡住，stone 留在 null。
+let cell = 20, W = -1, H = -1, stone = null;
+
+function buildStone(w, h){
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const x = c.getContext('2d');
+
+  x.fillStyle = '#1B2027';
+  x.fillRect(0, 0, w, h);
+
+  const px = Math.max(3, Math.round(cell / 5));
+
+  // 粗层：石料的团块，让底面有起伏。纯均匀噪点看着像电视雪花，不像石头。
+  const blk = px * 6;
+  for(let y = 0; y < h; y += blk){
+    for(let i = 0; i < w; i += blk){
+      const v = (Math.random() - 0.5) * 2;              // -1..1，正偏亮负偏暗
+      const a = Math.abs(v) * 0.035;
+      x.fillStyle = (v > 0 ? 'rgba(226,232,240,' : 'rgba(0,0,0,') + a.toFixed(3) + ')';
+      x.fillRect(i, y, blk, blk);
+    }
+  }
+
+  // 细层：颗粒
+  for(let y = 0; y < h; y += px){
+    for(let i = 0; i < w; i += px){
+      const v = Math.random();
+      if(v < 0.62) continue;
+      const a = v < 0.9 ? 0.03 + Math.random()*0.035 : 0.08 + Math.random()*0.04;
+      x.fillStyle = 'rgba(226,232,240,' + a.toFixed(3) + ')';
+      x.fillRect(i, y, px, px);
+    }
+  }
+
+  // 网格交点，像电路板焊点
+  const gp = Math.max(1, Math.round(cell / 26));
+  x.fillStyle = 'rgba(255,255,255,.055)';
+  for(let i = 1; i < COLS; i++)
+    for(let j = 1; j < ROWS; j++)
+      x.fillRect(i*cell, j*cell, gp, gp);
+
+  // 板面走线：随机几条横竖贯通的红石线路，暗铜色，不抢主体
+  const wire = Math.max(1, Math.round(cell / 11));
+  x.fillStyle = 'rgba(150,86,48,.16)';
+  const runs = Math.max(3, Math.round(COLS / 4));
+  for(let n = 0; n < runs; n++){
+    if(Math.random() < 0.5){
+      const gy = (1 + ((Math.random() * (ROWS - 2)) | 0)) * cell - wire/2;
+      x.fillRect(0, gy, w, wire);
+    } else {
+      const gx = (1 + ((Math.random() * (COLS - 2)) | 0)) * cell - wire/2;
+      x.fillRect(gx, 0, wire, h);
+    }
+  }
+  // 走线末端的焊盘，让线路看起来是有端点的
+  x.fillStyle = 'rgba(190,110,60,.22)';
+  const pad = Math.max(2, Math.round(cell / 7));
+  for(let n = 0; n < runs; n++){
+    x.fillRect(((Math.random() * COLS) | 0) * cell + (cell - pad)/2,
+               ((Math.random() * ROWS) | 0) * cell + (cell - pad)/2, pad, pad);
+  }
+
+  // 边缘压暗 + 顶部受光：面板看上去是有厚度的嵌槽，不是一张贴纸
+  const vg = x.createRadialGradient(w/2, h/2, Math.min(w, h) * 0.30,
+                                    w/2, h/2, Math.max(w, h) * 0.74);
+  vg.addColorStop(0, 'rgba(0,0,0,0)');
+  vg.addColorStop(1, 'rgba(0,0,0,.32)');
+  x.fillStyle = vg;
+  x.fillRect(0, 0, w, h);
+
+  const sheen = x.createLinearGradient(0, 0, 0, h * 0.18);
+  sheen.addColorStop(0, 'rgba(255,255,255,.035)');
+  sheen.addColorStop(1, 'rgba(255,255,255,0)');
+  x.fillStyle = sheen;
+  x.fillRect(0, 0, w, h * 0.18);
+
+  // 边界：撞上去就是死，得先让玩家看见它在哪
+  const lw = Math.max(2, Math.round(cell * 0.07));
+  x.strokeStyle = 'rgba(255,59,20,.16)';
+  x.lineWidth = lw;
+  x.strokeRect(lw/2, lw/2, w - lw, h - lw);
+
+  return c;
+}
+
+// 一张柔光斑，食物和蛇头的照明都复用它
+const glow = (() => {
+  const R = 64, c = document.createElement('canvas');
+  c.width = c.height = R * 2;
+  const x = c.getContext('2d');
+  const gr = x.createRadialGradient(R, R, 0, R, R, R);
+  gr.addColorStop(0,    'rgba(255,150,60,.95)');
+  gr.addColorStop(.35,  'rgba(255,90,25,.35)');
+  gr.addColorStop(1,    'rgba(255,60,15,0)');
+  x.fillStyle = gr;
+  x.fillRect(0, 0, R*2, R*2);
+  return c;
+})();
+
+function resize(){
+  const avail = Math.max(120, board.clientWidth - 16);
+  const size  = Math.min(avail, window.innerHeight * 0.66);
+  const dpr   = Math.min(3, window.devicePixelRatio || 1);
+
+  const nextCell = Math.max(6, Math.floor(size * dpr / COLS));
+  const nextW = nextCell * COLS;
+  const nextH = nextCell * ROWS;
+
+  // canvas 改尺寸会让 .board 跟着变，observer 会再打回来一次。
+  // 尺寸没变就直接返回，免得两边互相追着改停不下来。
+  if(nextW === W && nextH === H) return;
+
+  cell = nextCell; W = nextW; H = nextH;
+
+  cv.width = W; cv.height = H;
+  cv.style.width  = (W / dpr) + 'px';
+  cv.style.height = (H / dpr) + 'px';
+
+  stone = buildStone(W, H);
+}
+resize();
+new ResizeObserver(resize).observe(board);
+
+/* ── 状态机 ──────────────────────────── */
+let s = newState(COLS, ROWS, Math.random);
+let mode = 'ready';          // ready | run | pause | over
+let last = 0, acc = 0, energy = 0, energyGain = 14, flash = 0, deadAt = 0;
+let ripples = [];
+let sparks = [];
+let motes = [];                                // 蛇头拖的余烬，格子坐标 + 寿命
+
+function spawnMotes(x, y){
+  if(REDUCED) return;
+  for(let i = 0; i < 3; i++){
+    motes.push({
+      x: x * cell + cell/2 + (Math.random() - .5) * cell * .6,
+      y: y * cell + cell/2 + (Math.random() - .5) * cell * .6,
+      vx: (Math.random() - .5) * cell * .012,
+      vy: -cell * (.012 + Math.random() * .02),   // 往上飘，像余烬
+      life: 1, dec: .02 + Math.random() * .025,
+      sz: Math.max(1.5, cell * (.09 + Math.random() * .08))
+    });
+  }
+  if(motes.length > 140) motes.splice(0, motes.length - 140);
+}
+
+const speedMs = () => Math.max(72, 132 - s.score * 2.6);
+
+function showOv(html){ ov.innerHTML = html; ov.hidden = false; }
+function hideOv(){ ov.hidden = true; }
+
+function toReady(){
+  mode = 'ready';
+  showOv('<p class="ov-t">红石总线</p><p class="ov-p">按方向键或 W A S D 开始</p>');
+}
+
+// 撞击瞬间把红石粉炸开：定量的火花，带初速和衰减
+function burst(x, y, n){
+  if(REDUCED) return;
+  for(let i = 0; i < n; i++){
+    const a = Math.random() * Math.PI * 2;
+    const v = (0.6 + Math.random() * 2.2) * cell * 0.045;
+    sparks.push({
+      x: x * cell + cell/2, y: y * cell + cell/2,
+      vx: Math.cos(a) * v, vy: Math.sin(a) * v - cell * 0.02,
+      life: 1, dec: 0.012 + Math.random() * 0.02,
+      sz: Math.max(1.5, cell * (0.10 + Math.random() * 0.12))
+    });
+  }
+}
+
+function toOver(reason){
+  mode = 'over';
+  deadAt = performance.now();
+  burst(s.snake[0].x, s.snake[0].y, 34);
+  const record = s.score > best;
+  if(record){
+    best = s.score;
+    try{ localStorage.setItem(KEY, best); }catch(e){}
+    elBest.textContent = best;
+  }
+  showOv(
+    '<p class="ov-t">' + (reason === 'wall' ? '撞墙了' : '咬到自己了') + '</p>' +
+    '<p class="ov-score">' + s.score + '<span>分</span></p>' +
+    (record ? '<p class="ov-badge">新纪录</p>' : '') +
+    '<button class="ov-btn" type="button" data-act="again">再来一局</button>'
+  );
+}
+
+function restart(){ s = newState(COLS, ROWS, Math.random); acc = 0; ripples = []; sparks = []; toReady(); }
+
+// 从 ready 起步：蛇头留在正中，身体按所选方向的反方向铺开
+function begin(name){
+  const d = DIRS[name];
+  const mid = ROWS >> 1, cx = COLS >> 1;
+  s.dir = { x:d[0], y:d[1] };
+  s.queue = [];
+  s.snake = [0,1,2].map(i => ({ x:cx - d[0]*i, y:mid - d[1]*i }));
+  mode = 'run';
+  hideOv();
+}
+
+function gameStep(){
+  step(s, Math.random);
+  if(s.ate){ ripples.push({ x:s.snake[0].x, y:s.snake[0].y, t0:performance.now() }); flash = 1; }
+  if(!s.alive) toOver(s.dead);
+}
+
+/* ── 输入 ────────────────────────────── */
+const KEYMAP = {
+  arrowup:'up', arrowdown:'down', arrowleft:'left', arrowright:'right',
+  w:'up', s:'down', a:'left', d:'right'
+};
+
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  const dir = KEYMAP[k];
+
+  if(dir){
+    e.preventDefault();
+    if(mode === 'over'){
+      if(performance.now() - deadAt < 350) return;
+      restart(); begin(dir);
+    } else if(mode === 'ready'){
+      begin(dir);
+    } else if(mode === 'run'){
+      turn(s, dir);
+    }
+    return;
+  }
+  if(k === ' '){
+    e.preventDefault();
+    if(mode === 'run'){ mode = 'pause'; showOv('<p class="ov-t">已暂停</p><p class="ov-p">按空格继续</p>'); }
+    else if(mode === 'pause'){ mode = 'run'; last = 0; hideOv(); }
+    return;
+  }
+  if(k === 'r'){ e.preventDefault(); restart(); }
+});
+
+document.getElementById('pad').addEventListener('pointerdown', e => {
+  const b = e.target.closest('button');
+  if(!b) return;
+  e.preventDefault();
+  if(mode === 'ready' || mode === 'over'){ if(mode === 'over') restart(); begin(b.dataset.dir); }
+  else if(mode === 'run') turn(s, b.dataset.dir);
+});
+
+ov.addEventListener('click', e => {
+  if(e.target.closest('[data-act="again"]')) restart();
+});
+
+/* ── 绘制 ────────────────────────────── */
+const HEAD = [255, 59, 20], TAIL = [110, 23, 10], GREY = [62, 68, 76], BLACK = [0, 0, 0];
+const mix = (a, b, t) => [
+  Math.round(a[0] + (b[0]-a[0])*t),
+  Math.round(a[1] + (b[1]-a[1])*t),
+  Math.round(a[2] + (b[2]-a[2])*t)
+];
+
+// 画布里的光，用加色混合叠在地面上
+function drawGlows(ts){
+  g.globalCompositeOperation = 'lighter';
+
+  if(s.food){
+    const pulse = REDUCED ? 1 : 0.78 + 0.22 * Math.sin(ts / 300);
+    const r = cell * 3.4 * pulse, cx = s.food.x*cell + cell/2, cy = s.food.y*cell + cell/2;
+    g.globalAlpha = 0.5 * pulse;
+    g.drawImage(glow, cx - r, cy - r, r*2, r*2);
+  }
+  if(s.alive){
+    const hd = s.snake[0];
+    const r = cell * 2.2, cx = hd.x*cell + cell/2, cy = hd.y*cell + cell/2;
+    g.globalAlpha = 0.34;
+    g.drawImage(glow, cx - r, cy - r, r*2, r*2);
+  }
+
+  g.globalAlpha = 1;
+  g.globalCompositeOperation = 'source-over';
+}
+
+// 单节颜色：红石衰减 + 沿身流动的信号
+function segColor(i, len, dim){
+  const t = len > 1 ? i / (len - 1) : 0;
+  let col = mix(HEAD, TAIL, Math.pow(t, 0.7));
+
+  if(!REDUCED && s.alive){
+    const ph = Math.sin(i * 0.5 - energy) * 0.5 + 0.5;   // 信号沿身体流动
+    const boost = ph * ph * 0.5;
+    col = [
+      Math.min(255, Math.round(col[0] * (1 + boost) + boost * 30)),
+      Math.min(255, Math.round(col[1] * (1 + boost) + boost * 18)),
+      Math.round(col[2] * (1 + boost * 0.4))
+    ];
+  }
+  return dim ? mix(col, GREY, dim) : col;
+}
+
+const rgbOf = c => 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+
+function drawSnake(ts){
+  const len = s.snake.length;
+  const gap = Math.max(1, Math.round(cell / 24));
+  const inner = cell - gap;
+  const pad = gap / 2;
+  const edge = Math.max(1, Math.round(cell * 0.06));
+  const arm = Math.max(1, Math.round(cell * 0.075));
+  const dot = Math.max(1, Math.round(cell * 0.15));
+
+  let dim = 0;
+  if(!s.alive){
+    const k = Math.min(1, (ts - deadAt) / 800);
+    // 前 70% 抖动闪烁，之后定格为灰
+    dim = k < 0.7 ? k * (0.3 + 0.7 * (Math.sin(k * 20) * 0.5 + 0.5)) : k;
+  }
+
+  // 先把相邻节之间的「桥」铺上，让整条蛇连成一根导线而不是散开的方块。
+  // 桥压暗一档：方块是节点、桥是线，电流从节点之间淌过去。
+  const bodyCols = [];
+  for(let i = 0; i < len; i++) bodyCols.push(segColor(i, len, dim));
+
+  for(let i = len - 1; i > 0; i--){
+    const a = s.snake[i], b = s.snake[i - 1];
+    const c = mix(bodyCols[i - 1], BLACK, dim ? 0.3 : 0.2);
+    g.fillStyle = rgbOf(c);
+    if(a.y === b.y){                               // 横向相邻
+      const y0 = a.y * cell + pad, hgt = inner;
+      const x0 = Math.min(a.x, b.x) * cell + cell/2;
+      g.fillRect(x0, y0, cell, hgt);
+    } else {                                       // 纵向相邻
+      const x0 = a.x * cell + pad, wid = inner;
+      const y0 = Math.min(a.y, b.y) * cell + cell/2;
+      g.fillRect(x0, y0, wid, cell);
+    }
+  }
+
+  // 尾巴先画，头压在最上面
+  for(let i = len - 1; i >= 0; i--){
+    const p = s.snake[i];
+    const col = bodyCols[i];
+
+    const x0 = p.x * cell, y0 = p.y * cell;
+    const bx = x0 + pad, by = y0 + pad;
+
+    g.fillStyle = rgbOf(col);
+    g.fillRect(bx, by, inner, inner);
+
+    // 方块倒角：左上受光、右下背光 —— 一段段像真铺在板上的红石砖
+    g.fillStyle = dim ? 'rgba(255,255,255,.04)' : 'rgba(255,255,255,.15)';
+    g.fillRect(bx, by, inner, edge);
+    g.fillRect(bx, by, edge, inner);
+    g.fillStyle = dim ? 'rgba(0,0,0,.14)' : 'rgba(0,0,0,.24)';
+    g.fillRect(bx, by + inner - edge, inner, edge);
+    g.fillRect(bx + inner - edge, by, edge, inner);
+
+    // 节点中心的红石粉十字
+    if(i > 0){
+      const cx = x0 + cell/2, cy = y0 + cell/2;
+      g.fillStyle = 'rgba(255,214,180,' + (dim ? 0.05 : 0.14).toFixed(3) + ')';
+      g.fillRect(cx - dot/2, cy - arm*1.5, dot, arm*3);
+      g.fillRect(cx - arm*1.5, cy - dot/2, arm*3, dot);
+    }
+  }
+
+  // 头部：光晕 + 朝向指示
+  const hd = s.snake[0];
+  const hx = hd.x * cell, hy = hd.y * cell;
+  const hc = dim ? mix(HEAD, GREY, dim) : HEAD;
+  const hcol = [
+    Math.min(255, hc[0] + 40),
+    Math.min(255, hc[1] + 30),
+    Math.min(255, hc[2] + 16)
+  ];
+
+  g.save();
+  if(!dim){
+    g.shadowColor = 'rgba(255,70,20,.9)';
+    g.shadowBlur = cell * 0.8;
+  }
+  g.fillStyle = rgbOf(hcol);
+  g.fillRect(hx + pad, hy + pad, inner, inner);
+  g.restore();
+
+  // 头部的倒角比身体亮一档，让头从整根线里跳出来
+  g.fillStyle = dim ? 'rgba(255,255,255,.05)' : 'rgba(255,255,255,.22)';
+  g.fillRect(hx + pad, hy + pad, inner, edge);
+  g.fillRect(hx + pad, hy + pad, edge, inner);
+  g.fillStyle = dim ? 'rgba(0,0,0,.14)' : 'rgba(0,0,0,.26)';
+  g.fillRect(hx + pad, hy + cell - pad - edge, inner, edge);
+  g.fillRect(hx + cell - pad - edge, hy + pad, edge, inner);
+
+  // 朝向侧的暗色凹口（嘴），让头有明确的指向
+  if(!dim){
+    const mw = cell * 0.30, md = cell * 0.14;
+    g.fillStyle = 'rgba(40,10,4,.55)';
+    if(s.dir.y < 0)      g.fillRect(hx + (cell - mw)/2, hy + pad, mw, md);
+    else if(s.dir.y > 0) g.fillRect(hx + (cell - mw)/2, hy + cell - pad - md, mw, md);
+    else if(s.dir.x < 0) g.fillRect(hx + pad, hy + (cell - mw)/2, md, mw);
+    else                 g.fillRect(hx + cell - pad - md, hy + (cell - mw)/2, md, mw);
+  }
+}
+
+function drawFood(ts){
+  if(!s.food) return;
+  const cx = s.food.x * cell, cy = s.food.y * cell;
+  const pulse = REDUCED ? 1 : 0.72 + 0.28 * Math.sin(ts / 300);
+
+  // 插槽：底部的暗色方孔，火把才像是插进板子里，而不是浮在上面
+  g.fillStyle = 'rgba(8,6,4,.55)';
+  g.fillRect(cx + cell*0.36, cy + cell*0.76, cell*0.28, cell*0.13);
+
+  // 散在根部的红石粉
+  const dust = Math.max(1, Math.round(cell * 0.07));
+  g.fillStyle = 'rgba(255,59,20,.5)';
+  g.fillRect(cx + cell*0.26, cy + cell*0.82, dust, dust);
+  g.fillRect(cx + cell*0.68, cy + cell*0.74, dust, dust);
+  g.fillRect(cx + cell*0.60, cy + cell*0.86, dust, dust);
+
+  g.save();
+  g.shadowColor = 'rgba(255,120,30,.95)';
+  g.shadowBlur = cell * 0.8 * pulse;
+
+  // 杆：红石粉压的柱，左侧留一道受光
+  g.fillStyle = '#8A2C10';
+  g.fillRect(cx + cell*0.43, cy + cell*0.44, cell*0.14, cell*0.34);
+  g.fillStyle = '#C43A15';
+  g.fillRect(cx + cell*0.43, cy + cell*0.44, cell*0.06, cell*0.34);
+
+  // 头部：外红、内橙、芯白
+  g.fillStyle = '#E0330F';
+  g.fillRect(cx + cell*0.32, cy + cell*0.18, cell*0.36, cell*0.26);
+  g.fillStyle = '#FF7A28';
+  g.fillRect(cx + cell*0.36, cy + cell*0.16, cell*0.28, cell*0.20);
+  g.fillStyle = '#FFB055';
+  g.fillRect(cx + cell*0.41, cy + cell*0.19, cell*0.18, cell*0.14);
+  g.fillStyle = '#FFF6E6';
+  g.fillRect(cx + cell*0.45, cy + cell*0.21, cell*0.10, cell*0.10);
+  g.restore();
+}
+
+function drawRipples(ts){
+  for(let i = ripples.length - 1; i >= 0; i--){
+    const rp = ripples[i], k = (ts - rp.t0) / 430;
+    if(k >= 1){ ripples.splice(i, 1); continue; }
+    const rad = k * cell * 5.5;
+    const cx = rp.x * cell + cell/2, cy = rp.y * cell + cell/2;
+    g.strokeStyle = 'rgba(255,' + ((120 + k*100) | 0) + ',40,' + ((1-k)*0.85).toFixed(3) + ')';
+    g.lineWidth = Math.max(1, cell * 0.16 * (1 - k));
+    g.strokeRect(cx - rad, cy - rad, rad*2, rad*2);
+  }
+}
+
+function drawSparks(){
+  if(!sparks.length) return;
+  g.globalCompositeOperation = 'lighter';
+  for(let i = sparks.length - 1; i >= 0; i--){
+    const p = sparks[i];
+    p.x += p.vx; p.y += p.vy;
+    p.vy += cell * 0.012;                          // 一点重力，落得自然
+    p.vx *= 0.97; p.vy *= 0.97;
+    p.life -= p.dec;
+    if(p.life <= 0){ sparks.splice(i, 1); continue; }
+
+    const a = p.life;
+    g.fillStyle = 'rgba(255,' + ((90 + a*120) | 0) + ',' + ((30 + a*60) | 0) + ',' + (a * 0.95).toFixed(3) + ')';
+    g.fillRect(p.x - p.sz/2, p.y - p.sz/2, p.sz, p.sz);
+  }
+  g.globalCompositeOperation = 'source-over';
+}
+
+function draw(ts){
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  if(stone) g.drawImage(stone, 0, 0);            // 尺寸还没定下来时先不画底，别让首帧抛错
+  else { g.fillStyle = '#1B2027'; g.fillRect(0, 0, W, H); }
+  drawGlows(ts);
+  drawFood(ts);
+  drawRipples(ts);
+  drawSnake(ts);
+  drawSparks();
+
+  if(flash > 0.01){
+    g.fillStyle = 'rgba(255,90,30,' + (flash * 0.13).toFixed(3) + ')';
+    g.fillRect(0, 0, W, H);
+    flash *= 0.85;
+  } else flash = 0;
+}
+
+/* ── HUD ─────────────────────────────── */
+// speedMs() 的基准是 132ms，所以 1.0× 是初始速度、1.83× 是封顶。
+// 电量条按倍率画：开局就亮满，再快也不会溢出 —— 这条量程是「当前速度 / 基准」。
+const SPD_BASE = 132, SPD_MAX = 72;
+
+function hud(){
+  const sc = String(s.score), ln = String(s.snake.length);
+  const ms = speedMs();
+  const sp = (SPD_BASE / ms).toFixed(1);
+  if(elScore.textContent !== sc){
+    elScore.textContent = sc;
+    // 吃到了就跳一下。动作是分数变化的回声，不抢戏。
+    if(!REDUCED && elScore.animate){
+      elScore.animate(
+        [{ transform:'scale(1.12)' }, { transform:'scale(1)' }],
+        { duration:180, easing:'ease-out' }
+      );
+    }
+  }
+  if(elLen.textContent   !== ln) elLen.textContent   = ln;
+  if(elSpd.textContent !== sp) elSpd.textContent = sp;
+
+  // 让最佳分数也有轻微跳动反馈
+  if(elBest.textContent !== String(best)){
+    elBest.textContent = best;
+    elBest.classList.add('score-bump');
+    setTimeout(() => elBest.classList.remove('score-bump'), 300);
+  }
+
+  // 分段点亮：开局至少 1 段（否则看着像坏了），随分数往满格涨，末段换火把色。
+  // 段数用 SPD_BASE/ms 的倍率做映射，5 段跨 1.0×→1.83× 整个提速区间。
+  const k = (SPD_BASE - ms) / (SPD_BASE - SPD_MAX);          // 0 → 1
+  const lit = Math.max(1, Math.round(Math.min(1, Math.max(0, k)) * BARSEGS));
+  for(let i = 0; i < BARSEGS; i++){
+    const on = i < lit;
+    barEls[i].classList.toggle('on', on);
+    barEls[i].classList.toggle('hot', on && i >= BARSEGS - 1 && lit === BARSEGS);
+  }
+  barsEl.classList.toggle('is-max', lit === BARSEGS);
+}
+
+/* ── 主循环 ──────────────────────────── */
+function frame(ts){
+  requestAnimationFrame(frame);
+  const dt = last ? Math.min(60, ts - last) : 16;
+  last = ts;
+
+  if(mode === 'run'){
+    acc += dt;
+    const iv = speedMs();
+    if(acc > iv * 4) acc = iv * 4;
+    while(acc >= iv){ acc -= iv; gameStep(); }
+  }
+
+  if(!REDUCED){
+    energy += dt * 0.0055 * energyGain;
+    energyGain += (1 - energyGain) * 0.04;      // 开局注入一次强脉冲，然后回落到常态
+  }
+
+  draw(ts);
+  hud();
+}
+
+toReady();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

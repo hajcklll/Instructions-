@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Aripple_star — Redstone player · Liu Cixin reader · Code tinkerer</title>
-<meta name="description" content="Aripple_star's personal page: Minecraft redstone, Liu Cixin and science fiction, code, and a long dream of seeing the world.">
+<title>Aripple_star — Redstone, Liu Cixin, Code</title>
+<meta name="description" content="Aripple_star's personal page: Minecraft redstone, Liu Cixin and science fiction, some code, and a long dream of seeing the world.">
 <meta name="theme-color" content="#f3eee4">
-<meta property="og:title" content="Aripple_star — Redstone player · Liu Cixin reader · Code tinkerer">
-<meta property="og:description" content="Minecraft redstone, Liu Cixin and science fiction, code, and a long dream of seeing the world.">
+<meta property="og:title" content="Aripple_star — Redstone, Liu Cixin, Code">
+<meta property="og:description" content="Minecraft redstone, Liu Cixin and science fiction, some code, and a long dream of seeing the world.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hajcklll.github.io/Instructions-/">
 <meta property="og:image" content="https://hajcklll.github.io/Instructions-/share.jpg">
@@ -18,9 +18,10 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f3eee4'/%3E%3Cellipse cx='16' cy='16' rx='11' ry='5' fill='none' stroke='%239c5326' stroke-width='1.2' transform='rotate(-18 16 16)'/%3E%3Ccircle cx='16' cy='16' r='2.2' fill='%231f1b15'/%3E%3C/svg%3E">
 <link rel="preload" href="assets/fonts/gloock-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/bg-ridge-light.webp" as="image" type="image/webp">
-<link rel="stylesheet" href="styles.css?v=20261125c">
+<link rel="stylesheet" href="styles.css?v=20261126w">
 <script>
   if (location.search.indexOf('static') !== -1) document.documentElement.setAttribute('data-motion', 'off');
+  if (!location.hash && location.search.indexOf('cover=off') === -1) document.documentElement.classList.add('cover-open');
   document.documentElement.classList.add('js', 'm-enter');
   setTimeout(function () { document.documentElement.classList.add('m-enter-done'); }, 900);
   setTimeout(function () { document.documentElement.classList.add('i18n-ready'); }, 1500);
@@ -32,15 +33,27 @@
   <button class="lang__btn is-active" type="button" data-set-lang="zh" aria-pressed="true" lang="zh-CN">中文</button>
   <span class="lang__sep" aria-hidden="true">/</span>
   <button class="lang__btn" type="button" data-set-lang="en" aria-pressed="false" lang="en">EN</button>
+  <span class="lang__bead" aria-hidden="true"></span>
 </div>
+<button class="cover-return" type="button" data-cover-return data-i18n-aria="cover.backAria">
+  <svg class="cover-return__mark" viewBox="0 0 12 16" aria-hidden="true"><path d="M1 1h10v14L6 11 1 15Z"></path></svg>
+  <span data-i18n="cover.back">书签</span>
+</button>
 <div class="grain" aria-hidden="true"></div>
+<svg class="threads" aria-hidden="true">
+  <path class="threads__line" d=""></path>
+  <circle class="threads__node threads__node--from" r="2.1"></circle>
+  <circle class="threads__node threads__node--to" r="2.7"></circle>
+</svg>
 
 <button class="motion-toggle" type="button" aria-pressed="false" aria-label="暂停动效">
+  <span class="motion-toggle__orbit" aria-hidden="true"><i></i></span>
   <svg class="motion-toggle__pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3" width="2.2" height="10" rx=".6"></rect><rect x="9.8" y="3" width="2.2" height="10" rx=".6"></rect></svg>
   <svg class="motion-toggle__play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2 12.4 8 5 12.8Z"></path></svg>
 </button>
 
 <nav class="stations" aria-label="页面站点">
+  <span class="stations__rail" aria-hidden="true"><i class="stations__signal"></i></span>
   <ol class="stations__list">
     <li><a class="stations__item" href="#about" aria-label="关于"><span class="stations__dot"></span><span class="stations__label" data-i18n="nav.about">关于</span></a></li>
     <li><a class="stations__item" href="#numbers" aria-label="一些数字"><span class="stations__dot"></span><span class="stations__label" data-i18n="nav.numbers">一些数字</span></a></li>
@@ -52,6 +65,94 @@
     <li><a class="stations__item" href="#contact" aria-label="找到我"><span class="stations__dot"></span><span class="stations__label" data-i18n="nav.contact">找到我</span></a></li>
   </ol>
 </nav>
+
+<!-- ── 封面：晾衣绳上的便签 ─────────────────────── -->
+<section class="cover" id="cover" aria-labelledby="cover-title" data-cover>
+  <div class="cover-loader" aria-hidden="true">
+    <div class="cover-loader__inner">
+      <p class="cover-loader__mark">Aripple_star</p>
+      <span class="cover-loader__line"></span>
+      <p class="cover-loader__label" data-i18n="cover.loading">正在晾便签</p>
+    </div>
+  </div>
+  <div class="cover-leaves" aria-hidden="true">
+    <i class="cover-leaf cover-leaf--1"></i>
+    <i class="cover-leaf cover-leaf--2"></i>
+    <i class="cover-leaf cover-leaf--3"></i>
+    <i class="cover-leaf cover-leaf--4"></i>
+    <i class="cover-leaf cover-leaf--5"></i>
+    <i class="cover-leaf cover-leaf--6"></i>
+    <i class="cover-leaf cover-leaf--7"></i>
+    <i class="cover-leaf cover-leaf--8"></i>
+    <i class="cover-leaf cover-leaf--9"></i>
+  </div>
+  <div class="cover__inner wrap">
+    <p class="cover__eyebrow" data-i18n="cover.eyebrow">长梦轨道 · 晾着的便签</p>
+    <p class="cover__title" id="cover-title">Aripple_star</p>
+    <p class="cover__sub" data-i18n="cover.sub">一条晾衣绳，几张便签。第一张带你进门，最后一张去图书馆，中间两张自己会飞。</p>
+
+    <div class="cover__line">
+      <svg class="cover__rope" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M-40 24 C 260 34, 560 36, 800 32 S 1080 22, 1240 26"></path>
+        <path class="cover__rope-hi" d="M-40 26 C 260 36, 560 38, 800 34 S 1080 24, 1240 28"></path>
+      </svg>
+      <ul class="cover__notes">
+        <li class="cover-note cover-note--enter">
+          <span class="cover-note__pin" aria-hidden="true"></span>
+          <span class="cover-note__sway">
+            <a class="cover-note__body" href="?cover=off#main" data-cover-enter>
+              <span class="cover-note__word" data-i18n="cover.enter">进来</span>
+              <span class="cover-note__name">Aripple_star</span>
+              <span class="cover-note__arrow" aria-hidden="true">→</span>
+            </a>
+          </span>
+        </li>
+        <li class="cover-note" data-cover-quote="4">
+          <span class="cover-note__pin" aria-hidden="true"></span>
+          <span class="cover-note__sway">
+            <button class="cover-note__body" type="button">
+              <span class="cover-note__num" aria-hidden="true">01</span>
+              <span class="cover-note__word" data-i18n="cover.pull">抽一句</span>
+              <span class="cover-note__src"></span>
+            </button>
+          </span>
+        </li>
+        <li class="cover-note" data-cover-quote="7">
+          <span class="cover-note__pin" aria-hidden="true"></span>
+          <span class="cover-note__sway">
+            <button class="cover-note__body" type="button">
+              <span class="cover-note__num" aria-hidden="true">02</span>
+              <span class="cover-note__word" data-i18n="cover.pull">抽一句</span>
+              <span class="cover-note__src"></span>
+            </button>
+          </span>
+        </li>
+        <li class="cover-note cover-note--library">
+          <span class="cover-note__pin" aria-hidden="true"></span>
+          <span class="cover-note__sway">
+            <a class="cover-note__body" href="library.html?lang=zh" data-cover-library data-i18n-aria="cover.libraryAria">
+              <span class="cover-note__num" aria-hidden="true">03</span>
+              <span class="cover-note__word" data-i18n="cover.library">图书馆</span>
+              <span class="cover-note__src" data-i18n="cover.librarySrc">四本馆藏</span>
+              <span class="cover-note__arrow" aria-hidden="true">→</span>
+            </a>
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="cover__quote is-prompt" aria-live="polite">
+      <p class="cover__quote-text">
+        <span class="cover__quote-full sr-only"></span>
+        <span class="cover__quote-type" aria-hidden="true"></span>
+        <span class="cover__quote-caret" aria-hidden="true"></span>
+      </p>
+      <p class="cover__quote-src"></p>
+    </div>
+
+    <p class="cover__hint" data-i18n="cover.hint">第一张进门 · 最后一张去图书馆</p>
+  </div>
+</section>
 
 <main id="main">
 
@@ -83,7 +184,7 @@
         <span class="hero__name-line" aria-hidden="true"><span class="ch" style="--i:0">A</span><span class="ch" style="--i:1">r</span><span class="ch" style="--i:2">i</span><span class="ch" style="--i:3">p</span><span class="ch" style="--i:4">p</span><span class="ch" style="--i:5">l</span><span class="ch" style="--i:6">e</span><span class="ch" style="--i:7">_</span><span class="ch" style="--i:8">s</span><span class="ch" style="--i:9">t</span><span class="ch" style="--i:10">a</span><span class="ch" style="--i:11">r</span></span>
       </h1>
       <p class="hero__tag">
-        <span class="hero__tag-static" data-i18n="hero.tag">生电玩家 · 刘慈欣书迷 · 代码折腾者</span>
+        <span class="hero__tag-static" data-i18n="hero.tag">玩红石 · 读刘慈欣 · 写点代码</span>
         <span class="hero__tag-type" aria-hidden="true"><span class="hero__tag-text"></span><span class="hero__caret"></span></span>
       </p>
     </div>
@@ -103,20 +204,22 @@
 
   <!-- ── 关于 ───────────────────────────────────── -->
   <section class="section about phase-deep has-stars" id="about" aria-labelledby="about-h">
+    <div class="seam seam--valley" aria-hidden="true" style="--prev:#f3eee4; --i:1"></div>
     <div class="about__photo" aria-hidden="true"></div>
     <div class="wrap about__grid">
       <div class="about__copy">
         <h2 class="section-title" id="about-h" data-i18n="about.title">关于</h2>
-        <p class="about__lead" data-reveal style="--i:0" data-i18n="about.lead">随和，慢性子，偶尔犯懒。</p>
-        <p data-reveal style="--i:1" data-i18n-html="about.p1">喜欢在 Minecraft 里搭红石机器 —— 生电这块还是个小萌新，但看着机器自己跑起来的那一刻，是真会上瘾。也喜欢在编辑器里跟编译器较劲，敲点<span class="mark">没什么用但很好玩</span>的小玩意儿。</p>
-        <p data-reveal style="--i:2" data-i18n-html="about.p2">看刘慈欣的书，听音乐，看风景。“面壁”在《三体》里是面壁计划；签名里那句“面壁十年”，出自周恩来。</p>
-        <p class="about__dream" data-reveal style="--i:3" data-i18n="about.dream">梦想是走遍全世界：慢慢来，但一定要去。</p>
+        <p class="about__lead" data-reveal style="--i:0" data-i18n-html="about.lead">嗯，慢性子，<span class="nowrap">随和</span>，偶尔犯懒。</p>
+        <p data-reveal style="--i:1" data-i18n-html="about.p1">喜欢在 Minecraft 里搭红石机器。生电这块还是个小萌新啦，但机器自己跑起来的那一下，真的会看上瘾。也爱在编辑器里跟编译器较劲，敲点<span class="mark">没什么用、但很好玩</span>的小东西。</p>
+        <p data-reveal style="--i:2" data-i18n-html="about.p2">看刘慈欣，听歌，看风景。“面壁”在《三体》里是面壁计划；签名里的“面壁十年”，是周恩来写的。</p>
+        <p class="about__dream" data-reveal style="--i:3" data-i18n="about.dream">想走遍全世界。慢慢来，但一定要去。</p>
       </div>
       <figure class="about__figure" data-reveal style="--i:1">
         <div class="portrait">
           <span class="portrait__ring" aria-hidden="true"></span>
           <span class="portrait__dot" aria-hidden="true"></span>
           <img src="assets/avatar.webp" alt="Aripple_star 的头像" data-i18n-alt="about.avatarAlt" width="396" height="396" decoding="async">
+          <span class="portrait__shine" aria-hidden="true"></span>
         </div>
       </figure>
     </div>
@@ -124,6 +227,7 @@
 
   <!-- ── 一些数字 ───────────────────────────────── -->
   <section class="section numbers phase-predawn has-stars" id="numbers" aria-labelledby="numbers-h">
+    <div class="seam" aria-hidden="true" style="--prev:#f2ede3; --i:2"></div>
     <div class="wrap">
       <h2 class="section-title" id="numbers-h" data-i18n="numbers.title">一些数字</h2>
       <div class="readouts">
@@ -143,12 +247,13 @@
           <span class="readout-big__rule" aria-hidden="true"></span>
         </div>
       </div>
-      <p class="numbers__note" data-reveal style="--i:3" data-i18n="numbers.note">B 站数据截至 2026.11</p>
+      <p class="numbers__note" data-reveal style="--i:3" data-i18n="numbers.note">B 站数据，截至 2026.11</p>
     </div>
   </section>
 
   <!-- ── 在折腾什么 ─────────────────────────────── -->
   <section class="section doing phase-predawn-2 has-stars has-arc" id="doing" aria-labelledby="doing-h">
+    <div class="seam" aria-hidden="true" style="--prev:#f0ebe1; --i:3"></div>
     <div class="wrap">
       <h2 class="section-title" id="doing-h" data-i18n="doing.title">在折腾什么</h2>
       <ol class="pursuits">
@@ -156,7 +261,7 @@
           <span class="pursuit__pulse" aria-hidden="true"></span>
           <div class="pursuit__body">
             <h3 class="pursuit__title"><span class="pursuit__name" data-i18n="doing.1.title">Minecraft 生电</span> <span class="pursuit__key">redstone</span></h3>
-            <p class="pursuit__text" data-i18n="doing.1.text">红石机器爱好者，自称小萌新。喜欢自动化搭起来之后，那种“它自己会跑”的安静。</p>
+            <p class="pursuit__text" data-i18n="doing.1.text">红石机器爱好者，还是小萌新。喜欢自动化搭好之后，那种“它自己会跑”的安静。</p>
           </div>
           <svg class="pursuit__art" viewBox="0 0 140 84" aria-hidden="true">
             <path d="M8 62h34v-8H8zM48 54h22V44H48zM76 44h20v-8H76z" fill="none"></path>
@@ -169,7 +274,7 @@
           <span class="pursuit__pulse" aria-hidden="true"></span>
           <div class="pursuit__body">
             <h3 class="pursuit__title"><span class="pursuit__name" data-i18n="doing.2.title">科幻与刘慈欣</span> <span class="pursuit__key">fiction</span></h3>
-            <p class="pursuit__text" data-i18n="doing.2.text">看他的书，也看他把人的尺度放到宇宙里去量。《三体》的面壁计划，和签名里那句“面壁十年”，在我这儿是同一个姿势。</p>
+            <p class="pursuit__text" data-i18n="doing.2.text">看刘慈欣，也看他把人的尺度放到宇宙里量。《三体》的面壁计划，和签名里的“面壁十年”，在我这儿是同一个姿势。</p>
           </div>
           <svg class="pursuit__art" viewBox="0 0 140 84" aria-hidden="true">
             <circle cx="70" cy="44" r="18" fill="none"></circle>
@@ -182,7 +287,7 @@
           <span class="pursuit__pulse" aria-hidden="true"></span>
           <div class="pursuit__body">
             <h3 class="pursuit__title"><span class="pursuit__name" data-i18n="doing.3.title">写代码</span> <span class="pursuit__key">code</span></h3>
-            <p class="pursuit__text" data-i18n="doing.3.text">爱折腾各种小玩意儿，想到什么就动手试试。GitHub 上零零散散放了一些。</p>
+            <p class="pursuit__text" data-i18n="doing.3.text">爱折腾小玩意儿，想到什么就动手试试。GitHub 上零零散散放了一些。</p>
           </div>
           <svg class="pursuit__art" viewBox="0 0 140 84" aria-hidden="true">
             <path d="M34 24 16 42l18 18M62 24l18 18-18 18" fill="none"></path>
@@ -194,7 +299,7 @@
           <span class="pursuit__pulse" aria-hidden="true"></span>
           <div class="pursuit__body">
             <h3 class="pursuit__title"><span class="pursuit__name" data-i18n="doing.4.title">音乐与风景</span> <span class="pursuit__key">wander</span></h3>
-            <p class="pursuit__text" data-i18n="doing.4.text">耳机里放着歌，看窗外往后跑。走遍世界这件事，是早晚要做的。</p>
+            <p class="pursuit__text" data-i18n="doing.4.text">耳机里放着歌，看窗外往后跑。走遍世界这件事，早晚要做的。</p>
           </div>
           <svg class="pursuit__art" viewBox="0 0 140 84" aria-hidden="true">
             <path d="M8 60h124" fill="none"></path>
@@ -209,17 +314,18 @@
 
   <!-- ── 书单 ───────────────────────────────────── -->
   <section class="section reading phase-predawn has-stars" id="reading" aria-labelledby="reading-h">
+    <div class="seam" aria-hidden="true" style="--prev:#f1ece2; --i:4"></div>
     <div class="wrap">
       <h2 class="section-title" id="reading-h" data-i18n="reading.title">书单</h2>
-      <p class="reading__lead" data-reveal style="--i:0" data-i18n="reading.lead">如果你也是从《三体》进来的，这几本可以接着读。</p>
+      <p class="reading__lead" data-reveal style="--i:0" data-i18n="reading.lead">要是你也是从《三体》进来的，这几本可以接着看。</p>
       <ol class="reading__list">
         <li class="book" data-reveal style="--i:0">
           <h3 class="book__title"><span data-i18n="reading.1.title">《三体》三部曲</span> <span class="book__year">2006–2010</span></h3>
-          <p class="book__note" data-i18n="reading.1.note">面壁计划、黑暗森林、死神永生。先把这套读完，再读别的。</p>
+          <p class="book__note" data-i18n="reading.1.note">面壁计划、黑暗森林、死神永生。先读这套，别的以后再说。</p>
         </li>
         <li class="book" data-reveal style="--i:1">
           <h3 class="book__title"><span data-i18n="reading.2.title">《球状闪电》</span> <span class="book__year">2004</span></h3>
-          <p class="book__note" data-i18n="reading.2.note">宏电子、量子玫瑰，还有一场只在被观察时才存在的雨。</p>
+          <p class="book__note" data-i18n="reading.2.note">宏电子、量子玫瑰，还有一场只在你看着它时才存在的雨。</p>
         </li>
         <li class="book" data-reveal style="--i:2">
           <h3 class="book__title"><span data-i18n="reading.3.title">《超新星纪元》</span> <span class="book__year">1991</span></h3>
@@ -234,12 +340,13 @@
           <p class="book__note" data-i18n="reading.5.note">一个神级文明拆掉太阳系，只为存下所有可能的诗。</p>
         </li>
       </ol>
-      <p class="reading__note" data-reveal style="--i:5" data-i18n="reading.note">先读《三体》，再往外走；不是必读顺序。</p>
+      <p class="reading__note" data-reveal style="--i:5" data-i18n="reading.note">先读《三体》，再往外走。不是必读顺序，随便挑。</p>
     </div>
   </section>
 
   <!-- ── 两句话：滚动点亮的时刻 ─────────────────── -->
   <section class="section motto phase-dawn" id="motto" data-moment aria-labelledby="motto-h">
+    <div class="seam seam--sunrise" aria-hidden="true" style="--prev:#f0ebe1; --i:5"></div>
     <div class="motto__sticky">
       <div class="wrap motto__grid">
         <div class="motto__en">
@@ -249,8 +356,8 @@
           <p class="motto__gloss" data-i18n="motto.gloss">On the wall for ten years, to break through; failing to cross the sea, still a hero.</p>
         </div>
         <div class="motto__cn" data-reveal style="--i:2">
-          <p class="motto__line" lang="zh-CN"><span class="motto__dim">面壁十年图破壁</span><span class="motto__lit" aria-hidden="true">面壁十年图破壁</span></p>
-          <p class="motto__line" lang="zh-CN"><span class="motto__dim">难酬蹈海亦英雄</span><span class="motto__lit" aria-hidden="true">难酬蹈海亦英雄</span></p>
+          <p class="motto__line" lang="zh-CN"><span class="motto__dim">面壁十年图破壁</span><span class="motto__lit" aria-hidden="true">面壁十年图破壁</span><span class="motto__head" aria-hidden="true"></span></p>
+          <p class="motto__line" lang="zh-CN"><span class="motto__dim">难酬蹈海亦英雄</span><span class="motto__lit" aria-hidden="true">难酬蹈海亦英雄</span><span class="motto__head" aria-hidden="true"></span></p>
           <p class="motto__from" data-i18n="motto.source">周恩来</p>
         </div>
       </div>
@@ -259,10 +366,11 @@
 
   <!-- ── 诗云：星图里的引文 ─────────────────────── -->
   <section class="section poem phase-daybreak" id="poem" data-moment aria-labelledby="poem-h">
+    <div class="seam seam--stars" aria-hidden="true" style="--prev:#f3e9dc; --i:6"></div>
     <div class="wrap poem__grid">
       <div class="poem__head">
         <h2 class="section-title" id="poem-h" data-i18n="poem.title">诗云</h2>
-        <p class="poem__lead" data-reveal style="--i:0" data-i18n-html="poem.lead">刘慈欣写过一篇《诗云》—— 一个神级文明把整个<span class="nowrap">太阳系</span>拆了，用来存下所有可能的诗。我摘了几句自己认的话，散在这片星海里。靠近它们，会亮一点。</p>
+        <p class="poem__lead" data-reveal style="--i:0" data-i18n-html="poem.lead">刘慈欣写过《诗云》：一个神级文明把<span class="nowrap">太阳系</span>拆了，就为了存下所有可能的诗。我摘了几句自己认的话，散在星海里。靠近一点，它们会亮。</p>
       </div>
 
       <div class="poem__side" data-reveal style="--i:1">
@@ -335,15 +443,21 @@
 
   <!-- ── 关于这个页面 ───────────────────────────── -->
   <section class="section colophon phase-morning has-arc" id="colophon" aria-labelledby="colophon-h">
+    <div class="seam" aria-hidden="true" style="--prev:#f1efe7; --i:7"></div>
     <div class="wrap colophon__grid">
       <div>
         <h2 class="section-title" id="colophon-h" data-i18n="colophon.title">关于这个页面</h2>
         <p class="colophon__note" data-reveal style="--i:0" data-i18n="colophon.note">没有框架，没有构建步骤。想改哪儿，改哪儿。</p>
         <h3 class="log__title" data-reveal style="--i:1" data-i18n="log.title">轨道日志</h3>
         <ol class="log" data-i18n-aria="log.aria">
-          <li data-reveal style="--i:2"><time datetime="2026-11-25">2026.11.25</time><span data-i18n="log.3">为纪念黎曼猜想的一个证明被公布，诗云添了一枚独立诗签：临界线。</span></li>
-          <li data-reveal style="--i:3"><time datetime="2026-11-14">2026.11.14</time><span data-i18n="log.1">亮色纸本版：中英切换、书单、8 句诗云、默认英文。</span></li>
-          <li data-reveal style="--i:4"><time datetime="2026-11-14">2026.11.14</time><span data-i18n="log.2">长梦轨道初版：夜→日相位、首屏轨道、诗云星图。</span></li>
+          <li data-reveal style="--i:2"><time datetime="2026-11-26">2026.11.26</time><span data-i18n="log.8">回风、可读版与相册：飞走的书签会从上面飘回来再抽一句；溯梦有了线上阅读页；两页 opus 写进图书馆；又添了一本 11 张的游戏相册。</span></li>
+          <li data-reveal style="--i:3"><time datetime="2026-11-26">2026.11.26</time><span data-i18n="log.7">书页风起：封面添了落叶和随风晃的便签；图书馆挪到第 4 张，另添上课小创作和一本只在中文里的彩蛋。</span></li>
+          <li data-reveal style="--i:4"><time datetime="2026-11-26">2026.11.26</time><span data-i18n="log.6">图书馆版：把两本网页放上书架，另几本先写着未收录。</span></li>
+          <li data-reveal style="--i:5"><time datetime="2026-11-26">2026.11.26</time><span data-i18n="log.5">封面版：一条晾衣绳、四张便签；第一张进门，其余落下一句。</span></li>
+          <li data-reveal style="--i:6"><time datetime="2026-11-26">2026.11.26</time><span data-i18n="log.4">接缝版：上一相的纸色漫进下一节；站点轨有了进度；诗云牵一条从名单到星图的线。</span></li>
+          <li data-reveal style="--i:7"><time datetime="2026-11-25">2026.11.25</time><span data-i18n="log.3">为纪念黎曼猜想的一个证明被公布，诗云添了一枚独立诗签：临界线。</span></li>
+          <li data-reveal style="--i:8"><time datetime="2026-11-14">2026.11.14</time><span data-i18n="log.1">亮色纸本版：中英切换、书单、8 句诗云。</span></li>
+          <li data-reveal style="--i:9"><time datetime="2026-11-14">2026.11.14</time><span data-i18n="log.2">长梦轨道初版：夜→日相位、首屏轨道、诗云星图。</span></li>
         </ol>
       </div>
       <dl class="specs">
@@ -351,17 +465,19 @@
         <div class="spec" data-reveal style="--i:1"><dt data-i18n="colophon.type">字体</dt><dd data-i18n="colophon.type.text">Gloock 拉丁字面随站点本地加载；中文走系统衬线字体，不请求外部字体服务。</dd></div>
         <div class="spec" data-reveal style="--i:2"><dt data-i18n="colophon.zero">零外部请求</dt><dd data-i18n="colophon.zero.text">没有 CDN、统计脚本或第三方请求，断网也能看。</dd></div>
         <div class="spec" data-reveal style="--i:3"><dt data-i18n="colophon.canvas">Canvas</dt><dd data-i18n="colophon.canvas.text">首屏轨道是 SVG；诗云星图是 Canvas 2D，按需重绘。</dd></div>
-        <div class="spec" data-reveal style="--i:4"><dt data-i18n="colophon.motion">动效</dt><dd data-i18n="colophon.motion.text">版块进视口时轻轻上浮，章节标题逐字写出；以 transform、opacity 和颜色为主，尊重系统的减少动态设置，可以随时关掉。</dd></div>
+        <div class="spec" data-reveal style="--i:4"><dt data-i18n="colophon.motion">动效</dt><dd data-i18n="colophon.motion.text">版块进视口时轻轻上浮，章节标题逐字写出；接缝随滚动换相，站点轨亮起进度，诗云在名单与星图之间牵一条线。以 transform、opacity 和颜色为主，尊重系统的减少动态设置，可以随时关掉。</dd></div>
         <div class="spec" data-reveal style="--i:5"><dt data-i18n="colophon.hand">手写</dt><dd data-i18n="colophon.hand.text">没有依赖，没有编译。一个 HTML、一个 CSS、一个脚本，读完就能改。</dd></div>
+        <div class="spec" data-reveal style="--i:6"><dt data-i18n="colophon.seam">接缝</dt><dd data-i18n="colophon.seam.text">章节不是切开的：上一相的纸色会漫进下一节，照片在边界前先化开。</dd></div>
       </dl>
     </div>
   </section>
 
   <!-- ── 找到我 ─────────────────────────────────── -->
   <section class="section contact phase-day" id="contact" aria-labelledby="contact-h">
+    <div class="seam seam--noon" aria-hidden="true" style="--prev:#f3efe5; --i:8"></div>
     <div class="wrap contact__inner">
       <h2 class="section-title contact__title" id="contact-h" data-i18n="contact.title">找到我</h2>
-      <p class="contact__lead" data-reveal style="--i:0" data-i18n="contact.lead">B 站、GitHub、邮箱，三个地方都能找到我。</p>
+      <p class="contact__lead" data-reveal style="--i:0" data-i18n="contact.lead">想找我的话，B 站、GitHub、邮箱都行。回得可能慢一点，但会看。</p>
 
       <div class="contact__links">
         <a class="contact__link" data-reveal style="--i:0" href="https://space.bilibili.com/3546669826181699" target="_blank" rel="noopener noreferrer">
@@ -383,7 +499,8 @@
 
       <footer class="footer" data-reveal style="--i:3">
         <p>Aripple_star · 2026</p>
-        <p data-i18n="footer.credit">Gloock by Duarte Pinto, SIL OFL 1.1 · 摄影 Unsplash · 星空 NASA/ESA（Hubble XDF） · 数据截至 2026.11</p>
+        <p class="footer__credit" tabindex="0" data-i18n="footer.credit">Gloock by Duarte Pinto, SIL OFL 1.1 · 摄影 Unsplash · 星空 NASA/ESA（Hubble XDF） · 数据截至 2026.11</p>
+        <p class="footer__key" lang="en" aria-hidden="true">spare key · <b>123456889</b></p>
         <a class="footer__top" href="#hero"><span data-i18n="footer.top">回到轨道顶部</span> <svg class="footer__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4"></path></svg></a>
       </footer>
     </div>
@@ -396,13 +513,13 @@
   "@context": "https://schema.org",
   "@type": "Person",
   "name": "Aripple_star",
-  "description": "生电玩家、刘慈欣书迷、代码折腾者。",
+  "description": "玩红石、读刘慈欣、写点代码。",
   "sameAs": [
     "https://github.com/hajcklll",
     "https://space.bilibili.com/3546669826181699"
   ]
 }
 </script>
-<script src="script.js?v=20261125c"></script>
+<script src="script.js?v=20261126w"></script>
 </body>
 </html>
